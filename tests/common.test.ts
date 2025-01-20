@@ -2,19 +2,20 @@ import { assertEquals } from "@std/assert";
 import {
   digit,
   integer,
-  take,
   letter,
   listOfInts,
   literal,
   lower,
   natural,
+  take,
   takeTwo,
   upper,
 } from "../examples/common.ts";
 import { any, repeat } from "../index.ts";
+import { takeError, takeTwoError } from "../errors.Ts";
 
 Deno.test("item", () => {
-  assertEquals(take.parse(""), []);
+  assertEquals(take.parse(""), [{ error: takeError }]);
   assertEquals(take.parse("monad"), [{
     value: "m",
     remaining: "onad",
@@ -22,7 +23,7 @@ Deno.test("item", () => {
 });
 
 Deno.test("two items", () => {
-  assertEquals(takeTwo.parse("m"), []);
+  assertEquals(takeTwo.parse("m"), [{ error: "line 1: " + takeTwoError("m") }]);
   assertEquals(takeTwo.parse("monad"), [{
     value: "mo",
     remaining: "nad",

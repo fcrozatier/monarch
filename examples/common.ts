@@ -1,3 +1,4 @@
+import { takeError, takeTwoError } from "../errors.Ts";
 import {
   bracket,
   createParser,
@@ -44,7 +45,7 @@ export const take: Parser<string> = createParser((input) => {
   if (input.length > 0) {
     return [{ value: input[0], remaining: input.slice(1) }];
   }
-  return [];
+  return [{ error: takeError }];
 });
 
 /**
@@ -52,7 +53,7 @@ export const take: Parser<string> = createParser((input) => {
  */
 export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
   arr.join("")
-);
+).error(takeTwoError);
 
 /**
  * Parses white space

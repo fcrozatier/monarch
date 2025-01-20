@@ -10,10 +10,22 @@ type ParseResult<T> = {
  * The monadic parser class
  */
 export class Parser<T> {
-  parse: (input: State) => ParseResult<T>[];
+  line = 1;
+  #input!: string;
+  #error?: (input: string) => string;
+  #parse: (input: State) => ParseResult<T>[];
 
   constructor(parse: (input: State) => ParseResult<T>[]) {
-    this.parse = parse;
+    this.#parse = parse;
+  }
+
+  parse(input: string): ParseResult<T>[] {
+    this.#input = input;
+    const results = this.#parse(input);
+    if (results.every((r) => r.error) && this.#error) {
+      return [{ error: `line ${this.line}: ${this.#error(this.#input)}` }];
+    }
+    return results;
   }
 
   /**
@@ -21,7 +33,7 @@ export class Parser<T> {
    */
   map<U>(transform: (value: T) => U): Parser<U> {
     return createParser((input) => {
-      return this.parse(input).map((result) => ({
+      return this.#parse(input).map((result) => ({
         ...result,
         value: result?.value !== undefined
           ? transform(result.value)
@@ -35,9 +47,9 @@ export class Parser<T> {
    */
   apply<U>(fn: Parser<(value: T) => U>): Parser<U> {
     return createParser((input: State) => {
-      return fn.parse(input).flatMap(({ value, remaining, error }) => {
+      return fn.#parse(input).flatMap(({ value, remaining, error }) => {
         if (value && remaining !== undefined) {
-          return this.parse(remaining).map((res) => {
+          return this.#parse(remaining).map((res) => {
             if (res.value && res.remaining) {
               return {
                 value: value(res.value),
@@ -57,9 +69,9 @@ export class Parser<T> {
    */
   bind<U>(transform: (value: T) => Parser<U>): Parser<U> {
     return createParser((input: State) => {
-      return this.parse(input).flatMap(({ value, remaining, error }) => {
+      return this.#parse(input).flatMap(({ value, remaining, error }) => {
         if (value !== undefined && remaining !== undefined) {
-          return transform(value).parse(remaining);
+          return transform(value).#parse(remaining);
         } else if (error) {
           return [{ error }];
         }
@@ -73,8 +85,13 @@ export class Parser<T> {
    */
   plus(...parsers: Parser<T>[]): Parser<T> {
     return createParser((input) => {
-      return [this, ...parsers].flatMap((parser) => parser.parse(input));
+      return [this, ...parsers].flatMap((parser) => parser.#parse(input));
     });
+  }
+
+  error(cb: (input: string) => string) {
+    this.#error = cb;
+    return this;
   }
 }
 
