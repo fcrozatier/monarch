@@ -8,12 +8,16 @@ const data = `
 "Carl",  "M",   32,   70,           155`.trim();
 
 Deno.test("csv", () => {
-  assertEquals(csv.parse(data), [{
-    value: [
-      { name: "Alex", sex: "M", age: 41, height: 74, weight: 170 },
-      { name: "Bert", sex: "M", age: 42, height: 68, weight: 166 },
-      { name: "Carl", sex: "M", age: 32, height: 70, weight: 155 },
-    ],
-    remaining: "",
-  }]);
+  assertEquals(csv.parse(data), {
+    success: true,
+    results: [{
+      value: [
+        { name: "Alex", sex: "M", age: 41, height: 74, weight: 170 },
+        { name: "Bert", sex: "M", age: 42, height: 68, weight: 166 },
+        { name: "Carl", sex: "M", age: 32, height: 70, weight: 155 },
+      ],
+      remaining: "",
+      position: { line: 4, column: 39 },
+    }],
+  });
 });

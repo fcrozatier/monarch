@@ -1,5 +1,5 @@
 /**
- * Example parser for simple arithmetic expressions
+ * Simple interpreter for arithmetic expressions
  */
 
 import {

@@ -3,7 +3,7 @@
  */
 
 import { bracket, first, type Parser, result, sepBy } from "../index.ts";
-import { integer, token, word } from "./common.ts";
+import { integer, letters, token } from "./common.ts";
 
 /**
  * Zips arrays of the same length
@@ -17,7 +17,7 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
   });
 };
 
-const string = bracket(token('"'), word, token('"'));
+const string = bracket(token('"'), letters, token('"'));
 const item = first<string | number>(integer, string);
 
 const header: Parser<

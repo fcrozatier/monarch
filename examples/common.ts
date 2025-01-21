@@ -1,8 +1,6 @@
-import { takeError, takeTwoError } from "../errors.Ts";
 import {
   bracket,
   createParser,
-  filter,
   first,
   foldL1,
   many,
@@ -11,83 +9,119 @@ import {
   result,
   sepBy1,
   sequence,
+  updatePosition,
 } from "../index.ts";
+import { parseErrors } from "../messages.ts";
 
 type Predicate = (input: string) => boolean;
-type RegexPredicate = (regex: RegExp) => Predicate;
 
-export const regexPredicate: RegexPredicate =
-  (regex: RegExp) => (input: string) => regex.test(input);
-
-export const isAlphaNum: Predicate = regexPredicate(/^\w/);
-export const isLetter: Predicate = regexPredicate(/^[a-zA-Z]/);
-export const isLower: Predicate = regexPredicate(/^[a-z]/);
-export const isUpper: Predicate = regexPredicate(/^[A-Z]/);
-export const isDigit: Predicate = regexPredicate(/^\d/);
-export const isSpace: Predicate = regexPredicate(/^\s/);
+/**
+ * Builds a predicate from a regex
+ */
+export function regexPredicate(regex: RegExp): Predicate {
+  return (input: string) => regex.test(input);
+}
 
 /**
  * Creates a parser matching against a given regex
  */
-export const regex = (re: RegExp): Parser<string> => {
-  return createParser((input) => {
+export function regex(re: RegExp): Parser<string> {
+  return createParser((input, position) => {
     const match = input.match(re);
-    return match && match.index === 0
-      ? [{ value: match[0], remaining: input.slice(match[0].length) }]
-      : [];
+
+    if (!match) {
+      return {
+        success: false,
+        message: `Expected to match against regex ${re}`,
+        position,
+      };
+    }
+
+    const value = match[0];
+    const newPosition = updatePosition(position, value);
+
+    return {
+      success: true,
+      results: [
+        { value, remaining: input.slice(value.length), position: newPosition },
+      ],
+    };
   });
-};
+}
 
 /**
  * Parses the next character
  */
-export const take: Parser<string> = createParser((input) => {
-  if (input.length > 0) {
-    return [{ value: input[0], remaining: input.slice(1) }];
-  }
-  return [{ error: takeError }];
-});
+export const take: Parser<string> = createParser(
+  (input, position) => {
+    if (input.length === 0) {
+      return {
+        success: false,
+        message: parseErrors.takeError,
+        position,
+      };
+    }
+
+    const consumed = input[0];
+    const newPosition = updatePosition(position, consumed);
+
+    return {
+      success: true,
+      results: [{
+        value: consumed,
+        position: newPosition,
+        remaining: input.slice(1),
+      }],
+    };
+  },
+);
 
 /**
  * Parses the next two characters
  */
 export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
   arr.join("")
-).error(takeTwoError);
+).error(parseErrors.takeTwoError);
 
 /**
- * Parses white space
+ * Parses white space (0 or more)
+ *
+ * Regex: /\s*\/
  */
 export const whitespace: Parser<string> = regex(/\s*/);
 
 /**
  * Discards trailing spaces
  */
-export const trimEnd: <T>(parser: Parser<T>) => Parser<T> = <T>(
-  parser: Parser<T>,
-) => {
+export function trimEnd<T>(parser: Parser<T>): Parser<T> {
   return parser.bind((p) => whitespace.bind(() => result(p)));
-};
+}
 
 /**
  * Parses a given string
  */
-export const literal: (value: string) => Parser<string> = (value: string) => {
-  return (createParser((input) => {
-    if (input.startsWith(value)) {
-      return [{ value, remaining: input.slice(value.length) }];
-    } else {
-      return [
-        {
-          error:
-            (`Expected ${value}, but got '${
-              input.slice(0, value.length) || "EOI"
-            }'`),
-        },
-      ];
+export function literal(value: string): Parser<string> {
+  return (createParser((input, position) => {
+    if (!input.startsWith(value)) {
+      return {
+        success: false,
+        position,
+        message: `Expected ${value}, but got '${
+          input.slice(0, value.length) || "EOI"
+        }'`,
+      };
     }
+
+    return {
+      success: true,
+      results: [{
+        value,
+        remaining: input.slice(value.length),
+        position: updatePosition(position, value),
+      }],
+    };
   }));
-};
+}
 
 /**
  * Parses a keyword and discards trailing spaces
@@ -100,32 +134,41 @@ export const keyword: (value: string) => Parser<string> = (value: string) =>
  * Parses a token and discards trailing spaces
  * Alias: keyword
  */
-export const token: (value: string) => Parser<string> = (value: string) =>
-  trimEnd(literal(value));
+export function token(value: string): Parser<string> {
+  return trimEnd(literal(value));
+}
 
 /**
  * Parses a single letter (case insensitive)
+ *
+ * Regex: /^[a-zA-Z]/
  */
-export const letter: Parser<string> = filter(take, isLetter);
-
-/**
- * Pareses a single lower case letter
- */
-export const lower: Parser<string> = filter(take, isLower);
-
-/**
- * Pareses a single upper case letter
- */
-export const upper: Parser<string> = filter(take, isUpper);
+export const letter: Parser<string> = regex(/^[a-zA-Z]/).error(
+  parseErrors.letter,
+);
 
 /**
  * Parser a string of letters
  */
-export const word: Parser<string> = many(letter).map((letters) =>
+export const letters: Parser<string> = many(letter).map((letters) =>
   letters.join("")
 );
 
-export const alphaNum: Parser<string> = many(filter(take, isAlphaNum)).map((
+/**
+ * Pareses a single lower case letter
+ *
+ * * Regex: /^[a-z]/
+ */
+export const lower: Parser<string> = regex(/^[a-z]/).error(parseErrors.lower);
+
+/**
+ * Pareses a single upper case letter
+ *
+ * * Regex: /^[A-Z]/
+ */
+export const upper: Parser<string> = regex(/^[A-Z]/).error(parseErrors.upper);
+
+export const alphaNum: Parser<string> = many(regex(/^\w/)).map((
   letters,
 ) => letters.join(""));
 
@@ -135,8 +178,12 @@ export const identifier: Parser<string> = trimEnd(
 
 /**
  * Parses a single digit
+ *
+ * * Regex: /^\d/
  */
-export const digit: Parser<number> = filter(take, isDigit).map(Number.parseInt);
+export const digit: Parser<number> = regex(/^\d/).map(Number.parseInt).error(
+  parseErrors.digit,
+);
 
 /**
  * Parses a natural number
@@ -144,7 +191,7 @@ export const digit: Parser<number> = filter(take, isDigit).map(Number.parseInt);
 export const natural: Parser<number> = trimEnd(foldL1(
   digit,
   result((a: number, b: number) => 10 * a + b),
-));
+)).error(parseErrors.natural);
 
 /**
  * Parses an integer (element of ℤ)
@@ -153,39 +200,34 @@ export const integer: Parser<number> = trimEnd(first(
   literal("-").bind(() => natural).map((x) => -x),
   literal("+").bind(() => natural).map((x) => x),
   natural,
-));
+)).error(parseErrors.integer);
 
 /**
  * Parses a decimal number aka a float
  */
 export const decimal: Parser<number> = trimEnd(
-  sequence([integer, literal("."), natural]).map(([pre, _, post]) =>
-    pre + Math.pow(10, -Math.ceil(Math.log10(post))) * post
-  ),
-);
+  sequence([integer, literal("."), natural]).map(([pre, _, post]) => {
+    return pre +
+      Math.sign(pre) * Math.pow(10, -Math.ceil(Math.log10(post))) * post;
+  }),
+).error(parseErrors.decimal);
 
 /**
  * Parses a number as decimal | integer
  */
-export const number: Parser<number> = first(decimal, integer);
+export const number: Parser<number> = first(decimal, integer).error(
+  parseErrors.number,
+);
 
-export const listOf: <T>(p: Parser<T>) => Parser<T[]> = <T>(p: Parser<T>) =>
-  bracket(
+/**
+ * Utility parser builder that expects the list syntax [p(,p)+]
+ */
+export function listOf<T>(p: Parser<T>): Parser<T[]> {
+  return bracket(
     token("["),
     sepBy1(p, token(",")),
     token("]"),
   );
+}
 
 export const listOfInts: Parser<number[]> = listOf(integer);
-
-const assertDigit = createParser((input) => {
-  return /^\d/.test(input)
-    ? [{ value: input[0], remaining: input.slice(1) }]
-    : [{ error: `Expected a digit but got ${input[0] || "EOI"}` }];
-});
-
-const assertletter = createParser((input) => {
-  return /^[a-zA-Z]/.test(input)
-    ? [{ value: input[0], remaining: input.slice(1) }]
-    : [{ error: `Expected a letter but got ${input[0] || "EOI"}` }];
-});

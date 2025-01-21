@@ -1,66 +1,95 @@
-type State = string;
+type Position = {
+  line: number;
+  column: number;
+};
+
+type ParseError = {
+  success: false;
+  message: string;
+  position: Position;
+};
 
 type ParseResult<T> = {
-  value?: T;
-  remaining?: State;
-  error?: string;
+  success: true;
+  results: {
+    value: T;
+    remaining: string;
+    position: Position;
+  }[];
+} | ParseError;
+
+type ParsingHandler<T> = (
+  input: string,
+  position: Position,
+) => ParseResult<T>;
+
+/**
+ * Utility to compute the new position from the current position and the consumed string
+ */
+export const updatePosition = (
+  position: Position,
+  consumed: string,
+): Position => {
+  const lines = consumed.split("\n");
+  const newLines = lines.length > 1;
+
+  return {
+    line: position.line + lines.length - 1,
+    column: newLines
+      ? lines.at(-1)!.length
+      : position.column + lines.at(-1)!.length,
+  };
+};
+
+/**
+ * Utility to sort positions in a descending (line, column) order
+ */
+export const sortPosition = (a: Position, b: Position): number => {
+  if (a.line !== b.line) return b.line - a.line;
+  return b.column - a.column;
 };
 
 /**
  * The monadic parser class
  */
 export class Parser<T> {
-  line = 1;
-  #input!: string;
-  #error?: (input: string) => string;
-  #parse: (input: State) => ParseResult<T>[];
+  #parse: ParsingHandler<T>;
+  #error = "";
 
-  constructor(parse: (input: State) => ParseResult<T>[]) {
+  constructor(parse: ParsingHandler<T>) {
     this.#parse = parse;
   }
 
-  parse(input: string): ParseResult<T>[] {
-    this.#input = input;
-    const results = this.#parse(input);
-    if (results.every((r) => r.error) && this.#error) {
-      return [{ error: `line ${this.line}: ${this.#error(this.#input)}` }];
+  parse(
+    input: string,
+    position: Position = { line: 1, column: 0 },
+  ): ParseResult<T> {
+    const result = this.#parse(input, position);
+
+    if (!result.success && this.#error) {
+      return { success: false, message: this.#error, position };
     }
-    return results;
+
+    return result;
   }
 
   /**
    * Transforms a parser of type T into a parser of type U
    */
   map<U>(transform: (value: T) => U): Parser<U> {
-    return createParser((input) => {
-      return this.#parse(input).map((result) => ({
-        ...result,
-        value: result?.value !== undefined
-          ? transform(result.value)
-          : undefined,
-      }));
-    });
-  }
+    return createParser((input, position) => {
+      const result = this.parse(input, position);
 
-  /**
-   * Applies a function parser to a lifted value
-   */
-  apply<U>(fn: Parser<(value: T) => U>): Parser<U> {
-    return createParser((input: State) => {
-      return fn.#parse(input).flatMap(({ value, remaining, error }) => {
-        if (value && remaining !== undefined) {
-          return this.#parse(remaining).map((res) => {
-            if (res.value && res.remaining) {
-              return {
-                value: value(res.value),
-                remaining: res.remaining,
-              } satisfies ParseResult<U>;
-            }
-            return { error: res.error };
-          });
-        }
-        return [{ error }];
-      });
+      if (!result.success) return result;
+
+      return {
+        success: true,
+        results: result.results.map(({ value, remaining, position }) => ({
+          value: transform(value),
+          remaining,
+          position,
+        })),
+      };
     });
   }
 
@@ -68,15 +97,33 @@ export class Parser<T> {
    * Monadic sequencing of parsers
    */
   bind<U>(transform: (value: T) => Parser<U>): Parser<U> {
-    return createParser((input: State) => {
-      return this.#parse(input).flatMap(({ value, remaining, error }) => {
-        if (value !== undefined && remaining !== undefined) {
-          return transform(value).#parse(remaining);
-        } else if (error) {
-          return [{ error }];
-        }
-        return [];
-      });
+    return createParser((input, position) => {
+      const result = this.parse(input, position);
+
+      if (!result.success) return result;
+
+      const nextResults = result.results.map(
+        ({ position, remaining, value }) => {
+          return transform(value).parse(remaining, position);
+        },
+      );
+
+      if (nextResults.every((r) => r.success === false)) {
+        // Heuristic: return the error message of the most successful parse
+        const error = nextResults.sort((a, b) =>
+          sortPosition(a.position, b.position)
+        )[0];
+
+        return error;
+      }
+
+      const results = nextResults.filter((r) => r.success === true).flatMap((
+        r,
+      ) => r.results);
+      return {
+        success: true,
+        results,
+      };
     });
   }
 
@@ -84,13 +131,30 @@ export class Parser<T> {
    * Concatenates the resulting parse arrays
    */
   plus(...parsers: Parser<T>[]): Parser<T> {
-    return createParser((input) => {
-      return [this, ...parsers].flatMap((parser) => parser.#parse(input));
+    return createParser((input, position) => {
+      const results = [this, ...parsers].map((parser) =>
+        parser.#parse(input, position)
+      );
+
+      if (results.every((r) => r.success === false)) {
+        // Heuristic: return the error message of the most successful parse
+        const error = results.sort((a, b) =>
+          sortPosition(a.position, b.position)
+        )[0];
+
+        return error;
+      }
+      return {
+        success: true,
+        results: results.filter((r) => r.success === true).flatMap((r) =>
+          r.results
+        ),
+      };
     });
   }
 
-  error(cb: (input: string) => string) {
-    this.#error = cb;
+  error(message: string): this {
+    this.#error = message;
     return this;
   }
 }
@@ -98,7 +162,7 @@ export class Parser<T> {
 // Helpers
 
 export const createParser = <T>(
-  fn: (input: State) => ParseResult<T>[],
+  fn: ParsingHandler<T>,
 ): Parser<T> => new Parser(fn);
 
 /**
@@ -107,28 +171,22 @@ export const createParser = <T>(
  * Succeeds without consuming any of the input string
  */
 export const result = <T>(value: T): Parser<T> => {
-  return createParser((remaining: State) => [{ value, remaining }]);
+  return createParser((
+    remaining,
+    position,
+  ) => ({ success: true, results: [{ value, remaining, position }] }));
 };
 
 /**
  * The always failing parser
  *
- * It is the unit of alternation and plus, and also is an absorbing element of flatMap
+ * It is the unit of alternation and plus, and also is an absorbing element of bind
  */
-export const zero: Parser<any> = createParser((_: State) => []);
-
-/**
- * Decorator that makes a parser return an error message if it fails
- */
-export const orThrow = <T>(parser: Parser<T>, error: string): Parser<T> => {
-  return createParser((input) => {
-    const results = parser.parse(input);
-    if (results.filter((result) => result.value !== undefined).length > 0) {
-      return results;
-    }
-    return [{ error }];
-  });
-};
+export const zero: Parser<any> = createParser((_, position) => ({
+  success: false,
+  message: "",
+  position,
+}));
 
 // Combinators
 
@@ -160,15 +218,15 @@ export const sequence = <const A extends readonly Parser<any>[]>(
 /**
  * Utility combinator for the common open-body-close pattern
  */
-export const bracket = <T, U, V>(
+export function bracket<T, U, V>(
   openBracket: Parser<T>,
   body: Parser<U>,
   closeBracket: Parser<V>,
-): Parser<U> => {
+): Parser<U> {
   return sequence([openBracket, body, closeBracket]).bind((arr) =>
     result(arr[1])
   );
-};
+}
 
 // Alternation
 
@@ -176,14 +234,23 @@ export const bracket = <T, U, V>(
  * Returns all matching parses
  */
 export const any = <T>(...parsers: Parser<T>[]): Parser<T> => {
-  return createParser((input) => {
-    const results = parsers.flatMap((parser) => parser.parse(input));
+  return createParser((input, position) => {
+    const results = parsers.map((parser) => parser.parse(input, position));
 
-    if (results.some((res) => res.value !== undefined)) {
-      return results.filter((res) => res.value !== undefined);
+    if (results.every((r) => r.success === false)) {
+      const error = results.sort((a, b) =>
+        sortPosition(a.position, b.position)
+      )[0];
+
+      return error;
     }
 
-    return [];
+    return {
+      success: true,
+      results: results.filter((res) => res.success === true).flatMap((r) =>
+        r.results
+      ),
+    };
   });
 };
 
@@ -195,14 +262,19 @@ export const any = <T>(...parsers: Parser<T>[]): Parser<T> => {
 export const first = <T>(
   ...parsers: Parser<T>[]
 ): Parser<T> => {
-  return createParser((input) => {
+  return createParser((input, position) => {
+    const results = [];
     for (const parser of parsers) {
-      const results = parser.parse(input);
-      if (results.find((res) => res.value !== undefined)) {
-        return results.filter((res) => res.value !== undefined);
-      }
+      const result = parser.parse(input, position);
+      if (result.success === true) return result;
+      results.push(result);
     }
-    return [];
+
+    const error = results.sort((a, b) =>
+      sortPosition(a.position, b.position)
+    )[0];
+
+    return error;
   });
 };
 
@@ -328,15 +400,22 @@ export const foldR = <T, U extends (a: T, b: T) => T>(
 export const filter = <T>(
   parser: Parser<T>,
   predicate: (value: T) => boolean,
-  error?: string,
 ): Parser<T> => {
-  return parser.bind((value) => {
-    if (predicate(value)) {
-      return result(value);
-    } else if (error) {
-      return createParser(() => [{ error }]);
+  return createParser((input, position) => {
+    const result = parser.parse(input, position);
+
+    if (!result.success) return result;
+
+    const results = result.results.filter((r) => predicate(r.value));
+
+    if (results.length === 0) {
+      return {
+        success: false,
+        message: "Expected to match against predicate",
+        position,
+      };
     }
-    return zero;
+    return { success: true, results };
   });
 };
 
@@ -348,11 +427,11 @@ export const filter = <T>(
 export const memoize = <T>(parserThunk: () => Parser<T>): Parser<T> => {
   let parser: Parser<T>;
 
-  return createParser((input) => {
+  return createParser((input, position) => {
     if (!parser) {
       parser = parserThunk();
     }
-    return parser.parse(input);
+    return parser.parse(input, position);
   });
 };
 
@@ -362,7 +441,7 @@ export const memoize = <T>(parserThunk: () => Parser<T>): Parser<T> => {
  * This helps with undeclared variable references in recursive grammars
  */
 export const lazy = <T>(parserThunk: () => Parser<T>): Parser<T> => {
-  return createParser((input) => {
-    return parserThunk().parse(input);
+  return createParser((input, position) => {
+    return parserThunk().parse(input, position);
   });
 };
