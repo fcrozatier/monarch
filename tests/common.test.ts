@@ -171,7 +171,7 @@ Deno.test("filter even", () => {
 Deno.test("literal", () => {
   assertEquals(literal("m").parse("a"), {
     success: false,
-    message: "Expected m, but got 'a'",
+    message: "Expected 'm', but got 'a'",
     position: { line: 1, column: 0 },
   });
 
@@ -195,7 +195,7 @@ Deno.test("literal", () => {
 
   assertEquals(literal("hello").parse("helicopter"), {
     success: false,
-    message: "Expected hello, but got 'helic'",
+    message: "Expected 'hello', but got 'helic'",
     position: { line: 1, column: 0 },
   });
 });
@@ -281,7 +281,7 @@ Deno.test("list of integers", () => {
 
   assertEquals(listOfInts.parse("1 ,  -2, 3] and more"), {
     success: false,
-    message: "Expected [, but got '1'",
+    message: "Expected '[', but got '1'",
     position: { line: 1, column: 0 },
   });
 
@@ -293,7 +293,7 @@ Deno.test("list of integers", () => {
 
   assertEquals(listOfInts.parse("[1  -2, 3] and more"), {
     success: false,
-    message: "Expected ], but got '-'",
+    message: "Expected ']', but got '-'",
     position: { line: 1, column: 4 },
   });
 });

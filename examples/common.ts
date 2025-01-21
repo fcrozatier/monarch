@@ -106,7 +106,7 @@ export function literal(value: string): Parser<string> {
       return {
         success: false,
         position,
-        message: `Expected ${value}, but got '${
+        message: `Expected '${value}', but got '${
           input.slice(0, value.length) || "EOI"
         }'`,
       };
