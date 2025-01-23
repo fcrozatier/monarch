@@ -204,7 +204,7 @@ export const parseOrThrow = <T>(
   if (!result.success) {
     const lines = input.split("\n");
     const { line } = result.position;
-    const snippet = lines[line];
+    const snippet = lines[line - 1];
 
     throw new ParseError(
       result.position,
