@@ -78,6 +78,29 @@ export class Parser<T> {
   }
 
   /**
+   * Parse an input with a given parser and extract the first result value or throw if the parse fails
+   */
+  parseOrThrow(
+    input: string,
+  ): T {
+    const result = this.parse(input);
+
+    if (!result.success) {
+      const lines = input.split("\n");
+      const { line } = result.position;
+      const snippet = lines[line - 1];
+
+      throw new ParseError(
+        result.position,
+        result.message,
+        snippet,
+      );
+    }
+
+    return result.results[0].value;
+  }
+
+  /**
    * Transforms a parser of type T into a parser of type U
    */
   map<U>(transform: (value: T) => U): Parser<U> {
@@ -191,30 +214,6 @@ export const zero: Parser<any> = createParser((_, position) => ({
   message: "",
   position,
 }));
-
-/**
- * Parse an input with a given parser and extract the first result value or throw if the parse fails
- */
-export const parseOrThrow = <T>(
-  parser: Parser<T>,
-  input: string,
-): T => {
-  const result = parser.parse(input);
-
-  if (!result.success) {
-    const lines = input.split("\n");
-    const { line } = result.position;
-    const snippet = lines[line - 1];
-
-    throw new ParseError(
-      result.position,
-      result.message,
-      snippet,
-    );
-  }
-
-  return result.results[0].value;
-};
 
 // Combinators
 

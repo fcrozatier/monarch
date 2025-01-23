@@ -1,16 +1,15 @@
 import { assertEquals, assertIsError, assertThrows } from "@std/assert";
+import { ParseError } from "../errors.ts";
 import { digit, letter, literal, take, takeTwo } from "../examples/common.ts";
 import {
   any,
   iterate,
   many,
   many1,
-  parseOrThrow,
   result,
   sequence,
-  zero,
+  zero
 } from "../index.ts";
-import { ParseError } from "../errors.ts";
 
 Deno.test("zero is an absorbing element of bind", () => {
   assertEquals(zero.bind(() => take).parse("m"), zero.parse("m"));
@@ -124,12 +123,12 @@ Deno.test("explore", () => {
 });
 
 Deno.test("parse error", () => {
-  assertEquals(parseOrThrow(take, "monad"), "m");
+  assertEquals(take.parseOrThrow("monad"), "m");
 
-  assertThrows(() => parseOrThrow(digit, "monad"));
+  assertThrows(() => (digit.parseOrThrow("monad")));
 
   try {
-    parseOrThrow(digit, "monad");
+    digit.parseOrThrow("monad");
   } catch (error: unknown) {
     const errorMessage = `at line 1, column 0
 	monad

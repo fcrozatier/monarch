@@ -331,12 +331,13 @@ const { message } = even.parse("ab"); // "Expected an even number"
 
 ### `parseOrThrow`
 
-Use `parseOrThrow(parser, input)` To assert that a parse should succeed and
-return a value. It will return the first result value – the only one for
-unambiguous grammars – or throw
+Use the `parseOrThrow(input: string)` method to assert that a parser should successfully parse an input and return a value. This method returns the first result value – the only one for
+unambiguous grammars – or throws.
 
 ```js
-parseOrThrow(even, "ab");
+const even = regex(/^[02468]/).error("Expected an even number");
+
+even.parseOrThrow("ab");
 //ParseError: at line 1, column 0
 //	ab
 //	^
