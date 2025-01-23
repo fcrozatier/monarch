@@ -7,7 +7,7 @@ export class ParseError extends Error {
     sourceSnippet?: string,
   ) {
     const snippet = sourceSnippet
-      ? `\n\t${sourceSnippet}\n\t${" ".repeat(Math.max(0, column - 1))}^`
+      ? `\n\t${sourceSnippet}\n\t${" ".repeat(column)}^`
       : "";
     super(
       `at line ${line}, column ${column}${snippet}\nReason: ${reason}`,
