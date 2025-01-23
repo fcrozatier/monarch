@@ -311,9 +311,11 @@ times, like the `many` combinator, but returns all the intermediate results.
 iterate(digit).parse("42"); // results: [{value: [4, 2], remaining: ""}, {value: [4], remaining: "2"}, {value: [], remaining: "42"}]
 ```
 
-## Custom error messages
+## Parse errors
 
-You can easily customize the error message of a parser for easier debugging with the `error(msg: string): this` method. This method returns the parser at hand.
+### Custom error message
+
+You can easily customize the error message of a parser for easier debugging with the `error(msg: string): this` method. This method returns the parser.
 
 ```js
 const even = regex(/^[02468]/).error("Expected an even number");
@@ -321,6 +323,20 @@ const even = regex(/^[02468]/).error("Expected an even number");
 const { results } = even.parse("24"); // [{value: '2', remaining: '4', ...}]
 const { message } = even.parse("ab"); // "Expected an even number"
 ```
+
+### `parseOrThrow`
+
+Use `parseOrThrow(parser, input)` To assert that a parse should succeed and return a value. It will return the first result value – the only one for unambiguous grammars – or throw
+
+```js
+parseOrThrow(even, "ab")
+//ParseError: at line 1, column 0
+//	ab
+//	^
+//Reason: Expected an even number
+
+```
+
 
 ## API Reference
 
