@@ -10,7 +10,7 @@ export class ParseError extends Error {
       ? `\n\t${sourceSnippet}\n\t${" ".repeat(Math.max(0, column - 1))}^`
       : "";
     super(
-      `ParseError at line ${line}, column ${column}:${snippet}\nReason: ${reason}`,
+      `at line ${line}, column ${column}${snippet}\nReason: ${reason}`,
     );
 
     this.name = this.constructor.name;
