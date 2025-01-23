@@ -14,7 +14,7 @@ import {
   upper,
 } from "../examples/common.ts";
 import { any, filter, repeat } from "../index.ts";
-import { parseErrors } from "../messages.ts";
+import { parseErrors } from "../errors.ts";
 
 Deno.test("item", () => {
   assertEquals(take.parse(""), {

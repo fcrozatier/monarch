@@ -11,7 +11,7 @@ import {
   sequence,
   updatePosition,
 } from "../index.ts";
-import { parseErrors } from "../messages.ts";
+import { parseErrors } from "../errors.ts";
 
 type Predicate = (input: string) => boolean;
 
