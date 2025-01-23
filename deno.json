@@ -1,6 +1,6 @@
 {
   "name": "@fcrozatier/monarch",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "exports": {
     ".": "./index.ts",
     "./common": "./examples/common.ts"
