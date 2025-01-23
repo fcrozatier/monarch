@@ -38,8 +38,9 @@ number, literal etc.)
 A parser is an instance of the `Parser<T>` class which implements the
 `parse(input: string): ParseResult<T>` method.
 
-A `ParseResult` is either a `ParseError` with an `error` message and position, or a successful parse with a results array containing `T` values, the `remaining` string to parse and the `position`
-
+A `ParseResult` is either a `ParseError` with an `error` message and position,
+or a successful parse with a results array containing `T` values, the
+`remaining` string to parse and the `position`
 
 ```ts
 type Position = {
@@ -67,7 +68,8 @@ Under the hood the `Parser<T>` generic class is a Monad, but no knowledge of
 this structure is required to use the library. See the [References](#references)
 section for more.
 
-Here's a progressive introduction to the various available base parsers and combinators of the library.
+Here's a progressive introduction to the various available base parsers and
+combinators of the library.
 
 ### `take`
 
@@ -102,15 +104,15 @@ const { message } = dot.parse("0.23"); // "Expected '.' but got '0'"
 ### `filter`
 
 To specialize a parser you can filter it with a predicate. With
-`filter<T>(parser: Parser<T>, predicate: (value: T)=> boolean):Parser<T>` the filtered parser will only match if the predicate is
-satisfied.
+`filter<T>(parser: Parser<T>, predicate: (value: T)=> boolean):Parser<T>` the
+filtered parser will only match if the predicate is satisfied.
 
 You can easily create a regex predicate with the
 `regexPredicate(regex: RegExp): (value: string) => boolean` helper
 
 ```js
-const isVowel = (char) => ['a', 'e', 'i', 'o', 'u', 'y'].includes(char)
-const vowel = filter(take, isVowel).error("Expected a vowel")
+const isVowel = (char) => ["a", "e", "i", "o", "u", "y"].includes(char);
+const vowel = filter(take, isVowel).error("Expected a vowel");
 const { results } = vowel.parse("a"); // [{value: '2', remaining: '', ...}]
 const { message } = vowel.parse("1"); // "Expected a vowel"
 ```
@@ -119,7 +121,8 @@ You can easily customize the error message with the `error(msg: string)` method.
 
 ### `regex`
 
-Often you only need a simple filtering based on a regex. The `regex(re: RegExp):Parser<string>` utility will help with this use-case
+Often you only need a simple filtering based on a regex. The
+`regex(re: RegExp):Parser<string>` utility will help with this use-case
 
 ```js
 const even = regex(/^[02468]/).error("Expected an even number");
@@ -152,8 +155,8 @@ const natural = many(digit).map((arr) => Number(arr.join("")));
 const { results } = natural.parse("23 and more"); // [{value: 23, remaining: " and more", ...}]
 ```
 
-Here the returned value is a number as `digit` and `natural` have
-the `Parser<number>` type
+Here the returned value is a number as `digit` and `natural` have the
+`Parser<number>` type
 
 ### `sequence`
 
@@ -209,7 +212,8 @@ returns `p`, effectively discarding the trailing spaces.
 
 When many parses are possible you can use the `any` combinator. Most of the time
 you're only interested in the first matching alternative in which case you can
-use the `first` combinator for performance – `any` always visits all branches while `first` returns early.
+use the `first` combinator for performance – `any` always visits all branches
+while `first` returns early.
 
 ```ts
 const integer = first(
@@ -220,7 +224,7 @@ const integer = first(
 
 integer.parse("-42"); // results: [{value: -42, remaining: ''}]
 integer.parse("+42"); // results: [{value: 42, remaining: ''}]
-integer.parse("42");  // results: [{value: 42, remaining: ''}]
+integer.parse("42"); // results: [{value: 42, remaining: ''}]
 ```
 
 The integer parser above matches against signed integers, and we're only
@@ -315,7 +319,8 @@ iterate(digit).parse("42"); // results: [{value: [4, 2], remaining: ""}, {value:
 
 ### Custom error message
 
-You can easily customize the error message of a parser for easier debugging with the `error(msg: string): this` method. This method returns the parser.
+You can easily customize the error message of a parser for easier debugging with
+the `error(msg: string): this` method. This method returns the parser.
 
 ```js
 const even = regex(/^[02468]/).error("Expected an even number");
@@ -326,17 +331,17 @@ const { message } = even.parse("ab"); // "Expected an even number"
 
 ### `parseOrThrow`
 
-Use `parseOrThrow(parser, input)` To assert that a parse should succeed and return a value. It will return the first result value – the only one for unambiguous grammars – or throw
+Use `parseOrThrow(parser, input)` To assert that a parse should succeed and
+return a value. It will return the first result value – the only one for
+unambiguous grammars – or throw
 
 ```js
-parseOrThrow(even, "ab")
+parseOrThrow(even, "ab");
 //ParseError: at line 1, column 0
 //	ab
 //	^
 //Reason: Expected an even number
-
 ```
-
 
 ## API Reference
 
