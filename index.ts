@@ -1,30 +1,32 @@
-type Position = {
-  line: number;
-  column: number;
-};
+import { ParseError } from "./errors.ts";
+import type { Position } from "./types.ts";
 
-type ParseError = {
+type ParseFail = {
   success: false;
   message: string;
   position: Position;
 };
 
-type ParseResult<T> = {
+type ParseSuccess<T> = {
   success: true;
   results: {
     value: T;
     remaining: string;
     position: Position;
   }[];
-} | ParseError;
+};
+
+type ParseResult<T> = ParseSuccess<T> | ParseFail;
 
 type ParsingHandler<T> = (
   input: string,
   position: Position,
 ) => ParseResult<T>;
 
+// Utilities
+
 /**
- * Utility to compute the new position from the current position and the consumed string
+ * Compute the new position from the current position and the consumed string
  */
 export const updatePosition = (
   position: Position,
@@ -42,12 +44,14 @@ export const updatePosition = (
 };
 
 /**
- * Utility to sort positions in a descending (line, column) order
+ * Sort positions in a descending (line, column) order
  */
 export const sortPosition = (a: Position, b: Position): number => {
   if (a.line !== b.line) return b.line - a.line;
   return b.column - a.column;
 };
+
+// Main
 
 /**
  * The monadic parser class
@@ -187,6 +191,30 @@ export const zero: Parser<any> = createParser((_, position) => ({
   message: "",
   position,
 }));
+
+/**
+ * Parse an input with a given parser and extract the first result value or throw if the parse fails
+ */
+export const parseOrThrow = <T>(
+  parser: Parser<T>,
+  input: string,
+): T => {
+  const result = parser.parse(input);
+
+  if (!result.success) {
+    const lines = input.split("\n");
+    const { line } = result.position;
+    const snippet = lines[line];
+
+    throw new ParseError(
+      result.position,
+      result.message,
+      snippet,
+    );
+  }
+
+  return result.results[0].value;
+};
 
 // Combinators
 
