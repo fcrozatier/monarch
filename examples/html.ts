@@ -56,17 +56,16 @@ const singleQuote = token("'");
 const doubleQuote = token('"');
 
 const rawText = regex(/^[^<]+/);
-const tagName = trimEnd(regex(/^[a-zA-Z][a-zA-Z0-9-:]*/)).map((name) =>
-  name.toLowerCase()
-);
+
+// Attributes
 // https://html.spec.whatwg.org/#attributes-2
-const attributeName = trimEnd(regex(/^[^ ="'>/\u{fdd0}-\u{fdef}]+/u)).error(
+const attributeName = trimEnd(regex(/^[^ ="'>\/\u{fdd0}-\u{fdef}]+/u)).error(
   "Expected a valid attribute name",
 );
 const attributeValue = first(
   bracket(singleQuote, regex(/^[^']*/), singleQuote),
   bracket(doubleQuote, regex(/^[^"]*/), doubleQuote),
-  regex(/^[^\s'">]+/),
+  regex(/^[^\s='"<>`]+/),
 );
 
 const attribute: Parser<[string, string]> = first(
@@ -77,6 +76,11 @@ const attribute: Parser<[string, string]> = first(
   ]).map(([name, _, value]) => [name.toLowerCase(), value]),
   attributeName.map((name) => [name.toLowerCase(), ""]),
 );
+
+// Tags
+const tagName = trimEnd(regex(/^[a-zA-Z][a-zA-Z0-9-]*/)).map((name) =>
+  name.toLowerCase()
+).error("Expected an ASCII alphanumeric tag name");
 
 const startTag: Parser<
   { tagName: string; attributes: [string, string][] }
