@@ -9,13 +9,7 @@ import {
   sequence,
   zero,
 } from "@fcrozatier/monarch";
-import {
-  literal,
-  regex,
-  token,
-  trimEnd,
-  whitespace,
-} from "./common.ts";
+import { literal, regex, token, trimEnd, whitespace } from "./common.ts";
 
 export type mElement = {
   tagName: string;
@@ -59,9 +53,10 @@ const rawText = regex(/^[^<]+/);
 
 // Attributes
 // https://html.spec.whatwg.org/#attributes-2
-const attributeName = trimEnd(regex(/^[^ ="'>\/\u{fdd0}-\u{fdef}]+/u)).error(
-  "Expected a valid attribute name",
-);
+const attributeName = trimEnd(regex(/^[^ ="'>\/\p{Noncharacter_Code_Point}]+/u))
+  .error(
+    "Expected a valid attribute name",
+  );
 const attributeValue = first(
   bracket(singleQuote, regex(/^[^']*/), singleQuote),
   bracket(doubleQuote, regex(/^[^"]*/), doubleQuote),
