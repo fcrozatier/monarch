@@ -30,7 +30,7 @@ yarn dlx jsr add @fcrozatier/monarch
 ## Examples
 
 See the [`/examples`](/examples/) folder for an arithmetic expression
-interpreter, a csv parser, as well as common utility parsers (digit, integer,
+interpreter, a csv parser, an html parser, as well as common utility parsers (digit, integer,
 number, literal etc.)
 
 ## Getting Started Guide
