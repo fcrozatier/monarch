@@ -269,17 +269,34 @@ Deno.test("nested elements", () => {
 });
 
 Deno.test("attributes", () => {
+  // no quotes / single quotes / double quotes
+  // non ASCI attributes
+  // duplicate attributes
   const res = element.parseOrThrow(
-    '<input value=yes class="a b c" type=\'text\' checked xml:lang="us">',
+    '<input value=yes class="a b c" type=\'text\' checked xml:lang="us" @on="click:handleClick" @on="mouseover:handleHover">',
   );
 
   assertEquals(res, {
     tagName: "input",
     kind: Kind.VOID,
-    attributes: [["value", "yes"], ["class", "a b c"], ["type", "text"], [
-      "checked",
-      "",
-    ], ["xml:lang", "us"]],
+    attributes: [
+      ["value", "yes"],
+      ["class", "a b c"],
+      ["type", "text"],
+      [
+        "checked",
+        "",
+      ],
+      ["xml:lang", "us"],
+      [
+        "@on",
+        "click:handleClick",
+      ],
+      [
+        "@on",
+        "mouseover:handleHover",
+      ],
+    ],
   });
 });
 
