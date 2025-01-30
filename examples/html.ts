@@ -53,7 +53,7 @@ const rawText = regex(/^[^<]+/);
 
 // Attributes
 // https://html.spec.whatwg.org/#attributes-2
-const attributeName = trimEnd(regex(/^[^ ="'>\/\p{Noncharacter_Code_Point}]+/u))
+const attributeName = trimEnd(regex(/^[^\s="'>\/\p{Noncharacter_Code_Point}]+/u))
   .error(
     "Expected a valid attribute name",
   );

@@ -269,11 +269,13 @@ Deno.test("nested elements", () => {
 });
 
 Deno.test("attributes", () => {
-  // no quotes / single quotes / double quotes
-  // non ASCI attributes
-  // duplicate attributes
+  // allow all syntaxes: no quotes / single quotes / double quotes
+  // allow non ASCI attribute name
+  // allow duplicate attributes
+  // allow hanging > bracket with boolean attributes
   const res = element.parseOrThrow(
-    '<input value=yes class="a b c" type=\'text\' checked xml:lang="us" @on="click:handleClick" @on="mouseover:handleHover">',
+    `<input value=yes class="a b c" type=\'text\' checked xml:lang="us" @on="click:handleClick" @on="mouseover:handleHover" disabled
+    >`,
   );
 
   assertEquals(res, {
@@ -295,6 +297,10 @@ Deno.test("attributes", () => {
       [
         "@on",
         "mouseover:handleHover",
+      ],
+      [
+        "disabled",
+        "",
       ],
     ],
   });
