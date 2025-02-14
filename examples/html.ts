@@ -112,7 +112,9 @@ const startTag: Parser<
   }
 
   if (tagName !== "pre") {
-    // trim comments inside the start tag of all non pre elements
+    // Trim comments inside the start tag of all non pre elements
+    // New lines at the start of pre blocks are ignored by the HTML parser but a space followed by a newline is not
+    // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
     return spaceAroundComments.bind(() => result({ tagName, attributes }));
   }
 
