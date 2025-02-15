@@ -11,15 +11,15 @@ import {
 } from "@fcrozatier/monarch";
 import { literal, regex, token, trimEnd, whitespace } from "./common.ts";
 
-export type mElement = {
+export type MElement = {
   tagName: string;
   kind: keyof typeof Kind;
   attributes: [string, string][];
-  parent?: mElement;
-  children?: mFragment;
+  parent?: MElement;
+  children?: MFragment;
 };
 
-export type mFragment = (mElement | string)[];
+export type MFragment = (MElement | string)[];
 
 /**
  * Parse an HTML comment
@@ -121,7 +121,7 @@ const startTag: Parser<
   return result({ tagName, attributes });
 });
 
-export const element: Parser<mElement> = cleanEnd(
+export const element: Parser<MElement> = cleanEnd(
   createParser((input, position) => {
     const openTag = startTag.parse(input, position);
 
@@ -139,14 +139,14 @@ export const element: Parser<mElement> = cleanEnd(
       return {
         success: true,
         results: [{
-          value: { tagName, kind, attributes } satisfies mElement,
+          value: { tagName, kind, attributes } satisfies MElement,
           remaining,
           position: openTagPosition,
         }],
       };
     }
 
-    let childrenElementsParser: Parser<(string | mElement)[]>;
+    let childrenElementsParser: Parser<(string | MElement)[]>;
     const endTagParser = regex(new RegExp(`^</${tagName}>\\s*`, "i")).error(
       `Expected a '</${tagName}>' end tag`,
     );
@@ -162,7 +162,7 @@ export const element: Parser<mElement> = cleanEnd(
       childrenElementsParser = rawText.map((t) => [t]);
     } else {
       childrenElementsParser = many(
-        first<mElement | string>(element, rawText),
+        first<MElement | string>(element, rawText),
       );
     }
 
@@ -192,7 +192,7 @@ export const element: Parser<mElement> = cleanEnd(
           kind,
           attributes,
           children,
-        } satisfies mElement,
+        } satisfies MElement,
         remaining: res.results[0].remaining,
         position: res.results[0].position,
       }],
@@ -200,14 +200,14 @@ export const element: Parser<mElement> = cleanEnd(
   }),
 );
 
-export const fragments: Parser<mFragment> = sequence([
+export const fragments: Parser<MFragment> = sequence([
   spaceAroundComments,
   many(
-    first<mElement | string>(element, rawText),
+    first<MElement | string>(element, rawText),
   ),
 ]).map(([_, element]) => element);
 
-export const shadowRoot: Parser<mElement> = createParser(
+export const shadowRoot: Parser<MElement> = createParser(
   (input, position) => {
     const result = sequence([
       spaceAroundComments,
@@ -242,7 +242,7 @@ export const shadowRoot: Parser<mElement> = createParser(
 );
 
 // https://html.spec.whatwg.org/#writing
-export const html: Parser<[string, mElement]> = sequence([
+export const html: Parser<[string, MElement]> = sequence([
   spaceAroundComments,
   doctype,
   spaceAroundComments,
@@ -251,7 +251,7 @@ export const html: Parser<[string, mElement]> = sequence([
   .map(([_0, doctype, _1, document]) => [doctype, document]);
 
 export const serializeFragment = (
-  element: mElement | string,
+  element: MElement | string,
 ): string => {
   if (typeof element === "string") return element;
 
