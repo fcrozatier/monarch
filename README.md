@@ -22,7 +22,6 @@ the provided base parsers and their error messages.
   - [Table of content](#table-of-content)
   - [Installation](#installation)
   - [Examples](#examples)
-  - [Documentation](#documentation)
   - [Getting Started Guide](#getting-started-guide)
     - [`take`](#take)
     - [`repeat`](#repeat)
@@ -67,10 +66,6 @@ yarn dlx jsr add @fcrozatier/monarch
 The [`/examples`](/examples/) folder contains an arithmetic expression
 interpreter, a csv parser, an html parser, as well as common utility parsers (digit, integer,
 number, literal etc.)
-
-## Documentation
-
-
 
 ## Getting Started Guide
 
