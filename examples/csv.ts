@@ -29,10 +29,7 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
 
 const spaces = regex(/ */);
 const newline = regex(/\n/);
-
-const token = (value: string): Parser<string> => {
-  return literal(value).bind((l) => spaces.bind(() => result(l)));
-};
+const coma = literal(",").skip(spaces);
 
 const string = bracket(literal('"'), letters, literal('"'));
 const natural: Parser<number> = foldL1(
@@ -42,10 +39,10 @@ const natural: Parser<number> = foldL1(
 
 const item = first<string | number>(string, natural);
 
-export const headings: Parser<string[]> = sepBy(
-  string,
-  token(","),
-).bind((headings) => newline.bind(() => result(headings)));
+/**
+ * Parses a csv heading and returns the array of headers
+ */
+export const headings: Parser<string[]> = sepBy(string, coma).skip(newline);
 
 const header: Parser<
   (row: (string | number)[]) => Record<string, string | number>
@@ -54,11 +51,15 @@ const header: Parser<
     Object.fromEntries(zip(headings, row)),
 );
 
-export const row: Parser<(string | number)[]> = sepBy(item, token(",")).bind((row) =>
-  newline.bind(() => result(row))
-);
+/**
+ * Parses a csv row and returns the items array
+ */
+export const row: Parser<(string | number)[]> = sepBy(item, coma).skip(newline);
 const rows = many1(row);
 
+/**
+ * Parses a csv file
+ */
 export const csv: Parser<Record<string, string | number>[]> = header.bind((
   makeEntry,
 ) => rows.bind((rows) => result(rows.map(makeEntry))));

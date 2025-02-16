@@ -155,6 +155,15 @@ export class Parser<T> {
   }
 
   /**
+   * Convenience method for skipping a parser.
+   *
+   * Shorthand for: `mainParser.bind((r) => parserToSkip.bind(() => result(r)))`
+   */
+  skip<U>(parser: Parser<U>): Parser<T> {
+    return this.bind((r) => parser.bind(() => result(r)));
+  }
+
+  /**
    * Concatenates the resulting parse arrays
    */
   plus(...parsers: Parser<T>[]): Parser<T> {

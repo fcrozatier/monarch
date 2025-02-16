@@ -94,7 +94,7 @@ export const whitespace: Parser<string> = regex(/\s*/);
  * Discards trailing spaces
  */
 export function trimEnd<T>(parser: Parser<T>): Parser<T> {
-  return parser.bind((p) => whitespace.bind(() => result(p)));
+  return parser.skip(whitespace);
 }
 
 /**
