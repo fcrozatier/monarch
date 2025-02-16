@@ -54,10 +54,10 @@ const header: Parser<
     Object.fromEntries(zip(headings, row)),
 );
 
-export const row = sepBy(item, token(",")).bind((row) =>
+export const row: Parser<(string | number)[]> = sepBy(item, token(",")).bind((row) =>
   newline.bind(() => result(row))
 );
-export const rows = many1(row);
+const rows = many1(row);
 
 export const csv: Parser<Record<string, string | number>[]> = header.bind((
   makeEntry,
