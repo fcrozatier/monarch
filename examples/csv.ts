@@ -27,8 +27,8 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
   });
 };
 
-const spaces = regex(/ */);
-const newline = regex(/\n/);
+const spaces = regex(/^ */);
+const newline = regex(/^\n/);
 const coma = literal(",").skip(spaces);
 
 const string = bracket(literal('"'), letters, literal('"'));
