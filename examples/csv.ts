@@ -2,18 +2,15 @@
  * Example parser for CSV files
  */
 
-import { parseErrors } from "../errors.ts";
 import {
   bracket,
   first,
-  foldL1,
   many1,
   type Parser,
   result,
-  sepBy,
+  sepBy
 } from "../index.ts";
-import { digit } from "./common.ts";
-import { letters, literal, regex } from "./common.ts";
+import { letters, literal, natural, newline, spaces } from "./common.ts";
 
 /**
  * Zips arrays of the same length
@@ -27,16 +24,8 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
   });
 };
 
-const spaces = regex(/^ */);
-const newline = regex(/^\n/);
 const coma = literal(",").skip(spaces);
-
 const string = bracket(literal('"'), letters, literal('"'));
-const natural: Parser<number> = foldL1(
-  digit,
-  result((a: number, b: number) => 10 * a + b),
-).error(parseErrors.natural);
-
 const item = first<string | number>(string, natural);
 
 /**

@@ -1,3 +1,4 @@
+import { parseErrors } from "../errors.ts";
 import {
   bracket,
   createParser,
@@ -7,16 +8,15 @@ import {
   type Parser,
   repeat,
   result,
-  sepBy1,
+  sepBy,
   sequence,
   updatePosition,
 } from "../index.ts";
-import { parseErrors } from "../errors.ts";
 
 type Predicate = (input: string) => boolean;
 
 /**
- * Builds a predicate from a regex
+ * Returns a predicate function from a regex
  */
 export function regexPredicate(regex: RegExp): Predicate {
   return (input: string) => regex.test(input);
@@ -91,6 +91,16 @@ export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
 export const whitespace: Parser<string> = regex(/^\s*/);
 
 /**
+ * Parses the space character (0 or more)
+ */
+export const spaces = regex(/^ */);
+
+/**
+ * Parses the newline character
+ */
+export const newline = regex(/^\n/);
+
+/**
  * Discards trailing spaces
  */
 export function trimEnd<T>(parser: Parser<T>): Parser<T> {
@@ -148,32 +158,38 @@ export const letter: Parser<string> = regex(/^[a-zA-Z]/).error(
 );
 
 /**
- * Parser a string of letters
+ * Parses a string of letters
  */
 export const letters: Parser<string> = many(letter).map((letters) =>
   letters.join("")
 );
 
 /**
- * Pareses a single lower case letter
+ * Parses a single lower case letter
  *
  * * Regex: /^[a-z]/
  */
 export const lower: Parser<string> = regex(/^[a-z]/).error(parseErrors.lower);
 
 /**
- * Pareses a single upper case letter
+ * Parses a single upper case letter
  *
  * * Regex: /^[A-Z]/
  */
 export const upper: Parser<string> = regex(/^[A-Z]/).error(parseErrors.upper);
 
-export const alphaNum: Parser<string> = many(regex(/^\w/)).map((
-  letters,
-) => letters.join(""));
+/**
+ * Parses alphanumeric characters (0 or more)
+ *
+ * * Regex: /^\w*\/
+ */
+export const alphaNums: Parser<string> = regex(/^\w*/);
 
-export const identifier: Parser<string> = trimEnd(
-  letter.bind((l) => alphaNum.map((rest) => l + rest)),
+/**
+ * Parses an identifier token as letter + alphanums
+ */
+export const identifier: Parser<string> = letter.bind((l) =>
+  alphaNums.map((rest) => l + rest)
 );
 
 /**
@@ -188,29 +204,32 @@ export const digit: Parser<number> = regex(/^\d/).map(Number.parseInt).error(
 /**
  * Parses a natural number
  */
-export const natural: Parser<number> = trimEnd(foldL1(
+export const natural: Parser<number> = foldL1(
   digit,
   result((a: number, b: number) => 10 * a + b),
-)).error(parseErrors.natural);
+).skip(spaces).error(parseErrors.natural);
 
 /**
  * Parses an integer (element of ℤ)
  */
-export const integer: Parser<number> = trimEnd(first(
+export const integer: Parser<number> = first(
   literal("-").bind(() => natural).map((x) => -x),
   literal("+").bind(() => natural).map((x) => x),
   natural,
-)).error(parseErrors.integer);
+).error(parseErrors.integer);
 
 /**
  * Parses a decimal number aka a float
  */
-export const decimal: Parser<number> = trimEnd(
-  sequence([integer, literal("."), natural]).map(([pre, _, post]) => {
-    return pre +
-      Math.sign(pre) * Math.pow(10, -Math.ceil(Math.log10(post))) * post;
-  }),
-).error(parseErrors.decimal);
+export const decimal: Parser<number> = sequence([
+  integer,
+  literal("."),
+  natural,
+]).map(([integral, _, fractional]) =>
+  integral +
+  Math.sign(integral) * Math.pow(10, -Math.ceil(Math.log10(fractional))) *
+    fractional
+).skip(spaces).error(parseErrors.decimal);
 
 /**
  * Parses a number as decimal | integer
@@ -220,14 +239,17 @@ export const number: Parser<number> = first(decimal, integer).error(
 );
 
 /**
- * Utility parser builder that expects the list syntax [p(,p)+]
+ * Builds a parser that expects the list syntax [p(,p)*]
  */
-export function listOf<T>(p: Parser<T>): Parser<T[]> {
+export function listOf<T>(parser: Parser<T>): Parser<T[]> {
   return bracket(
     token("["),
-    sepBy1(p, token(",")),
+    sepBy(parser, token(",")),
     token("]"),
   );
 }
 
+/**
+ * Parses a list of integers
+ */
 export const listOfInts: Parser<number[]> = listOf(integer);
