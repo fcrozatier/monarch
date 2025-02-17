@@ -7,7 +7,7 @@ import {
   result,
   sepBy,
   sequence,
-  zero
+  zero,
 } from "@fcrozatier/monarch";
 import { literal, regex, whitespace, whitespaces } from "./common.ts";
 
@@ -119,10 +119,7 @@ const startTag: Parser<
   literal("<"),
   tagName,
   many(attribute),
-  first(
-    literal("/>"),
-    literal(">"),
-  ),
+  regex(/\/?>/),
 ]).error("Expected a start tag").bind(([_, tagName, attributes, end]) => {
   const selfClosing = end === "/>";
   if (selfClosing && !voidElements.includes(tagName)) {
