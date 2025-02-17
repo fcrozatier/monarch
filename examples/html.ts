@@ -7,10 +7,20 @@ import {
   result,
   sepBy,
   sequence,
-  zero,
+  zero
 } from "@fcrozatier/monarch";
-import { literal, regex, whitespaces } from "./common.ts";
-import { whitespace } from "./common.ts";
+import { literal, regex, whitespace, whitespaces } from "./common.ts";
+
+type MNode = MCommentNode | MWhiteSpaceNode | MElement;
+
+type MCommentNode = {
+  kind: "COMMENT";
+  text: string;
+};
+
+type MWhiteSpaceNode = {
+  kind: "WHITESPACE";
+};
 
 export type MElement = {
   tagName: string;
@@ -22,19 +32,26 @@ export type MElement = {
 
 export type MFragment = (MElement | string)[];
 
+const newCommentNode = (
+  text: string,
+) => ({ kind: "COMMENT", text } satisfies MCommentNode);
+
+const newWhiteSpaceNode =
+  () => ({ kind: "WHITESPACE" } satisfies MWhiteSpaceNode);
+
 /**
- * Parse an HTML comment
+ * Parses an HTML comment
  *
  * @ref https://html.spec.whatwg.org/#comments
  */
-export const comment: Parser<string> = bracket(
+export const comment: Parser<MCommentNode> = bracket(
   literal("<!--"),
   regex(/^(?!>|->)(?:.|\n)*?(?=(?:<\!--|-->|--!>|<!-)|$)/),
   literal("-->"),
-);
+).map((text) => newCommentNode(text));
 
 /**
- * Parse a sequence of comments surrounded by whitespace, and discards the whole match
+ * Parses a sequence of comments surrounded by whitespace, and discards the whole match
  */
 export const spaceAroundComments: Parser<string> = (sepBy(whitespaces, comment))
   .skip(whitespaces)
@@ -46,7 +63,7 @@ export const spaceAroundComments: Parser<string> = (sepBy(whitespaces, comment))
 const cleanEnd = <T>(parser: Parser<T>) => parser.skip(spaceAroundComments);
 
 /**
- * Parse a modern HTML doctype
+ * Parses a modern HTML doctype
  *
  * @ref https://html.spec.whatwg.org/#syntax-doctype
  */
@@ -66,7 +83,7 @@ const doubleQuote = literal('"');
 const rawText = cleanEnd(regex(/^[^<]+/));
 
 /**
- * Parse an HTML attribute name
+ * Parses an HTML attribute name
  *
  * @ref https://html.spec.whatwg.org/#attributes-2
  */
@@ -81,7 +98,7 @@ const attributeValue = first(
   regex(/^[^\s='"<>`]+/),
 );
 
-const attribute: Parser<[string, string]> = first<[string, string]>(
+export const attribute: Parser<[string, string]> = first<[string, string]>(
   sequence([
     attributeName,
     literal("=").skip(whitespaces),

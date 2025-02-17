@@ -1,5 +1,6 @@
 import { assertEquals } from "@std/assert";
 import {
+  attribute,
   comment,
   doctype,
   element,
@@ -13,25 +14,26 @@ Deno.test("doctype", () => {
   assertEquals(res, "<!DOCTYPE html>");
 });
 
-Deno.test("comment", () => {
-  const simple = comment.parseOrThrow("<!-- A simple comment -->");
-  assertEquals(simple, " A simple comment ");
+Deno.test("comments_simple", () => {
+  const singleline = comment.parseOrThrow("<!-- A simple comment -->");
+  assertEquals(singleline, { kind: "COMMENT", text: " A simple comment " });
 
   const multiline = comment.parseOrThrow(`<!--
      A
      multiline
      comment
      -->`);
-
-  assertEquals(
-    multiline.trim(),
-    `A
+  assertEquals(multiline, {
+    kind: "COMMENT",
+    text: `
+     A
      multiline
-     comment`,
-  );
+     comment
+     `,
+  });
 });
 
-Deno.test("comments", () => {
+Deno.test("comments_complex", () => {
   const comments = fragments.parseOrThrow(`
     <!-- consecutive comments -->
     <!-- arrows ->-> -- > ->->->-- -> inside comments -->
@@ -48,7 +50,7 @@ Deno.test("comments", () => {
   }]);
 });
 
-Deno.test("nested comments", () => {
+Deno.test("comments_nested", () => {
   const nestedComments = fragments.parseOrThrow(`
     <!-- This is a div -->
 
@@ -103,7 +105,7 @@ Deno.test("nested comments", () => {
   }]);
 });
 
-Deno.test("void element", () => {
+Deno.test("void_element", () => {
   const input = element.parseOrThrow('<input type="text">');
   assertEquals(input, {
     tagName: "input",
@@ -112,7 +114,7 @@ Deno.test("void element", () => {
   });
 });
 
-Deno.test("void elements", () => {
+Deno.test("void_elements", () => {
   const content = fragments.parseOrThrow(
     '<form><img src="something.png"><br><input type=submit value=Ok /></form>',
   );
@@ -271,39 +273,58 @@ Deno.test("nested elements", () => {
 });
 
 Deno.test("attributes", () => {
-  // allow all syntaxes: no quotes / single quotes / double quotes
-  // allow non ASCI attribute name
-  // allow duplicate attributes
-  // allow hanging > bracket with boolean attributes
-  const res = element.parseOrThrow(
-    `<input value=yes class="a b c" type=\'text\' checked xml:lang="us" @on="click:handleClick" @on="mouseover:handleHover" disabled
+  const unquotedAttribute = attribute.parseOrThrow(`value=yes`);
+  assertEquals(unquotedAttribute, ["value", "yes"]);
+
+  const singleQuoteAttribute = attribute.parseOrThrow(`type='text'`);
+  assertEquals(singleQuoteAttribute, ["type", "text"]);
+
+  const doubleQuotesAttribute = attribute.parseOrThrow(`class="a b c"`);
+  assertEquals(doubleQuotesAttribute, ["class", "a b c"]);
+
+  const booleanAttribute = attribute.parseOrThrow(`checked`);
+  assertEquals(booleanAttribute, ["checked", ""]);
+
+  const nonAsciiAttribute = attribute.parseOrThrow(`xml:lang="us"`);
+  assertEquals(nonAsciiAttribute, ["xml:lang", "us"]);
+
+  const hangingBracket = element.parseOrThrow(
+    `<input
+    disabled
     >`,
   );
+  assertEquals(hangingBracket, {
+    tagName: "input",
+    kind: Kind.VOID,
+    attributes: [
+      [
+        "disabled",
+        "",
+      ],
+    ],
+  });
 
-  assertEquals(res, {
+  const recoverFromMissingWhiteSpace = element.parseOrThrow(
+    `<input value="yes"class="a b c">`,
+  );
+  assertEquals(recoverFromMissingWhiteSpace, {
     tagName: "input",
     kind: Kind.VOID,
     attributes: [
       ["value", "yes"],
       ["class", "a b c"],
-      ["type", "text"],
-      [
-        "checked",
-        "",
-      ],
-      ["xml:lang", "us"],
-      [
-        "@on",
-        "click:handleClick",
-      ],
-      [
-        "@on",
-        "mouseover:handleHover",
-      ],
-      [
-        "disabled",
-        "",
-      ],
+    ],
+  });
+
+  const allowDuplicateAttributes = element.parseOrThrow(
+    `<input @on="click:handleClick" @on="mouseenter:handleHover">`,
+  );
+  assertEquals(allowDuplicateAttributes, {
+    tagName: "input",
+    kind: Kind.VOID,
+    attributes: [
+      ["@on", "click:handleClick"],
+      ["@on", "mouseenter:handleHover"],
     ],
   });
 });
