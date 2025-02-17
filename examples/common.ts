@@ -88,7 +88,7 @@ export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
  *
  * Regex: /\s*\/
  */
-export const whitespace: Parser<string> = regex(/^\s*/);
+export const whitespaces: Parser<string> = regex(/^\s*/);
 
 /**
  * Parses the space character (0 or more)
@@ -104,7 +104,7 @@ export const newline: Parser<string> = regex(/^\n/);
  * Discards trailing spaces
  */
 export function trimEnd<T>(parser: Parser<T>): Parser<T> {
-  return parser.skip(whitespace);
+  return parser.skip(whitespaces);
 }
 
 /**
