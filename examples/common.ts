@@ -84,6 +84,15 @@ export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
 ).error(parseErrors.takeTwoError);
 
 /**
+ * Parses a single white space
+ *
+ * Regex: /\s\/
+ */
+export const whitespace: Parser<string> = regex(/^\s/).error(
+  "Expected a white space character",
+);
+
+/**
  * Parses white space (0 or more)
  *
  * Regex: /\s*\/
