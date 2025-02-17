@@ -4,7 +4,8 @@
   "exports": {
     ".": "./index.ts",
     "./common": "./examples/common.ts",
-    "./html": "./examples/html.ts"
+    "./html": "./examples/html.ts",
+    "./csv": "./exports/csv.ts"
   },
   "license": "MIT",
   "tasks": {
