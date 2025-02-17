@@ -279,6 +279,15 @@ Deno.test("list of integers", () => {
     }],
   });
 
+  assertEquals(listOfInts.parse("[] and more"), {
+    success: true,
+    results: [{
+      value: [],
+      remaining: "and more",
+      position: { line: 1, column: 3 },
+    }],
+  });
+
   assertEquals(listOfInts.parse("1 ,  -2, 3] and more"), {
     success: false,
     message: "Expected '[', but got '1'",
@@ -287,7 +296,7 @@ Deno.test("list of integers", () => {
 
   assertEquals(listOfInts.parse("[a ,  -2, 3] and more"), {
     success: false,
-    message: "Expected an integer",
+    message: "Expected ']', but got 'a'",
     position: { line: 1, column: 1 },
   });
 
