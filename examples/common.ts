@@ -93,12 +93,12 @@ export const whitespace: Parser<string> = regex(/^\s*/);
 /**
  * Parses the space character (0 or more)
  */
-export const spaces = regex(/^ */);
+export const spaces: Parser<string> = regex(/^ */);
 
 /**
  * Parses the newline character
  */
-export const newline = regex(/^\n/);
+export const newline: Parser<string> = regex(/^\n/);
 
 /**
  * Discards trailing spaces
