@@ -9,7 +9,8 @@ import {
   sequence,
   zero,
 } from "@fcrozatier/monarch";
-import { literal, regex, token, trimEnd, whitespace } from "./common.ts";
+import { literal, regex, whitespaces } from "./common.ts";
+import { whitespace } from "./common.ts";
 
 export type MElement = {
   tagName: string;
@@ -35,15 +36,14 @@ export const comment: Parser<string> = bracket(
 /**
  * Parse a sequence of comments surrounded by whitespace, and discards the whole match
  */
-export const spaceAroundComments: Parser<string> = trimEnd(
-  sepBy(whitespace, comment),
-).map(() => "");
+export const spaceAroundComments: Parser<string> = (sepBy(whitespaces, comment))
+  .skip(whitespaces)
+  .map(() => "");
 
 /**
  * Remove trailing spaces and comments
  */
-const cleanEnd = <T>(parser: Parser<T>) =>
-  parser.bind((p) => spaceAroundComments.bind(() => result(p)));
+const cleanEnd = <T>(parser: Parser<T>) => parser.skip(spaceAroundComments);
 
 /**
  * Parse a modern HTML doctype
@@ -52,15 +52,16 @@ const cleanEnd = <T>(parser: Parser<T>) =>
  */
 export const doctype: Parser<string> = cleanEnd(
   sequence([
-    trimEnd(regex(/^<!DOCTYPE/i)),
-    trimEnd(regex(/^html/i)),
+    regex(/^<!DOCTYPE/i),
+    whitespace.skip(whitespaces),
+    regex(/^html/i).skip(whitespaces),
     literal(">"),
   ]).map(() => "<!DOCTYPE html>").error("Expected a valid doctype"),
 );
 
 // Tokens
-const singleQuote = token("'");
-const doubleQuote = token('"');
+const singleQuote = literal("'");
+const doubleQuote = literal('"');
 
 const rawText = cleanEnd(regex(/^[^<]+/));
 
@@ -69,38 +70,38 @@ const rawText = cleanEnd(regex(/^[^<]+/));
  *
  * @ref https://html.spec.whatwg.org/#attributes-2
  */
-const attributeName = trimEnd(
-  regex(/^[^\s="'>\/\p{Noncharacter_Code_Point}]+/u),
-)
-  .error(
-    "Expected a valid attribute name",
-  );
+const attributeName = regex(/^[^\s="'>\/\p{Noncharacter_Code_Point}]+/u)
+  .skip(whitespaces)
+  .map((name) => name.toLowerCase())
+  .error("Expected a valid attribute name");
+
 const attributeValue = first(
   bracket(singleQuote, regex(/^[^']*/), singleQuote),
   bracket(doubleQuote, regex(/^[^"]*/), doubleQuote),
   regex(/^[^\s='"<>`]+/),
 );
 
-const attribute: Parser<[string, string]> = first(
+const attribute: Parser<[string, string]> = first<[string, string]>(
   sequence([
     attributeName,
-    token("="),
+    literal("=").skip(whitespaces),
     attributeValue,
-  ]).map(([name, _, value]) => [name.toLowerCase(), value]),
-  attributeName.map((name) => [name.toLowerCase(), ""]),
-);
+  ]).map(([name, _, value]) => [name, value]),
+  attributeName.map((name) => [name, ""]),
+).skip(whitespaces);
 
 // Tags
-const tagName = trimEnd(regex(/^[a-zA-Z][a-zA-Z0-9-]*/)).map((name) =>
-  name.toLowerCase()
-).error("Expected an ASCII alphanumeric tag name");
+const tagName = regex(/^[a-zA-Z][a-zA-Z0-9-]*/)
+  .skip(whitespaces)
+  .map((name) => name.toLowerCase())
+  .error("Expected an ASCII alphanumeric tag name");
 
 const startTag: Parser<
   { tagName: string; attributes: [string, string][] }
 > = sequence([
   literal("<"),
   tagName,
-  trimEnd(sepBy(attribute, whitespace)),
+  many(attribute),
   first(
     literal("/>"),
     literal(">"),

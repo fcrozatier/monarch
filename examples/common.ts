@@ -110,13 +110,6 @@ export const spaces: Parser<string> = regex(/^ */);
 export const newline: Parser<string> = regex(/^\n/);
 
 /**
- * Discards trailing spaces
- */
-export function trimEnd<T>(parser: Parser<T>): Parser<T> {
-  return parser.skip(whitespaces);
-}
-
-/**
  * Parses a given string
  */
 export function literal(value: string): Parser<string> {
@@ -143,18 +136,11 @@ export function literal(value: string): Parser<string> {
 }
 
 /**
- * Parses a keyword and discards trailing spaces
- * Alias: token
- */
-export const keyword: (value: string) => Parser<string> = (value: string) =>
-  trimEnd(literal(value));
-
-/**
  * Parses a token and discards trailing spaces
  * Alias: keyword
  */
 export function token(value: string): Parser<string> {
-  return trimEnd(literal(value));
+  return literal(value).skip(whitespaces);
 }
 
 /**
