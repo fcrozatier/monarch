@@ -7,7 +7,7 @@ import {
   element,
   fragments,
   Kind,
-  serializeFragment,
+  serializeFragments,
   spacesAndComments,
   textNode,
   WHITE_SPACE_NODE
@@ -490,7 +490,7 @@ Deno.test("serialize", () => {
   const samples = ["text", "<!-- comment -->", "<span>no whitespace</span>"];
 
   for (const sample of samples) {
-    assertEquals(serializeFragment(fragments.parseOrThrow(sample)), sample);
+    assertEquals(serializeFragments(fragments.parseOrThrow(sample)), sample);
   }
 });
 
@@ -507,7 +507,7 @@ Deno.test("serialize_indentation", () => {
 </span>
 `.trim();
   assertEquals(
-    serializeFragment(fragments.parseOrThrow(indented)),
+    serializeFragments(fragments.parseOrThrow(indented)),
     result,
   );
 });
@@ -520,7 +520,7 @@ World
 </a>!`;
 
   assertEquals(
-    serializeFragment(fragments.parseOrThrow(spaces)),
+    serializeFragments(fragments.parseOrThrow(spaces)),
     result,
   );
 });
@@ -547,7 +547,7 @@ A single whitespace before the linebreak is not dropped
   const samples = [newlines, spaces, indentation];
   for (const sample of samples) {
     assertEquals(
-      serializeFragment(fragments.parseOrThrow(sample)),
+      serializeFragments(fragments.parseOrThrow(sample)),
       sample,
     );
   }

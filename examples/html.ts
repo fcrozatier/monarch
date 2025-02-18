@@ -239,39 +239,40 @@ export const fragments: Parser<MNode[]> = many(
   ),
 );
 
-export const shadowRoot: Parser<MElement> = createParser(
-  (input, position) => {
-    const result = sequence([
-      spacesAndComments,
-      element,
-    ]).map(([_, element]) => element).parse(input, position);
+export const shadowRoot: Parser<readonly [MMaybeSpaceAndComments, MElement]> =
+  createParser(
+    (input, position) => {
+      const result = sequence([
+        spacesAndComments,
+        element,
+      ]).parse(input, position);
 
-    if (!result.success) return result;
+      if (!result.success) return result;
 
-    const { value: maybeTemplate } = result.results[0];
-    if (maybeTemplate.tagName !== "template") {
-      return {
-        success: false,
-        message: "Expected a template element",
-        position,
-      };
-    }
+      const maybeTemplate = result.results[0].value[1];
+      if (maybeTemplate.tagName !== "template") {
+        return {
+          success: false,
+          message: "Expected a template element",
+          position,
+        };
+      }
 
-    if (
-      !maybeTemplate.attributes.find(([k, v]) =>
-        k === "shadowrootmode" && v === "open"
-      )
-    ) {
-      return {
-        success: false,
-        message: "Expected a declarative shadow root",
-        position,
-      };
-    }
+      if (
+        !maybeTemplate.attributes.find(([k, v]) =>
+          k === "shadowrootmode" && v === "open"
+        )
+      ) {
+        return {
+          success: false,
+          message: "Expected a declarative shadow root",
+          position,
+        };
+      }
 
-    return result;
-  },
-);
+      return result;
+    },
+  );
 
 /**
  * Parses an html document: a doctype and an html element maybe surrounded by whitespace and comments
@@ -334,7 +335,7 @@ export const serializeNode = (
   return `${startTag}${content}</${node.tagName}>`;
 };
 
-export const serializeFragment = (
+export const serializeFragments = (
   fragment: MFragment,
   options?: SerializationOptions,
 ) => {
@@ -355,7 +356,7 @@ export const Kind = {
 /**
  * Associate a tag name to its corresponding element kind
  */
-export const elementKind = (tag: string): keyof typeof Kind => {
+const elementKind = (tag: string): keyof typeof Kind => {
   if (voidElements.includes(tag)) return Kind.VOID;
   if (rawTextElements.includes(tag)) return Kind.RAW_TEXT;
   if (escapableRawTextElements.includes(tag)) return Kind.ESCAPABLE_RAW_TEXT;
