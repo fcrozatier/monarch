@@ -11,23 +11,19 @@ import {
 } from "@fcrozatier/monarch";
 import { literal, regex, whitespace, whitespaces } from "./common.ts";
 
-type MWhiteSpaceNode = {
-  kind: "WHITESPACE";
-};
-
 type MCommentNode = {
   kind: "COMMENT";
   text: string;
 };
 
-type MMaybeSpaceAndComments = (MWhiteSpaceNode | MCommentNode)[];
+type MSpacesAndComments = (MTextNode | MCommentNode)[];
 
 type MTextNode = {
   kind: "TEXT";
   text: string;
 };
 
-type MNode = MWhiteSpaceNode | MCommentNode | MTextNode | MElement;
+type MNode = MCommentNode | MTextNode | MElement;
 
 export type MFragment = MNode[];
 
@@ -39,21 +35,15 @@ export type MElement = {
   children?: MFragment;
 };
 
-export const WHITE_SPACE_NODE: MWhiteSpaceNode = {
-  kind: "WHITESPACE",
-};
-
-export const commentNode = (
-  text: string,
-) => ({ kind: "COMMENT", text } satisfies MCommentNode);
-
 export const textNode = (
   text: string,
 ) => ({ kind: "TEXT", text } satisfies MTextNode);
 
-export const significantWhiteSpace: Parser<MWhiteSpaceNode> = whitespace.skip(
-  whitespaces,
-).map(() => WHITE_SPACE_NODE);
+const whitespaceOnlyText = whitespaces.map(textNode);
+
+export const commentNode = (
+  text: string,
+) => ({ kind: "COMMENT", text } satisfies MCommentNode);
 
 /**
  * Parses an HTML comment
@@ -69,18 +59,13 @@ export const comment: Parser<MCommentNode> = bracket(
 /**
  * Parses a sequence of comments maybe surrounded by whitespace
  */
-export const spacesAndComments: Parser<MMaybeSpaceAndComments> = whitespaces
-  .bind(
-    (beforeSpace) =>
-      sepBy(comment, whitespaces).bind((comments) =>
-        whitespaces.bind((afterSpace) => {
-          if (beforeSpace.length > 0 || afterSpace.length > 0) {
-            return result([WHITE_SPACE_NODE, ...comments]);
-          }
-          return result(comments);
-        })
-      ),
-  );
+export const spacesAndComments: Parser<MSpacesAndComments> = sequence(
+  [
+    whitespaceOnlyText,
+    sepBy(comment, whitespaces),
+    whitespaceOnlyText,
+  ],
+).map(([space1, comments, space2]) => [space1, ...comments, space2]);
 
 /**
  * Parses a modern HTML doctype
@@ -96,8 +81,6 @@ export const doctype: Parser<string> = sequence([
 
 const singleQuote = literal("'");
 const doubleQuote = literal('"');
-const rawTextWithNoTrailingSpaces: Parser<MTextNode> = regex(/^[^<]*[^\s<]/)
-  .map(textNode);
 const rawText = regex(/^[^<]+/).map(textNode);
 
 /**
@@ -186,11 +169,8 @@ export const element: Parser<MElement> = createParser((input, position) => {
     ).map((t) => t.length > 0 ? [textNode(t)] : []);
 
     childrenElementsParser = rawText;
-  } else if (tagName !== "pre") {
-    childrenElementsParser = fragments;
   } else {
-    // The pre element parses whitespace differently
-    childrenElementsParser = preChildren;
+    childrenElementsParser = fragments;
   }
 
   const childrenElements = childrenElementsParser.parse(
@@ -226,20 +206,11 @@ export const element: Parser<MElement> = createParser((input, position) => {
   };
 });
 
-const preChildren = many(
+export const fragments: Parser<MNode[]> = many(
   first<MNode>(element, comment, rawText),
 );
 
-export const fragments: Parser<MNode[]> = many(
-  first<MNode>(
-    significantWhiteSpace,
-    element,
-    comment,
-    rawTextWithNoTrailingSpaces,
-  ),
-);
-
-export const shadowRoot: Parser<readonly [MMaybeSpaceAndComments, MElement]> =
+export const shadowRoot: Parser<readonly [MSpacesAndComments, MElement]> =
   createParser(
     (input, position) => {
       const result = sequence([
@@ -314,7 +285,6 @@ export const serializeNode = (
   if (node.kind === "COMMENT") {
     return removeComments ? "" : `<!--${node.text}-->`;
   }
-  if (node.kind === "WHITESPACE") return "\n";
 
   const attributes = node.attributes.map(([k, v]) => {
     const quotes = v.includes('"') ? "'" : '"';
