@@ -7,9 +7,10 @@ import {
   element,
   fragments,
   Kind,
+  serializeFragment,
   spacesAndComments,
   textNode,
-  WHITE_SPACE_NODE,
+  WHITE_SPACE_NODE
 } from "../examples/html.ts";
 
 Deno.test("comments_simple", () => {
@@ -483,4 +484,71 @@ Deno.test("entities", () => {
       }],
     },
   ]);
+});
+
+Deno.test("serialize", () => {
+  const samples = ["text", "<!-- comment -->", "<span>no whitespace</span>"];
+
+  for (const sample of samples) {
+    assertEquals(serializeFragment(fragments.parseOrThrow(sample)), sample);
+  }
+});
+
+Deno.test("serialize_indentation", () => {
+  const indented = `<span>
+            <a href="#">First</a>
+            <a href="#">Second</a>
+</span>
+`.trim();
+
+  const result = `<span>
+<a href="#">First</a>
+<a href="#">Second</a>
+</span>
+`.trim();
+  assertEquals(
+    serializeFragment(fragments.parseOrThrow(indented)),
+    result,
+  );
+});
+
+Deno.test("serialize_spaces", () => {
+  const spaces = `Hello, <a href="#"> World </a>!`;
+  const result = `Hello,
+<a href="#">
+World
+</a>!`;
+
+  assertEquals(
+    serializeFragment(fragments.parseOrThrow(spaces)),
+    result,
+  );
+});
+
+// A single newline at the start or end of pre blocks is ignored by the HTML parser but a space followed by a newline is not
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
+Deno.test("serialize_preformatted", () => {
+  const newlines = `<pre>
+
+Two newlines, only the first one would be dropped
+
+</pre>
+`;
+  const spaces = `<pre>
+A single whitespace before the linebreak is not dropped
+ </pre>
+`;
+
+  const indentation = `<pre>
+    Indentation is kept
+</pre>
+`;
+
+  const samples = [newlines, spaces, indentation];
+  for (const sample of samples) {
+    assertEquals(
+      serializeFragment(fragments.parseOrThrow(sample)),
+      sample,
+    );
+  }
 });

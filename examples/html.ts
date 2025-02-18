@@ -11,8 +11,6 @@ import {
 } from "@fcrozatier/monarch";
 import { literal, regex, whitespace, whitespaces } from "./common.ts";
 
-type MNode = MWhiteSpaceNode | MCommentNode | MTextNode | MElement;
-
 type MWhiteSpaceNode = {
   kind: "WHITESPACE";
 };
@@ -29,6 +27,10 @@ type MTextNode = {
   text: string;
 };
 
+type MNode = MWhiteSpaceNode | MCommentNode | MTextNode | MElement;
+
+export type MFragment = MNode[];
+
 export type MElement = {
   tagName: string;
   kind: keyof typeof Kind;
@@ -36,8 +38,6 @@ export type MElement = {
   parent?: MElement;
   children?: MFragment;
 };
-
-export type MFragment = MNode[];
 
 export const WHITE_SPACE_NODE: MWhiteSpaceNode = {
   kind: "WHITESPACE",
@@ -96,7 +96,9 @@ export const doctype: Parser<string> = sequence([
 
 const singleQuote = literal("'");
 const doubleQuote = literal('"');
-const rawText: Parser<MTextNode> = regex(/^[^<]+[^\s<]/).map(textNode);
+const rawTextWithNoTrailingSpaces: Parser<MTextNode> = regex(/^[^<]*[^\s<]/)
+  .map(textNode);
+const rawText = regex(/^[^<]+/).map(textNode);
 
 /**
  * Parses an HTML attribute name
@@ -184,8 +186,11 @@ export const element: Parser<MElement> = createParser((input, position) => {
     ).map((t) => t.length > 0 ? [textNode(t)] : []);
 
     childrenElementsParser = rawText;
-  } else {
+  } else if (tagName !== "pre") {
     childrenElementsParser = fragments;
+  } else {
+    // The pre element parses whitespace differently
+    childrenElementsParser = preChildren;
   }
 
   const childrenElements = childrenElementsParser.parse(
@@ -221,8 +226,17 @@ export const element: Parser<MElement> = createParser((input, position) => {
   };
 });
 
+const preChildren = many(
+  first<MNode>(element, comment, rawText),
+);
+
 export const fragments: Parser<MNode[]> = many(
-  first<MNode>(significantWhiteSpace, element, comment, rawText),
+  first<MNode>(
+    significantWhiteSpace,
+    element,
+    comment,
+    rawTextWithNoTrailingSpaces,
+  ),
 );
 
 export const shadowRoot: Parser<MElement> = createParser(
@@ -283,30 +297,53 @@ export const html: Parser<
     comments3.filter((c) => c.kind === "COMMENT"),
   ]);
 
-// export const serializeFragment = (
-//   element: MElement | string,
-// ): string => {
-//   if (typeof element === "string") return element;
+type SerializationOptions = { removeComments?: boolean };
 
-//   const attributes = element.attributes.map(([k, v]) => {
-//     const quotes = v.includes('"') ? "'" : '"';
-//     return booleanAttributes.includes(k) ? k : `${k}=${quotes}${v}${quotes}`;
-//   });
+export const serializeNode = (
+  node: MNode,
+  options?: SerializationOptions,
+): string => {
+  const { removeComments } = Object.assign(
+    {},
+    { removeComments: false },
+    options,
+  );
 
-//   const attributesString = attributes.length > 0
-//     ? ` ${attributes.join(" ")}`
-//     : "";
-//   const startTag = `<${element.tagName}${attributesString}>\n`;
+  if (node.kind === "TEXT") return node.text;
+  if (node.kind === "COMMENT") {
+    return removeComments ? "" : `<!--${node.text}-->`;
+  }
+  if (node.kind === "WHITESPACE") return "\n";
 
-//   if (element.kind === Kind.VOID) return startTag;
+  const attributes = node.attributes.map(([k, v]) => {
+    const quotes = v.includes('"') ? "'" : '"';
+    return booleanAttributes.includes(k) ? k : `${k}=${quotes}${v}${quotes}`;
+  });
 
-//   const content = element.children
-//     ? element.children?.map(serializeFragment).join("")
-//     : "";
+  const attributesString = attributes.length > 0
+    ? ` ${attributes.join(" ")}`
+    : "";
+  const startTag = `<${node.tagName}${attributesString}>`;
 
-//   return `${startTag}${content.trimEnd()}\n</${element.tagName}>\n`;
-// };
+  if (node.kind === Kind.VOID) return startTag;
 
+  const content = node.children
+    ? node.children.map((node) => serializeNode(node, options))
+      .join("")
+    : "";
+  return `${startTag}${content}</${node.tagName}>`;
+};
+
+export const serializeFragment = (
+  fragment: MFragment,
+  options?: SerializationOptions,
+) => {
+  return fragment.map((node) => serializeNode(node, options)).join("");
+};
+
+/**
+ * The different types of elements
+ */
 export const Kind = {
   VOID: "VOID",
   RAW_TEXT: "RAW_TEXT",
@@ -315,6 +352,9 @@ export const Kind = {
   NORMAL: "NORMAL",
 } as const;
 
+/**
+ * Associate a tag name to its corresponding element kind
+ */
 export const elementKind = (tag: string): keyof typeof Kind => {
   if (voidElements.includes(tag)) return Kind.VOID;
   if (rawTextElements.includes(tag)) return Kind.RAW_TEXT;
