@@ -11,15 +11,22 @@ import {
 } from "@fcrozatier/monarch";
 import { literal, regex, whitespace, whitespaces } from "./common.ts";
 
-type MNode = MCommentNode | MWhiteSpaceNode | MElement;
+type MNode = MWhiteSpaceNode | MCommentNode | MTextNode | MElement;
+
+type MWhiteSpaceNode = {
+  kind: "WHITESPACE";
+};
 
 type MCommentNode = {
   kind: "COMMENT";
   text: string;
 };
 
-type MWhiteSpaceNode = {
-  kind: "WHITESPACE";
+type MMaybeSpaceAndComments = (MWhiteSpaceNode | MCommentNode)[];
+
+type MTextNode = {
+  kind: "TEXT";
+  text: string;
 };
 
 export type MElement = {
@@ -30,14 +37,23 @@ export type MElement = {
   children?: MFragment;
 };
 
-export type MFragment = (MElement | string)[];
+export type MFragment = MNode[];
 
-const newCommentNode = (
+export const WHITE_SPACE_NODE: MWhiteSpaceNode = {
+  kind: "WHITESPACE",
+};
+
+export const commentNode = (
   text: string,
 ) => ({ kind: "COMMENT", text } satisfies MCommentNode);
 
-const newWhiteSpaceNode =
-  () => ({ kind: "WHITESPACE" } satisfies MWhiteSpaceNode);
+export const textNode = (
+  text: string,
+) => ({ kind: "TEXT", text } satisfies MTextNode);
+
+export const significantWhiteSpace: Parser<MWhiteSpaceNode> = whitespace.skip(
+  whitespaces,
+).map(() => WHITE_SPACE_NODE);
 
 /**
  * Parses an HTML comment
@@ -48,39 +64,39 @@ export const comment: Parser<MCommentNode> = bracket(
   literal("<!--"),
   regex(/^(?!>|->)(?:.|\n)*?(?=(?:<\!--|-->|--!>|<!-)|$)/),
   literal("-->"),
-).map((text) => newCommentNode(text));
+).map((text) => commentNode(text));
 
 /**
- * Parses a sequence of comments surrounded by whitespace, and discards the whole match
+ * Parses a sequence of comments maybe surrounded by whitespace
  */
-export const spaceAroundComments: Parser<string> = (sepBy(whitespaces, comment))
-  .skip(whitespaces)
-  .map(() => "");
-
-/**
- * Remove trailing spaces and comments
- */
-const cleanEnd = <T>(parser: Parser<T>) => parser.skip(spaceAroundComments);
+export const spacesAndComments: Parser<MMaybeSpaceAndComments> = whitespaces
+  .bind(
+    (beforeSpace) =>
+      sepBy(comment, whitespaces).bind((comments) =>
+        whitespaces.bind((afterSpace) => {
+          if (beforeSpace.length > 0 || afterSpace.length > 0) {
+            return result([WHITE_SPACE_NODE, ...comments]);
+          }
+          return result(comments);
+        })
+      ),
+  );
 
 /**
  * Parses a modern HTML doctype
  *
  * @ref https://html.spec.whatwg.org/#syntax-doctype
  */
-export const doctype: Parser<string> = cleanEnd(
-  sequence([
-    regex(/^<!DOCTYPE/i),
-    whitespace.skip(whitespaces),
-    regex(/^html/i).skip(whitespaces),
-    literal(">"),
-  ]).map(() => "<!DOCTYPE html>").error("Expected a valid doctype"),
-);
+export const doctype: Parser<string> = sequence([
+  regex(/^<!DOCTYPE/i),
+  whitespace.skip(whitespaces),
+  regex(/^html/i).skip(whitespaces),
+  literal(">"),
+]).map(() => "<!DOCTYPE html>").error("Expected a valid doctype");
 
-// Tokens
 const singleQuote = literal("'");
 const doubleQuote = literal('"');
-
-const rawText = cleanEnd(regex(/^[^<]+/));
+const rawText: Parser<MTextNode> = regex(/^[^<]+[^\s<]/).map(textNode);
 
 /**
  * Parses an HTML attribute name
@@ -126,106 +142,93 @@ const startTag: Parser<
     return zero.error("Unexpected self-closing tag on a non-void element");
   }
 
-  if (tagName !== "pre") {
-    // Trim comments inside the start tag of all non pre elements
-    // New lines at the start of pre blocks are ignored by the HTML parser but a space followed by a newline is not
-    // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
-    return spaceAroundComments.bind(() => result({ tagName, attributes }));
-  }
-
   return result({ tagName, attributes });
 });
 
-export const element: Parser<MElement> = cleanEnd(
-  createParser((input, position) => {
-    const openTag = startTag.parse(input, position);
+export const element: Parser<MElement> = createParser((input, position) => {
+  const openTag = startTag.parse(input, position);
 
-    if (!openTag.success) return openTag;
+  if (!openTag.success) return openTag;
 
-    const {
-      value: { tagName, attributes },
-      remaining,
-      position: openTagPosition,
-    } = openTag.results[0];
+  const {
+    value: { tagName, attributes },
+    remaining,
+    position: openTagPosition,
+  } = openTag.results[0];
 
-    const kind = elementKind(tagName);
+  const kind = elementKind(tagName);
 
-    if (kind === Kind.VOID || !remaining) {
-      return {
-        success: true,
-        results: [{
-          value: { tagName, kind, attributes } satisfies MElement,
-          remaining,
-          position: openTagPosition,
-        }],
-      };
-    }
-
-    let childrenElementsParser: Parser<(string | MElement)[]>;
-    const endTagParser = regex(new RegExp(`^</${tagName}>\\s*`, "i")).error(
-      `Expected a '</${tagName}>' end tag`,
-    );
-
-    if (
-      kind === Kind.RAW_TEXT ||
-      kind === Kind.ESCAPABLE_RAW_TEXT
-    ) {
-      // https://html.spec.whatwg.org/#cdata-rcdata-restrictions
-      const rawText = regex(
-        new RegExp(`^(?:(?!<\/${tagName}(?:>|\n|\\s|\/)).|\n)*`, "i"),
-      );
-      childrenElementsParser = rawText.map((t) => [t]);
-    } else {
-      childrenElementsParser = many(
-        first<MElement | string>(element, rawText),
-      );
-    }
-
-    const childrenElements = childrenElementsParser.parse(
-      remaining,
-      openTagPosition,
-    );
-
-    if (!childrenElements.success) return childrenElements;
-
-    const {
-      value: children,
-      remaining: childrenRemaining,
-      position: childrenPosition,
-    } = childrenElements.results[0];
-
-    const res = endTagParser.parse(childrenRemaining, childrenPosition);
-
-    // End tag omission would be managed here
-    if (!res.success) return res;
-
+  if (kind === Kind.VOID || !remaining) {
     return {
       success: true,
       results: [{
-        value: {
-          tagName,
-          kind,
-          attributes,
-          children,
-        } satisfies MElement,
-        remaining: res.results[0].remaining,
-        position: res.results[0].position,
+        value: { tagName, kind, attributes } satisfies MElement,
+        remaining,
+        position: openTagPosition,
       }],
     };
-  }),
-);
+  }
 
-export const fragments: Parser<MFragment> = sequence([
-  spaceAroundComments,
-  many(
-    first<MElement | string>(element, rawText),
-  ),
-]).map(([_, element]) => element);
+  let childrenElementsParser: Parser<MFragment>;
+  const endTagParser = regex(new RegExp(`^</${tagName}>`, "i")).error(
+    `Expected a '</${tagName}>' end tag`,
+  );
+
+  if (
+    kind === Kind.RAW_TEXT ||
+    kind === Kind.ESCAPABLE_RAW_TEXT
+  ) {
+    // https://html.spec.whatwg.org/#cdata-rcdata-restrictions
+    const rawText = regex(
+      new RegExp(`^(?:(?!<\/${tagName}(?:>|\n|\/)).|\n)*`, "i"),
+    ).map((t) => t.length > 0 ? [textNode(t)] : []);
+
+    childrenElementsParser = rawText;
+  } else {
+    childrenElementsParser = fragments;
+  }
+
+  const childrenElements = childrenElementsParser.parse(
+    remaining,
+    openTagPosition,
+  );
+
+  if (!childrenElements.success) return childrenElements;
+
+  const {
+    value: children,
+    remaining: childrenRemaining,
+    position: childrenPosition,
+  } = childrenElements.results[0];
+
+  const res = endTagParser.parse(childrenRemaining, childrenPosition);
+
+  // End tag omission would be managed here
+  if (!res.success) return res;
+
+  return {
+    success: true,
+    results: [{
+      value: {
+        tagName,
+        kind,
+        attributes,
+        children,
+      } satisfies MElement,
+      remaining: res.results[0].remaining,
+      position: res.results[0].position,
+    }],
+  };
+});
+
+export const fragments: Parser<MNode[]> = many(
+  first<MNode>(significantWhiteSpace, element, comment, rawText),
+);
 
 export const shadowRoot: Parser<MElement> = createParser(
   (input, position) => {
     const result = sequence([
-      spaceAroundComments,
+      spacesAndComments,
       element,
     ]).map(([_, element]) => element).parse(input, position);
 
@@ -256,38 +259,53 @@ export const shadowRoot: Parser<MElement> = createParser(
   },
 );
 
-// https://html.spec.whatwg.org/#writing
-export const html: Parser<[string, MElement]> = sequence([
-  spaceAroundComments,
+/**
+ * Parses an html document: a doctype and an html element maybe surrounded by whitespace and comments
+ *
+ * https://html.spec.whatwg.org/#writing
+ */
+export const html: Parser<
+  [MCommentNode[], string, MCommentNode[], MElement, MCommentNode[]]
+> = sequence([
+  spacesAndComments,
   doctype,
-  spaceAroundComments,
+  spacesAndComments,
   element,
+  spacesAndComments,
 ])
-  .map(([_0, doctype, _1, document]) => [doctype, document]);
+  .map((
+    [comments1, doctype, comments2, document, comments3],
+  ) => [
+    comments1.filter((c) => c.kind === "COMMENT"),
+    doctype,
+    comments2.filter((c) => c.kind === "COMMENT"),
+    document,
+    comments3.filter((c) => c.kind === "COMMENT"),
+  ]);
 
-export const serializeFragment = (
-  element: MElement | string,
-): string => {
-  if (typeof element === "string") return element;
+// export const serializeFragment = (
+//   element: MElement | string,
+// ): string => {
+//   if (typeof element === "string") return element;
 
-  const attributes = element.attributes.map(([k, v]) => {
-    const quotes = v.includes('"') ? "'" : '"';
-    return booleanAttributes.includes(k) ? k : `${k}=${quotes}${v}${quotes}`;
-  });
+//   const attributes = element.attributes.map(([k, v]) => {
+//     const quotes = v.includes('"') ? "'" : '"';
+//     return booleanAttributes.includes(k) ? k : `${k}=${quotes}${v}${quotes}`;
+//   });
 
-  const attributesString = attributes.length > 0
-    ? ` ${attributes.join(" ")}`
-    : "";
-  const startTag = `<${element.tagName}${attributesString}>\n`;
+//   const attributesString = attributes.length > 0
+//     ? ` ${attributes.join(" ")}`
+//     : "";
+//   const startTag = `<${element.tagName}${attributesString}>\n`;
 
-  if (element.kind === Kind.VOID) return startTag;
+//   if (element.kind === Kind.VOID) return startTag;
 
-  const content = element.children
-    ? element.children?.map(serializeFragment).join("")
-    : "";
+//   const content = element.children
+//     ? element.children?.map(serializeFragment).join("")
+//     : "";
 
-  return `${startTag}${content.trimEnd()}\n</${element.tagName}>\n`;
-};
+//   return `${startTag}${content.trimEnd()}\n</${element.tagName}>\n`;
+// };
 
 export const Kind = {
   VOID: "VOID",

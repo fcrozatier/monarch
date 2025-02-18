@@ -2,17 +2,15 @@ import { assertEquals } from "@std/assert";
 import {
   attribute,
   comment,
+  commentNode,
   doctype,
   element,
   fragments,
   Kind,
+  spacesAndComments,
+  textNode,
+  WHITE_SPACE_NODE,
 } from "../examples/html.ts";
-
-Deno.test("doctype", () => {
-  const res = doctype.parseOrThrow("<!Doctype Html >");
-
-  assertEquals(res, "<!DOCTYPE html>");
-});
 
 Deno.test("comments_simple", () => {
   const singleline = comment.parseOrThrow("<!-- A simple comment -->");
@@ -34,20 +32,34 @@ Deno.test("comments_simple", () => {
 });
 
 Deno.test("comments_complex", () => {
-  const comments = fragments.parseOrThrow(`
+  const consecutive_comments = spacesAndComments.parseOrThrow(`
     <!-- consecutive comments -->
     <!-- arrows ->-> -- > ->->->-- -> inside comments -->
-    <div>
-      <!-- <span>html inside comment</span> -->
-    </div>
   `);
+  assertEquals(consecutive_comments, [
+    { kind: "WHITESPACE" },
+    {
+      kind: "COMMENT",
+      text: " consecutive comments ",
+    },
+    {
+      kind: "COMMENT",
+      text: " arrows ->-> -- > ->->->-- -> inside comments ",
+    },
+  ]);
 
-  assertEquals(comments, [{
-    tagName: "div",
+  const html_inside_comment = element.parseOrThrow(`
+    <div><!-- <span>html inside comment</span> --></div>
+  `.trim());
+
+  assertEquals(html_inside_comment, {
     kind: Kind.NORMAL,
+    tagName: "div",
     attributes: [],
-    children: [],
-  }]);
+    children: [
+      { kind: "COMMENT", text: " <span>html inside comment</span> " },
+    ],
+  });
 });
 
 Deno.test("comments_nested", () => {
@@ -73,203 +85,71 @@ Deno.test("comments_nested", () => {
     </div>
     `);
 
-  assertEquals(nestedComments, [{
-    tagName: "div",
-    kind: Kind.NORMAL,
-    attributes: [],
-    children: [{
-      tagName: "p",
+  assertEquals(nestedComments, [
+    WHITE_SPACE_NODE,
+    commentNode(" This is a div "),
+    WHITE_SPACE_NODE,
+    {
+      tagName: "div",
       kind: Kind.NORMAL,
       attributes: [],
       children: [
-        "Some text\n        ",
+        WHITE_SPACE_NODE,
+        commentNode(" This is a p "),
+        WHITE_SPACE_NODE,
         {
-          tagName: "button",
+          tagName: "p",
           kind: Kind.NORMAL,
           attributes: [],
-          children: ["click"],
+          children: [
+            WHITE_SPACE_NODE,
+            { kind: "TEXT", text: "Some text" },
+            WHITE_SPACE_NODE,
+            commentNode(" This is a button "),
+            WHITE_SPACE_NODE,
+            {
+              tagName: "button",
+              kind: Kind.NORMAL,
+              attributes: [],
+              children: [{ kind: "TEXT", text: "click" }],
+            },
+            WHITE_SPACE_NODE,
+            commentNode(" Now below the button "),
+            WHITE_SPACE_NODE,
+          ],
         },
-      ],
-    }, {
-      tagName: "p",
-      kind: Kind.NORMAL,
-      attributes: [],
-      children: [
+        WHITE_SPACE_NODE,
+        commentNode(" Another section "),
+        WHITE_SPACE_NODE,
+        commentNode(" Another p "),
+        WHITE_SPACE_NODE,
         {
-          tagName: "input",
-          kind: Kind.VOID,
-          attributes: [["type", "checkbox"]],
+          tagName: "p",
+          kind: Kind.NORMAL,
+          attributes: [],
+          children: [
+            WHITE_SPACE_NODE,
+            {
+              tagName: "input",
+              kind: Kind.VOID,
+              attributes: [["type", "checkbox"]],
+            },
+            WHITE_SPACE_NODE,
+            commentNode(" An input "),
+            WHITE_SPACE_NODE,
+          ],
         },
+        WHITE_SPACE_NODE,
       ],
-    }],
-  }]);
+    },
+    WHITE_SPACE_NODE,
+  ]);
 });
 
-Deno.test("void_element", () => {
-  const input = element.parseOrThrow('<input type="text">');
-  assertEquals(input, {
-    tagName: "input",
-    kind: Kind.VOID,
-    attributes: [["type", "text"]],
-  });
-});
+Deno.test("doctype", () => {
+  const res = doctype.parseOrThrow("<!Doctype Html >");
 
-Deno.test("void_elements", () => {
-  const content = fragments.parseOrThrow(
-    '<form><img src="something.png"><br><input type=submit value=Ok /></form>',
-  );
-  assertEquals(content, [{
-    tagName: "form",
-    kind: Kind.NORMAL,
-    attributes: [],
-    children: [
-      {
-        tagName: "img",
-        kind: Kind.VOID,
-        attributes: [["src", "something.png"]],
-      },
-      { tagName: "br", kind: Kind.VOID, attributes: [] },
-      {
-        tagName: "input",
-        kind: Kind.VOID,
-        attributes: [["type", "submit"], ["value", "Ok"]],
-      },
-    ],
-  }]);
-});
-
-Deno.test("style element", () => {
-  const style = element.parseOrThrow(`
-    <style>
-      .box {
-        color: blue;
-      }
-    </style>
-    `.trim());
-
-  assertEquals(style, {
-    tagName: "style",
-    kind: Kind.RAW_TEXT,
-    attributes: [],
-    children: [`.box {
-        color: blue;
-      }
-    `],
-  });
-});
-
-Deno.test("script element", () => {
-  const script = element.parseOrThrow(`
-    <script>
-      <
-      </
-      </s
-      </sc
-      </scr
-      </scri
-      </scrip
-      console.log(1 < 2);
-    </script>
-    `.trim());
-
-  assertEquals(script, {
-    tagName: "script",
-    kind: Kind.RAW_TEXT,
-    attributes: [],
-    children: [`<
-      </
-      </s
-      </sc
-      </scr
-      </scri
-      </scrip
-      console.log(1 < 2);
-    `],
-  });
-});
-
-Deno.test("empty script", () => {
-  const script = element.parseOrThrow(
-    `<script type="module" src="/src/module.js"></script>`,
-  );
-
-  assertEquals(script, {
-    tagName: "script",
-    kind: Kind.RAW_TEXT,
-    attributes: [["type", "module"], ["src", "/src/module.js"]],
-    children: [""],
-  });
-});
-
-Deno.test("empty span", () => {
-  const span = element.parseOrThrow(
-    `<span class="icon"></span>`,
-  );
-
-  assertEquals(span, {
-    tagName: "span",
-    kind: Kind.NORMAL,
-    attributes: [["class", "icon"]],
-    children: [],
-  });
-});
-
-Deno.test("nested elements", () => {
-  const nested = element.parseOrThrow(`
-    <div>
-      <p>
-        <button>click</button>
-      </p>
-      <p>
-        Multi-line
-        text
-      </p>
-      <p>
-        <input type="checkbox">
-      </p>
-    </div>
-    `.trim());
-
-  assertEquals(nested, {
-    tagName: "div",
-    kind: Kind.NORMAL,
-    attributes: [],
-    children: [
-      {
-        tagName: "p",
-        kind: Kind.NORMAL,
-        attributes: [],
-        children: [
-          {
-            tagName: "button",
-            kind: Kind.NORMAL,
-            attributes: [],
-            children: ["click"],
-          },
-        ],
-      },
-      {
-        tagName: "p",
-        kind: Kind.NORMAL,
-        attributes: [],
-        children: [
-          "Multi-line\n        text\n      ",
-        ],
-      },
-      {
-        tagName: "p",
-        kind: Kind.NORMAL,
-        attributes: [],
-        children: [
-          {
-            tagName: "input",
-            kind: Kind.VOID,
-            attributes: [["type", "checkbox"]],
-          },
-        ],
-      },
-    ],
-  });
+  assertEquals(res, "<!DOCTYPE html>");
 });
 
 Deno.test("attributes", () => {
@@ -329,51 +209,278 @@ Deno.test("attributes", () => {
   });
 });
 
-Deno.test("custom tags", () => {
+Deno.test("void_element", () => {
+  const input = element.parseOrThrow('<input type="text">');
+  assertEquals(input, {
+    tagName: "input",
+    kind: Kind.VOID,
+    attributes: [["type", "text"]],
+  });
+});
+
+Deno.test("void_elements", () => {
+  const content = fragments.parseOrThrow(
+    '<img src="something.png"><br><input type=submit value=Ok />',
+  );
+  assertEquals(content, [
+    {
+      tagName: "img",
+      kind: Kind.VOID,
+      attributes: [["src", "something.png"]],
+    },
+    { tagName: "br", kind: Kind.VOID, attributes: [] },
+    {
+      tagName: "input",
+      kind: Kind.VOID,
+      attributes: [["type", "submit"], ["value", "Ok"]],
+    },
+  ]);
+});
+
+Deno.test("raw_text_elements", () => {
+  const style = element.parseOrThrow(`
+    <style>
+      .box {
+        color: blue;
+      }
+    </style>
+    `.trim());
+
+  assertEquals(style, {
+    tagName: "style",
+    kind: Kind.RAW_TEXT,
+    attributes: [],
+    children: [{
+      kind: "TEXT",
+      text: `
+      .box {
+        color: blue;
+      }
+    `,
+    }],
+  });
+
+  const script = element.parseOrThrow(`
+    <script>
+      <
+      </
+      </s
+      </sc
+      </scr
+      </scri
+      </scrip
+      console.log(1 < 2);
+    </script>
+    `.trim());
+
+  assertEquals(script, {
+    tagName: "script",
+    kind: Kind.RAW_TEXT,
+    attributes: [],
+    children: [{
+      kind: "TEXT",
+      text: `
+      <
+      </
+      </s
+      </sc
+      </scr
+      </scri
+      </scrip
+      console.log(1 < 2);
+    `,
+    }],
+  });
+});
+
+Deno.test("raw_text_empty", () => {
+  const script = element.parseOrThrow(
+    `<script type="module" src="/src/module.js"></script>`,
+  );
+
+  assertEquals(script, {
+    tagName: "script",
+    kind: Kind.RAW_TEXT,
+    attributes: [["type", "module"], ["src", "/src/module.js"]],
+    children: [],
+  });
+});
+
+Deno.test("normal_element", () => {
+  const empty_span = element.parseOrThrow(
+    `<span class="icon"></span>`,
+  );
+  assertEquals(empty_span, {
+    tagName: "span",
+    kind: Kind.NORMAL,
+    attributes: [["class", "icon"]],
+    children: [],
+  });
+
+  const p = element.parseOrThrow(
+    `<p>lorem</p>`,
+  );
+  assertEquals(p, {
+    tagName: "p",
+    kind: Kind.NORMAL,
+    attributes: [],
+    children: [{ kind: "TEXT", text: "lorem" }],
+  });
+});
+
+Deno.test("significant_whitespace", () => {
+  const collapsing_space = element.parseOrThrow(
+    `<span>
+    </span>`,
+  );
+  assertEquals(collapsing_space, {
+    tagName: "span",
+    kind: Kind.NORMAL,
+    attributes: [],
+    children: [
+      { kind: "WHITESPACE" },
+    ],
+  });
+
+  const surrounding_spaces = element.parseOrThrow(
+    `<span>
+    lorem
+    </span>`,
+  );
+  assertEquals(surrounding_spaces, {
+    tagName: "span",
+    kind: Kind.NORMAL,
+    attributes: [],
+    children: [
+      { kind: "WHITESPACE" },
+      { kind: "TEXT", text: "lorem" },
+      { kind: "WHITESPACE" },
+    ],
+  });
+});
+
+Deno.test("custom_elements", () => {
   const res = fragments.parseOrThrow(`
     <something-different>
       <atom-text-editor mini>
         Hello
       </atom-text-editor>
     </something-different>
-    `);
+    `.trim());
 
   assertEquals(res, [{
     tagName: "something-different",
     kind: Kind.CUSTOM,
     attributes: [],
-    children: [
-      {
-        tagName: "atom-text-editor",
-        kind: Kind.CUSTOM,
-        attributes: [["mini", ""]],
-        children: ["Hello\n      "],
-      },
-    ],
+    children: [WHITE_SPACE_NODE, {
+      tagName: "atom-text-editor",
+      kind: Kind.CUSTOM,
+      attributes: [["mini", ""]],
+      children: [WHITE_SPACE_NODE, textNode("Hello"), WHITE_SPACE_NODE],
+    }, WHITE_SPACE_NODE],
   }]);
 });
 
+Deno.test("nested elements", () => {
+  const nested = element.parseOrThrow(`
+    <div>
+      <p>
+        <button>click</button>
+      </p>
+      <p>
+        Multi-line
+        text
+      </p>
+      <p>
+        <input type="checkbox">
+      </p>
+    </div>
+    `.trim());
+
+  assertEquals(nested, {
+    tagName: "div",
+    kind: Kind.NORMAL,
+    attributes: [],
+    children: [
+      WHITE_SPACE_NODE,
+      {
+        tagName: "p",
+        kind: Kind.NORMAL,
+        attributes: [],
+        children: [WHITE_SPACE_NODE, {
+          tagName: "button",
+          kind: Kind.NORMAL,
+          attributes: [],
+          children: [textNode("click")],
+        }, WHITE_SPACE_NODE],
+      },
+      WHITE_SPACE_NODE,
+      {
+        tagName: "p",
+        kind: Kind.NORMAL,
+        attributes: [],
+        children: [
+          WHITE_SPACE_NODE,
+          textNode("Multi-line\n        text"),
+          WHITE_SPACE_NODE,
+        ],
+      },
+      WHITE_SPACE_NODE,
+      {
+        tagName: "p",
+        kind: Kind.NORMAL,
+        attributes: [],
+        children: [
+          WHITE_SPACE_NODE,
+          {
+            tagName: "input",
+            kind: Kind.VOID,
+            attributes: [["type", "checkbox"]],
+          },
+          WHITE_SPACE_NODE,
+        ],
+      },
+      WHITE_SPACE_NODE,
+    ],
+  });
+});
+
 Deno.test("entities", () => {
-  const raw = fragments.parseOrThrow(`
+  const entities = fragments.parseOrThrow(`
     <p>Named entities: &nbsp; dolor sit &copy; amet.</p>
     <p>Numeric entities: &#160; dolor sit &#8212; amet.</p>
     <p>Misc entities: &#xA0; dolor &#xa0; sit &nbsp; amet.</p>
-  `);
+  `.trim());
 
-  assertEquals(raw, [{
-    tagName: "p",
-    kind: Kind.NORMAL,
-    attributes: [],
-    children: [`Named entities: &nbsp; dolor sit &copy; amet.`],
-  }, {
-    tagName: "p",
-    kind: Kind.NORMAL,
-    attributes: [],
-    children: ["Numeric entities: &#160; dolor sit &#8212; amet."],
-  }, {
-    tagName: "p",
-    kind: Kind.NORMAL,
-    attributes: [],
-    children: ["Misc entities: &#xA0; dolor &#xa0; sit &nbsp; amet."],
-  }]);
+  assertEquals(entities, [
+    {
+      tagName: "p",
+      kind: Kind.NORMAL,
+      attributes: [],
+      children: [{
+        kind: "TEXT",
+        text: `Named entities: &nbsp; dolor sit &copy; amet.`,
+      }],
+    },
+    WHITE_SPACE_NODE,
+    {
+      tagName: "p",
+      kind: Kind.NORMAL,
+      attributes: [],
+      children: [{
+        kind: "TEXT",
+        text: "Numeric entities: &#160; dolor sit &#8212; amet.",
+      }],
+    },
+    WHITE_SPACE_NODE,
+    {
+      tagName: "p",
+      kind: Kind.NORMAL,
+      attributes: [],
+      children: [{
+        kind: "TEXT",
+        text: "Misc entities: &#xA0; dolor &#xa0; sit &nbsp; amet.",
+      }],
+    },
+  ]);
 });
