@@ -15,9 +15,6 @@
   "imports": {
     "@std/assert": "jsr:@std/assert@1"
   },
-  "lint": {
-    "exclude": ["tests/html-parser/cases/**/*.html"]
-  },
   "publish": {
     "exclude": ["./tests/*"]
   }

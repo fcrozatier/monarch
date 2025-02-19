@@ -103,7 +103,6 @@ Deno.test("comments_nested", () => {
           kind: Kind.NORMAL,
           attributes: [],
           children: [
-
             { kind: "TEXT", text: "\n        Some text\n        " },
             commentNode(" This is a button "),
             textNode("\n        "),
@@ -328,122 +327,27 @@ Deno.test("normal_element", () => {
   });
 });
 
-// Deno.test("significant_whitespace", () => {
-//   const collapsing_space = element.parseOrThrow(
-//     `<span>
-//     </span>`,
-//   );
-//   assertEquals(collapsing_space, {
-//     tagName: "span",
-//     kind: Kind.NORMAL,
-//     attributes: [],
-//     children: [
-//       { kind: "WHITESPACE" },
-//     ],
-//   });
+Deno.test("custom_elements", () => {
+  const res = fragments.parseOrThrow(`
+    <something-different>
+      <atom-text-editor mini>
+        Hello
+      </atom-text-editor>
+    </something-different>
+    `.trim());
 
-//   const surrounding_spaces = element.parseOrThrow(
-//     `<span>
-//     lorem
-//     </span>`,
-//   );
-//   assertEquals(surrounding_spaces, {
-//     tagName: "span",
-//     kind: Kind.NORMAL,
-//     attributes: [],
-//     children: [
-//       { kind: "WHITESPACE" },
-//       { kind: "TEXT", text: "lorem" },
-//       { kind: "WHITESPACE" },
-//     ],
-//   });
-// });
-
-// Deno.test("custom_elements", () => {
-//   const res = fragments.parseOrThrow(`
-//     <something-different>
-//       <atom-text-editor mini>
-//         Hello
-//       </atom-text-editor>
-//     </something-different>
-//     `.trim());
-
-//   assertEquals(res, [{
-//     tagName: "something-different",
-//     kind: Kind.CUSTOM,
-//     attributes: [],
-//     children: [WHITE_SPACE_NODE, {
-//       tagName: "atom-text-editor",
-//       kind: Kind.CUSTOM,
-//       attributes: [["mini", ""]],
-//       children: [WHITE_SPACE_NODE, textNode("Hello"), WHITE_SPACE_NODE],
-//     }, WHITE_SPACE_NODE],
-//   }]);
-// });
-
-// Deno.test("nested elements", () => {
-//   const nested = element.parseOrThrow(`
-//     <div>
-//       <p>
-//         <button>click</button>
-//       </p>
-//       <p>
-//         Multi-line
-//         text
-//       </p>
-//       <p>
-//         <input type="checkbox">
-//       </p>
-//     </div>
-//     `.trim());
-
-//   assertEquals(nested, {
-//     tagName: "div",
-//     kind: Kind.NORMAL,
-//     attributes: [],
-//     children: [
-//       WHITE_SPACE_NODE,
-//       {
-//         tagName: "p",
-//         kind: Kind.NORMAL,
-//         attributes: [],
-//         children: [WHITE_SPACE_NODE, {
-//           tagName: "button",
-//           kind: Kind.NORMAL,
-//           attributes: [],
-//           children: [textNode("click")],
-//         }, WHITE_SPACE_NODE],
-//       },
-//       WHITE_SPACE_NODE,
-//       {
-//         tagName: "p",
-//         kind: Kind.NORMAL,
-//         attributes: [],
-//         children: [
-//           WHITE_SPACE_NODE,
-//           textNode("Multi-line\n        text"),
-//           WHITE_SPACE_NODE,
-//         ],
-//       },
-//       WHITE_SPACE_NODE,
-//       {
-//         tagName: "p",
-//         kind: Kind.NORMAL,
-//         attributes: [],
-//         children: [
-//           WHITE_SPACE_NODE,
-//           {
-//             tagName: "input",
-//             kind: Kind.VOID,
-//             attributes: [["type", "checkbox"]],
-//           },
-//           WHITE_SPACE_NODE,
-//         ],
-//       },
-//       WHITE_SPACE_NODE,
-//     ],
-//   });
-// });
+  assertEquals(res, [{
+    tagName: "something-different",
+    kind: Kind.CUSTOM,
+    attributes: [],
+    children: [textNode("\n      "), {
+      tagName: "atom-text-editor",
+      kind: Kind.CUSTOM,
+      attributes: [["mini", ""]],
+      children: [textNode("\n        Hello\n      ")],
+    }, textNode("\n    ")],
+  }]);
+});
 
 Deno.test("entities", () => {
   const entities = fragments.parseOrThrow(`
@@ -495,7 +399,22 @@ Deno.test("serialize", () => {
 
   const spaces = `Hello, <a href="#"> World </a>!`;
 
-  for (const sample of [...samples, indentation, spaces]) {
+  const nested = `
+    <div>
+      <p>
+        <button>click</button>
+      </p>
+      <p>
+        Multi-line
+        text
+      </p>
+      <p>
+        <input type="checkbox">
+      </p>
+    </div>
+    `.trim();
+
+  for (const sample of [...samples, indentation, spaces, nested]) {
     assertEquals(serializeFragments(fragments.parseOrThrow(sample)), sample);
   }
 });
