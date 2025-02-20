@@ -95,12 +95,12 @@ export const spacesAndComments: Parser<MSpacesAndComments> = sequence(
  *
  * https://html.spec.whatwg.org/#syntax-doctype
  */
-export const doctype: Parser<string> = sequence([
+export const doctype: Parser<MTextNode> = sequence([
   regex(/^<!DOCTYPE/i),
   whitespace.skip(whitespaces),
   regex(/^html/i).skip(whitespaces),
   literal(">"),
-]).map(() => "<!DOCTYPE html>").error("Expected a valid doctype");
+]).map(() => textNode("<!DOCTYPE html>")).error("Expected a valid doctype");
 
 const singleQuote = literal("'");
 const doubleQuote = literal('"');
@@ -284,24 +284,13 @@ export const shadowRoot: Parser<MFragment> = createParser(
  *
  * https://html.spec.whatwg.org/#writing
  */
-export const html: Parser<
-  [MCommentNode[], string, MCommentNode[], MElement, MCommentNode[]]
-> = sequence([
+export const html: Parser<MFragment> = sequence([
   spacesAndComments,
   doctype,
   spacesAndComments,
   element,
   spacesAndComments,
-])
-  .map((
-    [comments1, doctype, comments2, document, comments3],
-  ) => [
-    comments1.filter((c) => c.kind === "COMMENT"),
-    doctype,
-    comments2.filter((c) => c.kind === "COMMENT"),
-    document,
-    comments3.filter((c) => c.kind === "COMMENT"),
-  ]);
+]).map((fragments) => fragments.flat());
 
 /**
  * The monarch serialization options
