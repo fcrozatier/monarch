@@ -148,7 +148,7 @@ Deno.test("comments_nested", () => {
 Deno.test("doctype", () => {
   const res = doctype.parseOrThrow("<!Doctype Html >");
 
-  assertEquals(res, "<!DOCTYPE html>");
+  assertEquals(res, textNode("<!DOCTYPE html>"));
 });
 
 Deno.test("attributes", () => {
