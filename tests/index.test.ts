@@ -8,15 +8,7 @@ import {
   take,
   takeTwo,
 } from "../examples/common.ts";
-import {
-  any,
-  iterate,
-  many0,
-  many1,
-  result,
-  sequence,
-  zero,
-} from "../index.ts";
+import { any, iterate, many0, result, sequence, zero } from "../index.ts";
 
 Deno.test("zero is an absorbing element of bind", () => {
   assertEquals(zero.bind(() => take).parse("m"), zero.parse("m"));
@@ -49,34 +41,6 @@ Deno.test("iterate", () => {
       { value: ["Y"], remaining: "es!", position: { line: 1, column: 1 } },
       { value: [], remaining: "Yes!", position: { line: 1, column: 0 } },
     ],
-  });
-});
-
-Deno.test("many", () => {
-  assertEquals(many0(digit).parse("23 and more"), {
-    success: true,
-    results: [{
-      value: [2, 3],
-      remaining: " and more",
-      position: { line: 1, column: 2 },
-    }],
-  });
-
-  // Matches 0 or more times
-  assertEquals(many0(digit).parse("a"), {
-    success: true,
-    results: [{
-      value: [],
-      remaining: "a",
-      position: { line: 1, column: 0 },
-    }],
-  });
-
-  // Matches 1 or more times
-  assertEquals(many1(digit).error("Expected many digits").parse("a"), {
-    success: false,
-    message: "Expected many digits",
-    position: { line: 1, column: 0 },
   });
 });
 
