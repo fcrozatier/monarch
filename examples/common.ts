@@ -303,3 +303,20 @@ export function listOf<T>(parser: Parser<T>): Parser<T[]> {
  * Parses a list of integers
  */
 export const listOfInts: Parser<number[]> = listOf(integer);
+
+/**
+ * Returns the successful parse result or `null`
+ */
+export const optional = <T>(parser: Parser<T>): Parser<T | null> => {
+  return first(parser, result(null));
+};
+
+/**
+ * Returns the successful parse result or the default value
+ */
+export const defaulted = <T>(
+  parser: Parser<T>,
+  defaultValue: T,
+): Parser<T> => {
+  return first(parser, result(defaultValue));
+};
