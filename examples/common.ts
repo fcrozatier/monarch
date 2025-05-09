@@ -129,6 +129,46 @@ export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
 ).error(parseErrors.takeTwoError);
 
 /**
+ * Tries a parser or defaults to a value.
+ * @param parser The parser.
+ * @param value The default value.
+ * @returns A parser returning the successful parse result or the default value.
+ *
+ * @example
+ * ```ts
+ * const number = defaulted(digit, 42);
+ *
+ * number.parse("123");
+ * // [{ value: 1, remaining: "23", ... }]
+ * number.parse("abc");
+ * // [{ value: 42, remaining: "abc", ... }]
+ */
+export const defaulted = <T>(
+  parser: Parser<T>,
+  value: T,
+): Parser<T> => {
+  return first(parser, result(value));
+};
+
+/**
+ * Tries a parser or defaults to `undefined`.
+ * @param parser The parser.
+ * @returns A parser returning the successful parse result or `undefined`.
+ *
+ * @example
+ * ```ts
+ * const number = optional(digit);
+ *
+ * number.parse("123");
+ * // [{ value: 1, remaining: "23", ... }]
+ * number.parse("abc");
+ * // [{ value: undefined, remaining: "abc", ... }]
+ */
+export const optional = <T>(parser: Parser<T>): Parser<T | undefined> => {
+  return defaulted(parser, undefined);
+};
+
+/**
  * Parses a single white space with the regex `/\s\/`
  *
  * @throws Throws "Expected a white space character" when the parse fails
@@ -303,20 +343,3 @@ export function listOf<T>(parser: Parser<T>): Parser<T[]> {
  * Parses a list of integers
  */
 export const listOfInts: Parser<number[]> = listOf(integer);
-
-/**
- * Returns the successful parse result or `null`
- */
-export const optional = <T>(parser: Parser<T>): Parser<T | null> => {
-  return first(parser, result(null));
-};
-
-/**
- * Returns the successful parse result or the default value
- */
-export const defaulted = <T>(
-  parser: Parser<T>,
-  defaultValue: T,
-): Parser<T> => {
-  return first(parser, result(defaultValue));
-};
