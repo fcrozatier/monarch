@@ -470,20 +470,6 @@ export const repeat = <T>(parser: Parser<T>, times: number): Parser<T[]> => {
 };
 
 /**
- * Recognizes non-empty sequences of a given parser and separator, and ignores the separator
- *
- * @see {@linkcode sepBy}
- */
-export const sepBy1 = <T, U>(
-  parser: Parser<T>,
-  sep: Parser<U>,
-): Parser<T[]> => {
-  return parser.bind((x) =>
-    many(sep.bind(() => parser)).bind((rest) => result([x, ...rest]))
-  );
-};
-
-/**
  * Recognizes (maybe empty) sequences of a given parser and separator, and ignores the separator
  *
  * @example Lists of numbers
@@ -503,6 +489,43 @@ export const sepBy = <T, U>(
   sep: Parser<U>,
 ): Parser<T[]> => {
   return first(sepBy1(parser, sep), result([]));
+};
+
+/**
+ * Recognizes non-empty sequences of a given parser and separator, and ignores the separator
+ *
+ * @see {@linkcode sepBy}
+ */
+export const sepBy1 = <T, U>(
+  parser: Parser<T>,
+  sep: Parser<U>,
+): Parser<T[]> => {
+  return parser.bind((x) =>
+    many(sep.bind(() => parser)).bind((rest) => result([x, ...rest]))
+  );
+};
+
+/**
+ * Parses maybe-empty sequences of items separated by an operator parser that associates to the left and performs the fold
+ *
+ * @example Addition
+ *
+ * We lift the addition literal `+` into a binary function parser and apply a left fold
+ *
+ * ```ts
+ * const add = literal("+").map(() => (a: number, b: number) => a + b);
+ * const addition = foldL(number, add);
+ *
+ * addition.parse("1+2+3"); // results: [{value: 6, remaining: "" }]
+ * ```
+ *
+ * @see {@linkcode foldR}
+ */
+export const foldL = <T, U extends (a: T, b: T) => T>(
+  item: Parser<T>,
+  operator: Parser<U>,
+): Parser<T> => {
+  return first(foldL1(item, operator), item);
 };
 
 /**
@@ -535,46 +558,6 @@ export const foldL1 = <T, U extends (a: T, b: T) => T>(
 };
 
 /**
- * Parses maybe-empty sequences of items separated by an operator parser that associates to the left and performs the fold
- *
- * @example Addition
- *
- * We lift the addition literal `+` into a binary function parser and apply a left fold
- *
- * ```ts
- * const add = literal("+").map(() => (a: number, b: number) => a + b);
- * const addition = foldL(number, add);
- *
- * addition.parse("1+2+3"); // results: [{value: 6, remaining: "" }]
- * ```
- *
- * @see {@linkcode foldR}
- */
-export const foldL = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  return first(foldL1(item, operator), item);
-};
-
-/**
- * Parses non-empty sequences of items separated by an operator parser that associates to the right and performs the fold
- *
- * @see {@linkcode foldR}
- */
-export const foldR1 = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  return item.bind((x) => {
-    return first(
-      operator.bind((f) => foldR1(item, operator).bind((y) => result(f(x, y)))),
-      result(x),
-    );
-  });
-};
-
-/**
  * Parses maybe-empty sequences of items separated by an operator parser that associates to the right and performs the fold
  *
  * @example Exponentiation
@@ -596,6 +579,23 @@ export const foldR = <T, U extends (a: T, b: T) => T>(
   operator: Parser<U>,
 ): Parser<T> => {
   return first(foldR1(item, operator), item);
+};
+
+/**
+ * Parses non-empty sequences of items separated by an operator parser that associates to the right and performs the fold
+ *
+ * @see {@linkcode foldR}
+ */
+export const foldR1 = <T, U extends (a: T, b: T) => T>(
+  item: Parser<T>,
+  operator: Parser<U>,
+): Parser<T> => {
+  return item.bind((x) => {
+    return first(
+      operator.bind((f) => foldR1(item, operator).bind((y) => result(f(x, y)))),
+      result(x),
+    );
+  });
 };
 
 // Filtering
