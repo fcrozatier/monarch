@@ -1,15 +1,10 @@
 /**
  * Simple interpreter for arithmetic expressions
+ *
+ * @module
  */
 
-import {
-  bracket,
-  first,
-  foldL1,
-  foldR1,
-  memoize,
-  type Parser,
-} from "../index.ts";
+import { bracket, first, foldL1, foldR1, lazy, type Parser } from "../index.ts";
 import { literal, number } from "./common.ts";
 
 const addOp = first(
@@ -23,7 +18,7 @@ const mulOp = first(
 const expOp = literal("^").map(() => (a: number, b: number) => a ** b);
 
 // decimal | integer | (expr)
-const atom = memoize(() =>
+const atom = lazy(() =>
   first(
     number,
     bracket(

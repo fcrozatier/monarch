@@ -13,10 +13,33 @@ import {
   updatePosition,
 } from "../index.ts";
 
+/**
+ * Represents a predicate function
+ *
+ * @internal
+ */
 type Predicate = (input: string) => boolean;
 
 /**
- * Returns a predicate function from a regex
+ * Returns a predicate function from a regex that can be used with the {@linkcode filter} combinator.
+ *
+ * Prefer using the {@linkcode regex} parser for filter string parsers
+ *
+ * @example
+ *
+ * ```ts
+ * import { regexPredicate, take, regex } from "./examples/common.ts";
+ * import { filter } from "./index.ts";
+ *
+ * const isVowel = regexPredicate(/[aeiouy]/);
+ * const vowel = filter(take, isVowel).error("Expected a vowel");
+ * vowel.parse("allo"); // [{value: 'a', remaining: 'llo', ...}]
+ *
+ * // vowel is equivalent to
+ * const vowel2 = regex(/[aeiouy]/);
+ * ```
+ *
+ * @see {@linkcode regex}
  */
 export function regexPredicate(regex: RegExp): Predicate {
   return (input: string) => regex.test(input);
@@ -24,6 +47,14 @@ export function regexPredicate(regex: RegExp): Predicate {
 
 /**
  * Creates a parser matching against a given regex
+ *
+ * @example
+ *
+ * ```ts
+ * const even = regex(/^[02468]/).error("Expected an even number");
+ * const { results } = even.parseOrThrow("24"); // [{value: '2', remaining: '4', ...}]
+ * const { message } = even.parse("13"); // "Expected an even number"
+ * ```
  */
 export function regex(re: RegExp): Parser<string> {
   return createParser((input, position) => {
@@ -50,7 +81,21 @@ export function regex(re: RegExp): Parser<string> {
 }
 
 /**
- * Parses the next character
+ * Consumes the next character of the input and fails if the input is empty.
+ *
+ * @example Non-empty input
+ *
+ * ```ts
+ * const { results } = take.parse("hello");
+ * // [{value: 'h', remaining: 'ello', ...}]
+ * ```
+ *
+ * @example Empty input
+ *
+ * ```ts
+ * const { message } = take.parse("");
+ * // "Unexpected end of input"
+ * ```
  */
 export const take: Parser<string> = createParser(
   (input, position) => {
@@ -84,9 +129,9 @@ export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
 ).error(parseErrors.takeTwoError);
 
 /**
- * Parses a single white space
+ * Parses a single white space with the regex `/\s\/`
  *
- * Regex: /\s\/
+ * @throws Throws "Expected a white space character" when the parse fails
  */
 export const whitespace: Parser<string> = regex(/^\s/).error(
   "Expected a white space character",
@@ -110,7 +155,18 @@ export const spaces: Parser<string> = regex(/^ */);
 export const newline: Parser<string> = regex(/^\n/);
 
 /**
- * Parses a given string
+ * Matches against a specific character or keyword
+ *
+ * @example
+ *
+ * ```ts
+ * const dot = literal(".");
+ * const { results } = dot.parse(".23");
+ * // [{value: '.', remaining: '23', ...}]
+ *
+ * const { message } = dot.parse("0.23");
+ * // "Expected '.' but got '0'"
+ * ```
  */
 export function literal(value: string): Parser<string> {
   return (createParser((input, position) => {
@@ -137,7 +193,6 @@ export function literal(value: string): Parser<string> {
 
 /**
  * Parses a token and discards trailing spaces
- * Alias: keyword
  */
 export function token(value: string): Parser<string> {
   return literal(value).skip(whitespaces);

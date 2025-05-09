@@ -311,7 +311,7 @@ addition.parse("1+2+3"); // results: [{value: 6, remaining: "" }]
 
 const pow = literal("^").map(() => (a: number, b: number) => a ** b);
 const exponentiation = foldR(number, pow);
-exponentiation.parse("2^2^3"); // results: [{value: 2 ** 8, remaining: ""}]
+exponentiation.parse("2^2^3"); // results: [{value: 256, remaining: ""}]
 
 const natural = foldL1(digit, result((a: number, b: number) => 10 * a + b));
 natural.parse("123"); // results: [{value: 123, remaining: ""}]
@@ -319,7 +319,7 @@ natural.parse("123"); // results: [{value: 123, remaining: ""}]
 
 Here we lift the addition literal `+` into a binary function parser and apply a
 left fold. Similarly we lift the power literal `^` into a binary function parser
-a apply a right fold since exponentiation associates to the right. We also
+and apply a right fold since exponentiation associates to the right. We also
 revisit the `natural` parser as a sequence of digits that are combined together
 by folding a given operator around the digits.
 

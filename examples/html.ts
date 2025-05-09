@@ -1,3 +1,9 @@
+/**
+ * Example html parser
+ *
+ * @module
+ */
+
 import {
   bracket,
   createParser,
@@ -122,6 +128,9 @@ const attributeValue = first(
   regex(/^[^\s='"<>`]+/),
 );
 
+/**
+ * Parses an HTML attribute as a key, value string tuple
+ */
 export const attribute: Parser<[string, string]> = first<[string, string]>(
   sequence([
     attributeName,

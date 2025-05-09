@@ -1,5 +1,7 @@
 /**
  * Example parser for CSV files
+ *
+ * @module
  */
 
 import { bracket, first, many1, type Parser, result, sepBy } from "../index.ts";

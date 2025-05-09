@@ -1,9 +1,5 @@
 import { ParseError } from "./errors.ts";
-import type {
-  ParseResult,
-  ParsingHandler,
-  Position,
-} from "./types.ts";
+import type { ParseResult, ParsingHandler, Position } from "./types.ts";
 
 // Utilities
 
@@ -42,10 +38,21 @@ export class Parser<T> {
   #parse: ParsingHandler<T>;
   #error = "";
 
+  /**
+   * Creates a new {@linkcode Parser}
+   *
+   * @see {@linkcode createParser}
+   */
   constructor(parse: ParsingHandler<T>) {
     this.#parse = parse;
   }
 
+  /**
+   * Parses the input
+   *
+   * @param input The input to parse
+   * @param position The starting position
+   */
   parse(
     input: string,
     position: Position = { line: 1, column: 0 },
@@ -84,6 +91,18 @@ export class Parser<T> {
 
   /**
    * Transforms a parser of type T into a parser of type U
+   *
+   * @example Mapping a `Parser<string>` to a `Parser<number>`
+   *
+   * ```ts
+   * const digit = regex(/^\d/).map(Number.parseInt);
+   * const { results } = digit.parse("23 and more");
+   * // [{value: 2, remaining: "3 and more", ...}]
+   *
+   * const natural = many(digit).map((arr) => Number(arr.join("")));
+   * const { results } = natural.parse("23 and more");
+   * // [{value: 23, remaining: " and more", ...}]
+   * ```
    */
   map<U>(transform: (value: T) => U): Parser<U> {
     return createParser((input, position) => {
@@ -103,7 +122,34 @@ export class Parser<T> {
   }
 
   /**
-   * Monadic sequencing of parsers
+   * Monadic sequencing of parsers.
+   *
+   * Useful when you want more control over the sequencing, for dynamic parsing or context aware parsing where a later parser result depends on the result of a previous parser
+   *
+   * @example Parse simple identifiers
+   *
+   * ```ts
+   * const letter = regex(/^[a-zA-Z]/);
+   * const alphanumeric = many(regex(/^\w/)); // Parser<string[]>
+   * const identifier = letter.bind((l) =>
+   *   alphanumeric.map((rest) => [l, ...rest].join(""))
+   * );
+   *
+   * const { results } = identifier.parse("user1 = 'Bob'");
+   * // [{value: "user1", remaining: " = 'Bob'", ...}]
+   * ```
+   *
+   * @example Discard trailing spaces
+   *
+   * ```ts
+   * const spaces = regex(/^\s* /);
+   * const token = <T>(parser) => parser.bind((p) => spaces.bind((_) => result(p)));
+   *
+   * const { results } = token(identifier).parse("ageUser1  = 42");
+   * // [{value: "ageUser1", remaining: "= 42", ...}]
+   * ```
+   *
+   * @see {@linkcode skip}
    */
   bind<U>(transform: (value: T) => Parser<U>): Parser<U> {
     return createParser((input, position) => {
@@ -140,6 +186,18 @@ export class Parser<T> {
    * Convenience method for skipping a parser.
    *
    * Shorthand for: `mainParser.bind((r) => parserToSkip.bind(() => result(r)))`
+   *
+   * @example Discard trailing spaces
+   *
+   * ```ts
+   * const token = <T>(parser: Parser<T>) =>
+   *   parser.bind((p) => spaces.bind((_) => result(p)));
+   *
+   * // equivalent to
+   * const token = <T>(parser: Parser<T>) => parser.skip(spaces);
+   * ```
+   *
+   * @see {@linkcode token}
    */
   skip<U>(parser: Parser<U>): Parser<T> {
     return this.bind((r) => parser.bind(() => result(r)));
@@ -171,6 +229,18 @@ export class Parser<T> {
     });
   }
 
+  /**
+   * Customize the error message of a parser
+   *
+   * @example
+   *
+   * ```ts
+   * const even = regex(/^[02468]/).error("Expected an even number");
+   *
+   * const { results } = even.parse("24"); // [{value: '2', remaining: '4', ...}]
+   * const { message } = even.parse("13"); // "Expected an even number"
+   * ```
+   */
   error(message: string): this {
     this.#error = message;
     return this;
@@ -179,6 +249,9 @@ export class Parser<T> {
 
 // Helpers
 
+/**
+ * Utility to create a new parser
+ */
 export const createParser = <T>(
   fn: ParsingHandler<T>,
 ): Parser<T> => new Parser(fn);
@@ -219,6 +292,21 @@ type Unpack<T> = {
 
 /**
  * Makes a sequence of parses and returns the array of parse results
+ *
+ * The input parsers can be of different types
+ *
+ * @example Reimplementing the `bracket` parser
+ *
+ * ```ts
+ * const parenthesizedNumber = sequence([literal("("), natural, literal(")")]);
+ * // inferred type: Parser<[string, number, string]>
+ *
+ * const extract: Parser<number> = parenthesizedNumber.map((arr) => arr[1]);
+ * const { results } = extract.parse("(42)");
+ * // [{value: 42, remaining: "", ...}]
+ * ```
+ *
+ * @see {@linkcode bracket}
  */
 export const sequence = <const A extends readonly Parser<any>[]>(
   parsers: A,
@@ -276,6 +364,20 @@ export const any = <T>(...parsers: Parser<T>[]): Parser<T> => {
 
 /**
  * Only returns the first successful parse result
+ *
+ * @example Signed integers
+ *
+ * ```ts
+ * const integer = first(
+ *   literal("-").bind(() => natural).map((x) => -x),
+ *   literal("+").bind(() => natural).map((x) => x),
+ *   natural,
+ * );
+ *
+ * integer.parse("-42"); // results: [{value: -42, remaining: ''}]
+ * integer.parse("+42"); // results: [{value: 42, remaining: ''}]
+ * integer.parse("42"); // results: [{value: 42, remaining: ''}]
+ * ```
  */
 export const first = <T>(
   ...parsers: Parser<T>[]
@@ -300,6 +402,13 @@ export const first = <T>(
 
 /**
  * Returns an array of all iterated parses
+ *
+ * @example
+ *
+ * ```ts
+ * const { results } = iterate(digit).parse("42");
+ * // [{value: [4, 2], remaining: ""}, {value: [4], remaining: "2"}, {value: [], remaining: "42"}]
+ * ```
  */
 export const iterate = <T>(parser: Parser<T>): Parser<T[]> => {
   return parser.bind((a) => iterate(parser).bind((x) => result([a, ...x])))
@@ -308,6 +417,13 @@ export const iterate = <T>(parser: Parser<T>): Parser<T[]> => {
 
 /**
  * Returns the longest matching parse array (0 or more matches)
+ *
+ * @example
+ *
+ * ```ts
+ * const digit = regex(/^\d/);
+ * const { results } = many(digit).parse("23 and more"); // [{value: ["2", "3"], remaining: " and more", ...}]
+ * ```
  */
 export const many = <T>(parser: Parser<T>): Parser<T[]> => {
   return first(
@@ -325,6 +441,12 @@ export const many1 = <T>(parser: Parser<T>): Parser<T[]> => {
 
 /**
  * Repeats a parser a predefined number of times
+ *
+ * @example Repeated {@linkcode take}
+ *
+ * ```ts
+ * const { results } = repeat(take, 2).parse("hello"); // [{value: 'he', remaining: 'llo', ...}]
+ * ```
  */
 export const repeat = <T>(parser: Parser<T>, times: number): Parser<T[]> => {
   if (times > 0) {
@@ -337,6 +459,8 @@ export const repeat = <T>(parser: Parser<T>, times: number): Parser<T[]> => {
 
 /**
  * Recognizes non-empty sequences of a given parser and separator, and ignores the separator
+ *
+ * @see {@linkcode sepBy}
  */
 export const sepBy1 = <T, U>(
   parser: Parser<T>,
@@ -348,7 +472,19 @@ export const sepBy1 = <T, U>(
 };
 
 /**
- * Recognizes sequences (maybe empty) of a given parser and separator, and ignores the separator
+ * Recognizes (maybe empty) sequences of a given parser and separator, and ignores the separator
+ *
+ * @example Lists of numbers
+ *
+ * ```ts
+ * const listOfNumbers = bracket(
+ *   literal("["),
+ *   sepBy(number, literal(",")),
+ *   literal("]"),
+ * );
+ *
+ * listOfNumbers.parse("[1,2,3]"); // results: [{value: [1,2,3], remaining: ""}]
+ * ```
  */
 export const sepBy = <T, U>(
   parser: Parser<T>,
@@ -359,6 +495,19 @@ export const sepBy = <T, U>(
 
 /**
  * Parses non-empty sequences of items separated by an operator parser that associates to the left and performs the fold
+ *
+ * @example Slick natural number parser implementation
+ *
+ * We revisit the `natural` parser as a sequence of digits that are combined together
+by folding a binary operator around the digits.
+ *
+ * ```ts
+ * const natural = foldL1(digit, result((a: number, b: number) => 10 * a + b));
+ *
+ * natural.parse("123"); // results: [{value: 123, remaining: ""}]
+ * ```
+ *
+ * @see {@linkcode foldL}
  */
 export const foldL1 = <T, U extends (a: T, b: T) => T>(
   item: Parser<T>,
@@ -375,6 +524,19 @@ export const foldL1 = <T, U extends (a: T, b: T) => T>(
 
 /**
  * Parses maybe-empty sequences of items separated by an operator parser that associates to the left and performs the fold
+ *
+ * @example Addition
+ *
+ * We lift the addition literal `+` into a binary function parser and apply a left fold
+ *
+ * ```ts
+ * const add = literal("+").map(() => (a: number, b: number) => a + b);
+ * const addition = foldL(number, add);
+ *
+ * addition.parse("1+2+3"); // results: [{value: 6, remaining: "" }]
+ * ```
+ *
+ * @see {@linkcode foldR}
  */
 export const foldL = <T, U extends (a: T, b: T) => T>(
   item: Parser<T>,
@@ -385,6 +547,8 @@ export const foldL = <T, U extends (a: T, b: T) => T>(
 
 /**
  * Parses non-empty sequences of items separated by an operator parser that associates to the right and performs the fold
+ *
+ * @see {@linkcode foldR}
  */
 export const foldR1 = <T, U extends (a: T, b: T) => T>(
   item: Parser<T>,
@@ -400,6 +564,20 @@ export const foldR1 = <T, U extends (a: T, b: T) => T>(
 
 /**
  * Parses maybe-empty sequences of items separated by an operator parser that associates to the right and performs the fold
+ *
+ * @example Exponentiation
+ *
+ * We lift the power literal `^` into a binary function parser and apply a right fold since exponentiation associates to the right
+ *
+ * ```ts
+ * const pow = literal("^").map(() => (a: number, b: number) => a ** b);
+ * const exponentiation = foldR(number, pow);
+ *
+ * exponentiation.parse("2^2^3");
+ * // results: [{value: 256, remaining: ""}]
+ * ```
+ *
+ * @see {@linkcode foldL}
  */
 export const foldR = <T, U extends (a: T, b: T) => T>(
   item: Parser<T>,
@@ -411,9 +589,24 @@ export const foldR = <T, U extends (a: T, b: T) => T>(
 // Filtering
 
 /**
- * Filters a parser by a predicate and matches only if the predicate returns true
+ * Filters a parser with a predicate and matches only if the predicate returns true
  *
  * Preserves `zero` and distributes over alternation
+ *
+ * @example
+ *
+ * ```ts
+ * const isVowel = (char) => ["a", "e", "i", "o", "u", "y"].includes(char);
+ * const vowel = filter(take, isVowel).error("Expected a vowel");
+ *
+ * const { results } = vowel.parse("a");
+ * // [{value: 'a', remaining: '', ...}]
+ *
+ * const { message } = vowel.parse("b");
+ * // "Expected a vowel"
+ * ```
+ *
+ * @see {@linkcode regex}
  */
 export const filter = <T>(
   parser: Parser<T>,
@@ -441,6 +634,8 @@ export const filter = <T>(
 
 /**
  * Takes a parser thunk and memoize it upon evaluation.
+ *
+ * @see {@linkcode lazy}
  */
 export const memoize = <T>(parserThunk: () => Parser<T>): Parser<T> => {
   let parser: Parser<T>;
@@ -457,6 +652,34 @@ export const memoize = <T>(parserThunk: () => Parser<T>): Parser<T> => {
  * Defers evaluation, without memoization
  *
  * This helps with undeclared variable references in recursive grammars
+ *
+ * @example Simple expression parser
+ *
+ * The following `factor` parser is an integer or a parenthesized expression and `lazy`
+allows us to lazily evaluate this parser definition to avoid directly referencing `expr` which is not yet defined.
+ *
+ * ```ts
+ * const add = literal("+").map(() => (a: number, b: number) => a + b);
+ * const mul = literal("*").map(() => (a: number, b: number) => a * b);
+ *
+ * // integer | (expr)
+ * const factor = lazy(() =>
+ *   first(
+ *     integer,
+ *     bracket(
+ *       literal("("),
+ *       expr,
+ *       literal(")"),
+ *     ),
+ *   )
+ * );
+ * const term = foldL(factor, mul);
+ * const expr = foldL(term, add);
+ *
+ * expr.parse("1+2*3"); // results: [{value: 7, remaining: ""}]
+ * ```
+ *
+ * @see {@linkcode memoize}
  */
 export const lazy = <T>(parserThunk: () => Parser<T>): Parser<T> => {
   return createParser((input, position) => {
