@@ -4,7 +4,14 @@
  * @module
  */
 
-import { bracket, first, many1, type Parser, result, sepBy } from "../index.ts";
+import {
+  bracket,
+  first,
+  many1,
+  type Parser,
+  result,
+  sepBy,
+} from "../src/index.ts";
 import { letters, literal, natural, newline, spaces } from "./common.ts";
 
 /**
