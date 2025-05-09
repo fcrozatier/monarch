@@ -1,2 +1,4 @@
 coverage
 deno.lock
+docs
+notebook.ipynb
