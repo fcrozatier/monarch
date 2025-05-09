@@ -1,27 +1,9 @@
 import { ParseError } from "./errors.ts";
-import type { Position } from "./types.ts";
-
-type ParseFail = {
-  success: false;
-  message: string;
-  position: Position;
-};
-
-type ParseSuccess<T> = {
-  success: true;
-  results: {
-    value: T;
-    remaining: string;
-    position: Position;
-  }[];
-};
-
-type ParseResult<T> = ParseSuccess<T> | ParseFail;
-
-type ParsingHandler<T> = (
-  input: string,
-  position: Position,
-) => ParseResult<T>;
+import type {
+  ParseResult,
+  ParsingHandler,
+  Position,
+} from "./types.ts";
 
 // Utilities
 
