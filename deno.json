@@ -9,11 +9,10 @@
   },
   "license": "MIT",
   "tasks": {
-    "bump": "deno run --allow-read --allow-write --allow-run @fcrozatier/bump",
-    "coverage": "deno test --coverage && deno coverage --html && open coverage/html/index.html"
+    "coverage": "deno test --coverage && open coverage/html/index.html"
   },
   "imports": {
-    "@std/assert": "jsr:@std/assert@1"
+    "@std/assert": "jsr:@std/assert@^1"
   },
   "publish": {
     "exclude": ["./tests/*"]
