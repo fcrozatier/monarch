@@ -8,7 +8,15 @@ import {
   take,
   takeTwo,
 } from "../examples/common.ts";
-import { any, iterate, many, many1, result, sequence, zero } from "../index.ts";
+import {
+  any,
+  iterate,
+  many0,
+  many1,
+  result,
+  sequence,
+  zero,
+} from "../index.ts";
 
 Deno.test("zero is an absorbing element of bind", () => {
   assertEquals(zero.bind(() => take).parse("m"), zero.parse("m"));
@@ -45,7 +53,7 @@ Deno.test("iterate", () => {
 });
 
 Deno.test("many", () => {
-  assertEquals(many(digit).parse("23 and more"), {
+  assertEquals(many0(digit).parse("23 and more"), {
     success: true,
     results: [{
       value: [2, 3],
@@ -55,7 +63,7 @@ Deno.test("many", () => {
   });
 
   // Matches 0 or more times
-  assertEquals(many(digit).parse("a"), {
+  assertEquals(many0(digit).parse("a"), {
     success: true,
     results: [{
       value: [],
@@ -90,7 +98,7 @@ Deno.test("sequence", () => {
 
 // Explore a search space
 const oneOrTwoItems = any(take, takeTwo);
-const explore = many(oneOrTwoItems);
+const explore = many0(oneOrTwoItems);
 
 Deno.test("explore", () => {
   assertEquals(explore.parse("many"), {

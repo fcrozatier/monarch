@@ -4,11 +4,11 @@ import {
   createParser,
   first,
   foldL1,
-  many,
+  many0,
   type Parser,
   repeat,
   result,
-  sepBy,
+  sepBy0,
   sequence,
   updatePosition,
 } from "../index.ts";
@@ -257,7 +257,7 @@ export const letter: Parser<string> = regex(/^[a-zA-Z]/).error(
 /**
  * Parses a string of letters
  */
-export const letters: Parser<string> = many(letter).map((letters) =>
+export const letters: Parser<string> = many0(letter).map((letters) =>
   letters.join("")
 );
 
@@ -341,7 +341,7 @@ export const number: Parser<number> = first(decimal, integer).error(
 export function listOf<T>(parser: Parser<T>): Parser<T[]> {
   return bracket(
     token("["),
-    sepBy(parser, token(",")),
+    sepBy0(parser, token(",")),
     token("]"),
   );
 }
