@@ -428,175 +428,391 @@ export const iterate = <T>(parser: Parser<T>): Parser<T[]> => {
 };
 
 /**
- * Returns the longest matching parse array (0 or more matches)
- *
- * @example
- *
- * ```ts
- * const digit = regex(/^\d/);
- * const { results } = many(digit).parse("23 and more"); // [{value: ["2", "3"], remaining: " and more", ...}]
- * ```
+ * Recursive helper for `many`.
+ * @param parser The parser.
+ * @param min The minimum number of times the parser must succeed.
+ * @param max The maximum number of times the parser can succeed
+ * @param count The current count of successful parses.
+ * @param acc The accumulator for the parsed values.
+ * @returns A parser returning an array of parse results.
  */
-export const many = <T>(parser: Parser<T>): Parser<T[]> => {
-  return first(
-    parser.bind((a) => many(parser).bind((x) => result([a, ...x]))),
-    result([]),
+const manyRecursive = <T>(
+  parser: Parser<T>,
+  min: number,
+  max: number,
+  count: number,
+  acc: T[],
+): Parser<T[]> => {
+  if (count >= max) {
+    return result(acc);
+  }
+
+  const rest = parser.bind((item) =>
+    manyRecursive(parser, min, max, count + 1, [...acc, item])
   );
+
+  if (count >= min) {
+    return first(rest, result(acc));
+  } else {
+    return rest;
+  }
 };
 
 /**
- * Returns the longest matching parse array (1 or more matches)
- */
-export const many1 = <T>(parser: Parser<T>): Parser<T[]> => {
-  return parser.bind((x) => many(parser).bind((rest) => result([x, ...rest])));
-};
-
-/**
- * Repeats a parser a predefined number of times
+ * Repeats a parser greedily between min and max times, inclusive.
+ * @param parser The parser.
+ * @param min The minimum number of times the parser must succeed.
+ * @param max The maximum number of times the parser can succeed (default: Infinity).
+ * @returns A parser returning an array of parse results.
  *
- * @example Repeated {@linkcode take}
+ * @example List of numbers
  *
  * ```ts
- * const { results } = repeat(take, 2).parse("hello"); // [{value: 'he', remaining: 'llo', ...}]
+ * const numbers = many(digit, 2, 3);
+ *
+ * numbers.parse("1234ab");
+ * // [{ value: [1, 2, 3], remaining: "4ab", ... }]
+ * numbers.parse("1");
+ * // message: "Expected a digit"
+ * numbers.parse("");
+ * // message: "Expected a digit"
  * ```
+ */
+export const many = <T>(
+  parser: Parser<T>,
+  min: number,
+  max: number = Infinity,
+): Parser<T[]> => {
+  if (min < 0) {
+    return zero.error("many: min cannot be negative");
+  }
+  if (max < min) {
+    return zero.error("many: max cannot be less than min");
+  }
+  if (max === 0 && min === 0) {
+    return result([]);
+  }
+
+  return manyRecursive(parser, min, max, 0, []);
+};
+
+/**
+ * Repeats a parser greedily 0 or more times. Alias for `many(parser, 0)`.
+ *
+ * @example List of numbers
+ *
+ * ```ts
+ * const numbers = many0(digit);
+ *
+ * numbers.parse("123abc");
+ * // [{ value: [1, 2, 3], remaining: "abc", ... }]
+ * numbers.parse("1");
+ * // [{ value: [1], remaining: "", ... }]
+ * numbers.parse("");
+ * // results: [{ value: [], remaining: "" }]
+ * ```
+ *
+ * @see {@linkcode many}
+ */
+export const many0 = <T>(parser: Parser<T>): Parser<T[]> => many(parser, 0);
+
+/**
+ * Repeats a parser greedily 1 or more times. Alias for `many(parser, 1)`.
+ *
+ * @example List of numbers
+ *
+ * ```ts
+ * const numbers = many1(digit);
+ *
+ * numbers.parse("123abc");
+ * // [{ value: [1, 2, 3], remaining: "abc", ... }]
+ * numbers.parse("1");
+ * // [{ value: [1], remaining: "", ... }]
+ * numbers.parse("");
+ * // message: "Expected a digit"
+ * ```
+ *
+ * @see {@linkcode many}
+ */
+export const many1 = <T>(parser: Parser<T>): Parser<T[]> => many(parser, 1);
+
+/**
+ * Repeats a parser a predefined number of times. Alias for `many(parser, times, times)`.
+ *
+ * @example List of numbers
+ *
+ * ```ts
+ * const numbers = repeat(digit, 2);
+ *
+ * numbers.parse("123abc");
+ * // [{ value: [1, 2], remaining: "3abc", ... }]
+ * numbers.parse("1");
+ * // message: "Expected a digit"
+ * numbers.parse("");
+ * // message: "Expected a digit"
+ * ```
+ *
+ * @see {@linkcode many}
  */
 export const repeat = <T>(parser: Parser<T>, times: number): Parser<T[]> => {
-  if (times > 0) {
-    return parser.bind((a) =>
-      repeat(parser, times - 1).bind((rest) => result([a, ...rest]))
-    );
+  if (times < 0) {
+    return zero.error("repeat: times cannot be negative");
   }
-  return result([]);
+  return many(parser, times, times);
 };
 
 /**
- * Recognizes (maybe empty) sequences of a given parser and separator, and ignores the separator
+ * Repeats a parser and a separator greedily between min and max times, inclusive.
+ * @param parser The item parser.
+ * @param separator The separator parser.
+ * @param min The minimum number of items.
+ * @param max The maximum number of items (default: Infinity).
+ * @returns A parser returning an array of parse results, ignoring the separator.
  *
- * @example Lists of numbers
+ * @example List of numbers
  *
  * ```ts
- * const listOfNumbers = bracket(
- *   literal("["),
- *   sepBy(number, literal(",")),
- *   literal("]"),
- * );
+ * const numbers = sepBy(digit, literal(","), 2, 3);
  *
- * listOfNumbers.parse("[1,2,3]"); // results: [{value: [1,2,3], remaining: ""}]
+ * numbers.parse("1,2,3,4,a,b");
+ * // results: [{ value: [1, 2, 3], remaining: ",4,a,b" }]
+ * numbers.parse("1");
+ * // message: "Expected ',', but got 'EOI'"
+ * numbers.parse("");
+ * // message: "Expected a digit"
  * ```
  */
 export const sepBy = <T, U>(
   parser: Parser<T>,
-  sep: Parser<U>,
+  separator: Parser<U>,
+  min: number,
+  max: number = Infinity,
 ): Parser<T[]> => {
-  return first(sepBy1(parser, sep), result([]));
+  if (min < 0) {
+    return zero.error("sepBy: min cannot be negative");
+  }
+  if (max < min) {
+    return zero.error("sepBy: max cannot be less than min");
+  }
+  if (max === 0 && min === 0) {
+    return result([]);
+  }
+
+  const minRemaining = Math.max(0, min - 1);
+  const maxRemaining = Math.max(0, max - 1);
+  const separatorItem = separator.bind(() => parser);
+  const separatorItems = many(separatorItem, minRemaining, maxRemaining);
+
+  if (min === 0) {
+    return first(
+      parser.bind((firstItem) =>
+        separatorItems.map((rest) => [firstItem, ...rest])
+      ),
+      result<T[]>([]),
+    );
+  } else {
+    return parser.bind((firstItem) =>
+      separatorItems.map((rest) => [firstItem, ...rest])
+    );
+  }
 };
 
 /**
- * Recognizes non-empty sequences of a given parser and separator, and ignores the separator
+ * Repeats a parser and a separator greedily 0 or more times. Alias for `sepBy(parser, separator, 0)`.
+ *
+ * @example List of numbers
+ *
+ * ```ts
+ * const numbers = sepBy0(digit, literal(","));
+ *
+ * numbers.parse("1,2,3,a,b,c");
+ * // results: [{ value: [1, 2, 3], remaining: ",a,b,c" }]
+ * numbers.parse("1");
+ * // results: [{ value: [1], remaining: "" }]
+ * numbers.parse("");
+ * // results: [{ value: [], remaining: "" }]
+ * ```
+ *
+ * @see {@linkcode sepBy}
+ */
+export const sepBy0 = <T, U>(
+  parser: Parser<T>,
+  separator: Parser<U>,
+): Parser<T[]> => sepBy(parser, separator, 0);
+
+/**
+ * Repeats a parser and a separator greedily 1 or more times. Alias for `sepBy(parser, separator, 1)`.
+ *
+ * @example List of numbers
+ *
+ * ```ts
+ * const numbers = sepBy1(digit, literal(","));
+ *
+ * numbers.parse("1,2,3,a,b,c");
+ * // results: [{ value: [1, 2, 3], remaining: ",a,b,c" }]
+ * numbers.parse("1");
+ * // results: [{ value: [1], remaining: "" }]
+ * numbers.parse("");
+ * // message: "Expected a digit"
+ * ```
  *
  * @see {@linkcode sepBy}
  */
 export const sepBy1 = <T, U>(
   parser: Parser<T>,
-  sep: Parser<U>,
-): Parser<T[]> => {
-  return parser.bind((x) =>
-    many(sep.bind(() => parser)).bind((rest) => result([x, ...rest]))
+  separator: Parser<U>,
+): Parser<T[]> => sepBy(parser, separator, 1);
+
+/**
+ * Repeats an item parser and a left-associative operator parser greedily between min and max times, inclusive.
+ * @param parser The item parser.
+ * @param operator The operator parser, returning a function (a:T, b:T) => T.
+ * @param min The minimum number of items to parse.
+ * @param max The maximum number of items to parse (default: Infinity).
+ * @returns A parser returning the folded result.
+ *
+ * @example Addition
+ *
+ * ```ts
+ * const plus = literal("+").map(() => (a: number, b: number) => a + b);
+ * const addition = foldL(digit, plus, 2, 3);
+ *
+ * addition.parse("1+2+3+4+a+b");
+ * // results: [{ value: 6, remaining: "+4+a+b" }]
+ * addition.parse("1");
+ * // message: "Expected '+', but got 'EOI'"
+ * ```
+ *
+ * @see {@linkcode foldR}
+ */
+export const foldL = <T, O extends (a: T, b: T) => T>(
+  parser: Parser<T>,
+  operator: Parser<O>,
+  min: number,
+  max: number = Infinity,
+): Parser<T> => {
+  if (min < 1) {
+    return zero.error("foldL: min cannot be less than 1");
+  }
+  if (max < min) {
+    return zero.error("foldL: max cannot be less than min");
+  }
+  if (min === 1 && max === 1) {
+    return parser;
+  }
+
+  const operatorItem = sequence([operator, parser]);
+  const operatorItems = many(operatorItem, min - 1, max - 1);
+
+  return parser.bind((firstItem) =>
+    operatorItems.map((pairs) =>
+      pairs.reduce((acc, [op, val]) => op(acc, val), firstItem)
+    )
   );
 };
 
 /**
- * Parses maybe-empty sequences of items separated by an operator parser that associates to the left and performs the fold
+ * Repeats an item parser and a left-associative operator parser greedily 1 or more times, inclusive. Alias for `foldL(itemParser, operatorParser, 1)`.
  *
  * @example Addition
  *
- * We lift the addition literal `+` into a binary function parser and apply a left fold
- *
  * ```ts
- * const add = literal("+").map(() => (a: number, b: number) => a + b);
- * const addition = foldL(number, add);
+ * const plus = literal("+").map(() => (a: number, b: number) => a + b);
+ * const addition = foldL1(digit, plus);
  *
- * addition.parse("1+2+3"); // results: [{value: 6, remaining: "" }]
- * ```
- *
- * @see {@linkcode foldR}
- */
-export const foldL = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  return first(foldL1(item, operator), item);
-};
-
-/**
- * Parses non-empty sequences of items separated by an operator parser that associates to the left and performs the fold
- *
- * @example Slick natural number parser implementation
- *
- * We revisit the `natural` parser as a sequence of digits that are combined together
-by folding a binary operator around the digits.
- *
- * ```ts
- * const natural = foldL1(digit, result((a: number, b: number) => 10 * a + b));
- *
- * natural.parse("123"); // results: [{value: 123, remaining: ""}]
+ * addition.parse("1+2+3+a+b+c");
+ * // results: [{ value: 6, remaining: "+a+b+c" } ]
+ * addition.parse("1");
+ * // results: [{ value: 1, remaining: "" } ]
  * ```
  *
  * @see {@linkcode foldL}
  */
-export const foldL1 = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  const rest = (x: T): Parser<T> => {
-    return first(
-      operator.bind((f) => item.bind((y) => rest(f(x, y)))),
-      result(x),
-    );
-  };
-  return item.bind(rest);
-};
+export const foldL1 = <T, O extends (a: T, b: T) => T>(
+  parser: Parser<T>,
+  operator: Parser<O>,
+): Parser<T> => foldL(parser, operator, 1);
 
 /**
- * Parses maybe-empty sequences of items separated by an operator parser that associates to the right and performs the fold
+ * Repeats a parser and a right-associative operator parser greedily between min and max times, inclusive.
+ * @param parser The item parser.
+ * @param operator The operator parser, returning a function (a:T, b:T) => T.
+ * @param min The minimum number of items to parse.
+ * @param max The maximum number of items to parse (default: Infinity).
+ * @returns A parser returning the folded result.
  *
  * @example Exponentiation
  *
- * We lift the power literal `^` into a binary function parser and apply a right fold since exponentiation associates to the right
- *
  * ```ts
- * const pow = literal("^").map(() => (a: number, b: number) => a ** b);
- * const exponentiation = foldR(number, pow);
+ * const caret = literal("^").map(() => (a: number, b: number) => a ** b);
+ * const exponentiation = foldR(digit, caret, 2, 3);
  *
- * exponentiation.parse("2^2^3");
- * // results: [{value: 256, remaining: ""}]
+ * exponentiation.parse("4^3^2^1^a^b");
+ * // results: [{ value: 262144, remaining: "^1^a^b" }]
+ * exponentiation.parse("1");
+ * // message: "Expected '^', but got 'EOI'"
  * ```
  *
  * @see {@linkcode foldL}
  */
-export const foldR = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
+export const foldR = <T, O extends (a: T, b: T) => T>(
+  parser: Parser<T>,
+  operator: Parser<O>,
+  min: number,
+  max: number = Infinity,
 ): Parser<T> => {
-  return first(foldR1(item, operator), item);
+  if (min < 1) {
+    return zero.error("foldR: min cannot be less than 1");
+  }
+  if (max < min) {
+    return zero.error("foldR: max cannot be less than min");
+  }
+  if (min === 1 && max === 1) {
+    return parser;
+  }
+
+  const operatorItem = sequence([operator, parser]);
+  const operatorItems = many(operatorItem, min - 1, max - 1);
+
+  return parser.bind((firstItem) =>
+    operatorItems.map((pairs) => {
+      // single item
+      if (!pairs.length) {
+        return firstItem;
+      }
+
+      const lastItem = pairs.at(-1)![1];
+
+      return pairs.reduceRight((acc, [op, _], index, array) => {
+        // previous value or `firstItem` if at start
+        const val = index == 0 ? firstItem : array[index - 1][1];
+        return op(val, acc);
+      }, lastItem);
+    })
+  );
 };
 
 /**
- * Parses non-empty sequences of items separated by an operator parser that associates to the right and performs the fold
+ * Repeats a parser and a right-associative operator parser greedily 1 or more times, inclusive. Alias for `foldR(itemParser, operatorParser, 1)`.
+ *
+ * @example Exponentiation
+ *
+ * ```ts
+ * const caret = literal("^").map(() => (a: number, b: number) => a ** b);
+ * const exponentiation = foldR1(digit, caret);
+ *
+ * exponentiation.parse("3^2^1^a^b^c");
+ * // results: [{ value: 9, remaining: "^a^b^c" }]
+ * exponentiation.parse("1");
+ * // results: [{ value: 1, remaining: "" }]
+ * ```
  *
  * @see {@linkcode foldR}
  */
-export const foldR1 = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  return item.bind((x) => {
-    return first(
-      operator.bind((f) => foldR1(item, operator).bind((y) => result(f(x, y)))),
-      result(x),
-    );
-  });
-};
+export const foldR1 = <T, O extends (a: T, b: T) => T>(
+  parser: Parser<T>,
+  operator: Parser<O>,
+): Parser<T> => foldR(parser, operator, 1);
 
 // Filtering
 
