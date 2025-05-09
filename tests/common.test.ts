@@ -1,6 +1,7 @@
 import { assertEquals } from "@std/assert";
 import {
   decimal,
+  defaulted,
   digit,
   integer,
   letter,
@@ -8,6 +9,7 @@ import {
   literal,
   lower,
   natural,
+  optional,
   regexPredicate,
   take,
   takeTwo,
@@ -74,6 +76,64 @@ Deno.test("alternation", () => {
       value: "mo",
       remaining: "nad",
       position: { line: 1, column: 2 },
+    }],
+  });
+});
+
+Deno.test("defaulted", () => {
+  assertEquals(defaulted(digit, 42).parse("123"), {
+    success: true,
+    results: [{
+      value: 1,
+      remaining: "23",
+      position: { line: 1, column: 1 },
+    }],
+  });
+
+  assertEquals(defaulted(digit, 42).parse("abc"), {
+    success: true,
+    results: [{
+      value: 42,
+      remaining: "abc",
+      position: { line: 1, column: 0 },
+    }],
+  });
+
+  assertEquals(defaulted(digit, 42).parse(""), {
+    success: true,
+    results: [{
+      value: 42,
+      remaining: "",
+      position: { line: 1, column: 0 },
+    }],
+  });
+});
+
+Deno.test("optional", () => {
+  assertEquals(optional(digit).parse("123"), {
+    success: true,
+    results: [{
+      value: 1,
+      remaining: "23",
+      position: { line: 1, column: 1 },
+    }],
+  });
+
+  assertEquals(optional(digit).parse("abc"), {
+    success: true,
+    results: [{
+      value: undefined,
+      remaining: "abc",
+      position: { line: 1, column: 0 },
+    }],
+  });
+
+  assertEquals(optional(digit).parse(""), {
+    success: true,
+    results: [{
+      value: undefined,
+      remaining: "",
+      position: { line: 1, column: 0 },
     }],
   });
 });
