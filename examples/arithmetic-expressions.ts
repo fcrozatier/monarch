@@ -4,7 +4,14 @@
  * @module
  */
 
-import { bracket, first, foldL1, foldR1, lazy, type Parser } from "../index.ts";
+import {
+  bracket,
+  first,
+  foldL1,
+  foldR1,
+  lazy,
+  type Parser,
+} from "../src/index.ts";
 import { literal, number } from "./common.ts";
 
 const addOp = first(

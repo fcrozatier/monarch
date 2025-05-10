@@ -1,4 +1,4 @@
-import { parseErrors } from "../errors.ts";
+import { parseErrors } from "../src/errors.ts";
 import {
   bracket,
   createParser,
@@ -11,7 +11,7 @@ import {
   sepBy,
   sequence,
   updatePosition,
-} from "../index.ts";
+} from "../src/index.ts";
 
 /**
  * Represents a predicate function
