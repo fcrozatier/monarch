@@ -1,5 +1,6 @@
 import { parseErrors } from "../errors.ts";
 import {
+  and,
   bracket,
   createParser,
   foldL1,
@@ -9,7 +10,6 @@ import {
   repeat,
   result,
   sepBy,
-  sequence,
   updatePosition,
 } from "../index.ts";
 
@@ -315,7 +315,7 @@ export const integer: Parser<number> = or(
 /**
  * Parses a decimal number aka a float
  */
-export const decimal: Parser<number> = sequence([
+export const decimal: Parser<number> = and([
   integer,
   literal("."),
   natural,

@@ -5,6 +5,7 @@
  */
 
 import {
+  and,
   bracket,
   createParser,
   many,
@@ -12,7 +13,6 @@ import {
   type Parser,
   result,
   sepBy,
-  sequence,
   zero,
 } from "@fcrozatier/monarch";
 import { literal, regex, whitespace, whitespaces } from "./common.ts";
@@ -88,7 +88,7 @@ export const comment: Parser<MCommentNode> = bracket(
 /**
  * Parses a sequence of comments maybe surrounded by whitespace
  */
-export const spacesAndComments: Parser<MSpacesAndComments> = sequence(
+export const spacesAndComments: Parser<MSpacesAndComments> = and(
   [
     whitespaceOnlyText,
     sepBy(comment, whitespaces),
@@ -101,7 +101,7 @@ export const spacesAndComments: Parser<MSpacesAndComments> = sequence(
  *
  * https://html.spec.whatwg.org/#syntax-doctype
  */
-export const doctype: Parser<MTextNode> = sequence([
+export const doctype: Parser<MTextNode> = and([
   regex(/^<!DOCTYPE/i),
   whitespace.skip(whitespaces),
   regex(/^html/i).skip(whitespaces),
@@ -132,7 +132,7 @@ const attributeValue = or(
  * Parses an HTML attribute as a key, value string tuple
  */
 export const attribute: Parser<[string, string]> = or<[string, string]>(
-  sequence([
+  and([
     attributeName,
     literal("=").skip(whitespaces),
     attributeValue,
@@ -148,7 +148,7 @@ const tagName = regex(/^[a-zA-Z][a-zA-Z0-9-]*/)
 
 const startTag: Parser<
   { tagName: string; attributes: [string, string][] }
-> = sequence([
+> = and([
   literal("<"),
   tagName,
   many(attribute),
@@ -253,7 +253,7 @@ export const fragments: Parser<MFragment> = many(
  */
 export const shadowRoot: Parser<MFragment> = createParser(
   (input, position) => {
-    const result = sequence([
+    const result = and([
       spacesAndComments,
       element,
     ]).map(([comments, element]) => [...comments, element]).parse(
@@ -293,7 +293,7 @@ export const shadowRoot: Parser<MFragment> = createParser(
  *
  * https://html.spec.whatwg.org/#writing
  */
-export const html: Parser<MFragment> = sequence([
+export const html: Parser<MFragment> = and([
   spacesAndComments,
   doctype,
   spacesAndComments,

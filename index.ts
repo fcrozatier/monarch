@@ -298,7 +298,7 @@ type Unpack<T> = {
  * @example Reimplementing the `bracket` parser
  *
  * ```ts
- * const parenthesizedNumber = sequence([literal("("), natural, literal(")")]);
+ * const parenthesizedNumber = and([literal("("), natural, literal(")")]);
  * // inferred type: Parser<[string, number, string]>
  *
  * const extract: Parser<number> = parenthesizedNumber.map((arr) => arr[1]);
@@ -308,14 +308,14 @@ type Unpack<T> = {
  *
  * @see {@linkcode bracket}
  */
-export const sequence = <const A extends readonly Parser<unknown>[]>(
+export const and = <const A extends readonly Parser<unknown>[]>(
   parsers: A,
   acc = [] as Unpack<A>,
 ): Parser<Unpack<A>> => {
   if (parsers.length > 0) {
     // @ts-ignore existential types
     return parsers[0].bind((x) => {
-      return sequence(parsers.slice(1), [...acc, x]);
+      return and(parsers.slice(1), [...acc, x]);
     }).bind((arr) => result(arr));
   }
   return result(acc);
@@ -341,9 +341,7 @@ export function bracket<T, U, V>(
   body: Parser<U>,
   closeBracket: Parser<V>,
 ): Parser<U> {
-  return sequence([openBracket, body, closeBracket]).bind((arr) =>
-    result(arr[1])
-  );
+  return and([openBracket, body, closeBracket]).bind((arr) => result(arr[1]));
 }
 
 // Alternation
