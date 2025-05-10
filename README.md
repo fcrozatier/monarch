@@ -395,44 +395,29 @@ even.parseOrThrow("ab");
 //Reason: Expected an even number
 ```
 
-## API Reference
-
-The interactive documentation can be found
-[here](https://jsr.io/@fcrozatier/monarch/doc)
-
-Common parsers can be found in the `/examples/common.ts` module
+## [API Reference](https://jsr.io/@fcrozatier/monarch/doc)
 
 ### Base helpers
 
-- result: `<T>(value: T) => Parser<T>`: The default embedding of a value in the
-  Parser context
+- result: The default embedding of a value in the Parser context
 - zero: The always failing parser
 
 ### Sequencing
 
-- sequence: `(parsers: Parser<?>[]) => Parser<?>`: Makes a sequence of parses
-  and returns the array of parse results
-- bracket:
-  `<T, U, V>(open: Parser<T>, body: Parser<U>, close: Parser<V>) => Parser<U>`:
-  utility combinator for the common open/body/close pattern
+- sequence: Makes a sequence of parses and returns the array of parse results
+- bracket: Utility combinator for the common open/body/close pattern
 
 ### Iteration
 
-- iterate: `<T>(parser: Parser<T>) => Parser<T[]>`: Returns an array of all
-  iterated parses
-- repeat: `<T>(parser: Parser<T>, times: number) => Parser<T[]>`: Repeats a
-  parser a predefined number of times
-- many: `<T>(parser: Parser<T>) => Parser<T[]>`: Returns the longest matching
-  parse array (0 or more matches)
+- iterate: Returns an array of all iterated parses
+- repeat: Repeats a parser a fixed number of times
+- many: Returns the longest matching parse array (0 or more matches)
 - many1: Returns the longest matching parse array (1 or more matches)
-- sepBy: `<T, U>(parser: Parser<T>,sep: Parser<U>) => Parser<T[]>`: Recognizes
-  sequences (maybe empty) of a given parser and separator, and ignores the
+- sepBy: Recognizes sequences (maybe empty) of a given parser and separator, and ignores the
   separator
 - sepBy1: Recognizes non-empty sequences of a given parser and separator, and
   ignores the separator
-- foldL:
-  `<T, U extends (a: T, b: T) => T>(item: Parser<T>,operator: Parser<U>) => Parser<T>`:
-  Parses maybe-empty sequences of items separated by an operator parser that
+- foldL: Parses maybe-empty sequences of items separated by an operator parser that
   associates to the left and performs the fold
 - foldL1: Parses non-empty sequences of items separated by an operator parser
   that associates to the left and performs the fold
@@ -443,16 +428,13 @@ Common parsers can be found in the `/examples/common.ts` module
 
 ### Alternation
 
-- any: `<T>(...parsers: Parser<T>[]) => Parser<T>`: Returns all matching parses
-- first: `<T>(...parsers: Parser<T>[]) => Parser<T>`: Only returns the first
-  successful parse result
+- any: Returns all matching parses
+- first: Only returns the first successful parse result
 
 ### Lazy evaluation
 
-- memoize: `<T>(parserThunk: () => Parser<T>) => Parser<T>`: Takes a parser
-  thunk and memoize it upon evaluation.
-- lazy: `<T>(parserThunk: () => Parser<T>) => Parser<T>`: Defers evaluation,
-  without memoization
+- memoize: Takes a parser thunk and memoize it upon evaluation.
+- lazy: Defers evaluation, without memoization
 
 ## References
 
