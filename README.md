@@ -49,7 +49,6 @@ the provided base parsers and their error messages.
     - [Lazy evaluation](#lazy-evaluation)
   - [References](#references)
 
-
 ## Installation
 
 Depending on your runtime / package-manager:
@@ -64,8 +63,8 @@ yarn dlx jsr add @fcrozatier/monarch
 ## Examples
 
 The [`/examples`](/examples/) folder contains an arithmetic expression
-interpreter, a csv parser, an html parser, as well as common utility parsers (digit, integer,
-number, literal etc.)
+interpreter, a csv parser, an html parser, as well as common utility parsers
+(digit, integer, number, literal etc.)
 
 ## Getting Started Guide
 
@@ -244,7 +243,9 @@ returns `p`, effectively discarding the trailing spaces.
 
 ### `skip`
 
-The `skip` method is a convenient shorthand when you need to skip the result of the next parser. We can rewrite the `token` parser from the previous section as follows:
+The `skip` method is a convenient shorthand when you need to skip the result of
+the next parser. We can rewrite the `token` parser from the previous section as
+follows:
 
 ```ts
 /**
@@ -380,8 +381,9 @@ const { message } = even.parse("ab"); // "Expected an even number"
 
 ### `parseOrThrow`
 
-Use the `parseOrThrow(input: string)` method to assert that a parser should successfully parse an input and return a value. This method returns the first result value – the only one for
-unambiguous grammars – or throws.
+Use the `parseOrThrow(input: string)` method to assert that a parser should
+successfully parse an input and return a value. This method returns the first
+result value – the only one for unambiguous grammars – or throws.
 
 ```js
 const even = regex(/^[02468]/).error("Expected an even number");
@@ -395,7 +397,8 @@ even.parseOrThrow("ab");
 
 ## API Reference
 
-The interactive documentation can be found [here](https://jsr.io/@fcrozatier/monarch/doc)
+The interactive documentation can be found
+[here](https://jsr.io/@fcrozatier/monarch/doc)
 
 Common parsers can be found in the `/examples/common.ts` module
 
