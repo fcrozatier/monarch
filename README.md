@@ -33,7 +33,7 @@ the provided base parsers and their error messages.
     - [`sequence`](#sequence)
     - [`bind`](#bind)
     - [`skip`](#skip)
-    - [`first` and `any`](#first-and-any)
+    - [`or` and `any`](#or-and-any)
     - [`sepBy`](#sepby)
     - [`foldL` and `foldR`](#foldl-and-foldr)
     - [`memoize` and `lazy`](#memoize-and-lazy)
@@ -258,15 +258,15 @@ const token = <T>(parser: Parser<T>) =>
 const token = <T>(parser: Parser<T>) => parser.skip(spaces);
 ```
 
-### `first` and `any`
+### `or` and `any`
 
 When many parses are possible you can use the `any` combinator. Most of the time
 you're only interested in the first matching alternative in which case you can
-use the `first` combinator for performance – `any` always visits all branches
-while `first` returns early.
+use the `or` combinator for performance – `any` always visits all branches while
+`or` returns early.
 
 ```ts
-const integer = first(
+const integer = or(
   literal("-").bind(() => natural).map((x) => -x),
   literal("+").bind(() => natural).map((x) => x),
   natural,
@@ -337,7 +337,7 @@ const mul = literal("*").map(() => (a: number, b: number) => a * b);
 
 // integer | (expr)
 const factor = memoize(() =>
-  first(
+  or(
     integer,
     bracket(
       literal("("),
@@ -429,7 +429,7 @@ even.parseOrThrow("ab");
 ### Alternation
 
 - any: Returns all matching parses
-- first: Only returns the first successful parse result
+- or: Only returns the first successful parse result
 
 ### Lazy evaluation
 

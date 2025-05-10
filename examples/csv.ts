@@ -4,7 +4,7 @@
  * @module
  */
 
-import { bracket, first, many1, type Parser, result, sepBy } from "../index.ts";
+import { bracket, many1, or, type Parser, result, sepBy } from "../index.ts";
 import { letters, literal, natural, newline, spaces } from "./common.ts";
 
 /**
@@ -21,7 +21,7 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
 
 const coma = literal(",").skip(spaces);
 const string = bracket(literal('"'), letters, literal('"'));
-const item = first<string | number>(string, natural);
+const item = or<string | number>(string, natural);
 
 /**
  * Parses a csv heading and returns the array of headers

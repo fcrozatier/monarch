@@ -4,14 +4,14 @@
  * @module
  */
 
-import { bracket, first, foldL1, foldR1, lazy, type Parser } from "../index.ts";
+import { bracket, foldL1, foldR1, lazy, or, type Parser } from "../index.ts";
 import { literal, number } from "./common.ts";
 
-const addOp = first(
+const addOp = or(
   literal("+").map(() => (a: number, b: number) => a + b),
   literal("-").map(() => (a: number, b: number) => a - b),
 );
-const mulOp = first(
+const mulOp = or(
   literal("*").map(() => (a: number, b: number) => a * b),
   literal("/").map(() => (a: number, b: number) => a / b),
 );
@@ -19,7 +19,7 @@ const expOp = literal("^").map(() => (a: number, b: number) => a ** b);
 
 // decimal | integer | (expr)
 const atom = lazy(() =>
-  first(
+  or(
     number,
     bracket(
       literal("("),
