@@ -1,8 +1,8 @@
 import { parseErrors } from "../errors.ts";
 import {
+  alt,
   bracket,
   createParser,
-  first,
   foldL1,
   many,
   type Parser,
@@ -144,7 +144,7 @@ export const defaulted = <T>(
   parser: Parser<T>,
   value: T,
 ): Parser<T> => {
-  return first(parser, result(value));
+  return alt(parser, result(value));
 };
 
 /**
@@ -306,7 +306,7 @@ export const natural: Parser<number> = foldL1(
 /**
  * Parses an integer (element of ℤ)
  */
-export const integer: Parser<number> = first(
+export const integer: Parser<number> = alt(
   literal("-").bind(() => natural).map((x) => -x),
   literal("+").bind(() => natural).map((x) => x),
   natural,
@@ -328,7 +328,7 @@ export const decimal: Parser<number> = sequence([
 /**
  * Parses a number as decimal | integer
  */
-export const number: Parser<number> = first(decimal, integer).error(
+export const number: Parser<number> = alt(decimal, integer).error(
   parseErrors.number,
 );
 

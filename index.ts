@@ -380,7 +380,7 @@ export const any = <T>(...parsers: Parser<T>[]): Parser<T> => {
  * @example Signed integers
  *
  * ```ts
- * const integer = first(
+ * const integer = alt(
  *   literal("-").bind(() => natural).map((x) => -x),
  *   literal("+").bind(() => natural).map((x) => x),
  *   natural,
@@ -391,7 +391,7 @@ export const any = <T>(...parsers: Parser<T>[]): Parser<T> => {
  * integer.parse("42"); // results: [{value: 42, remaining: ''}]
  * ```
  */
-export const first = <T>(
+export const alt = <T>(
   ...parsers: Parser<T>[]
 ): Parser<T> => {
   return createParser((input, position) => {
@@ -438,7 +438,7 @@ export const iterate = <T>(parser: Parser<T>): Parser<T[]> => {
  * ```
  */
 export const many = <T>(parser: Parser<T>): Parser<T[]> => {
-  return first(
+  return alt(
     parser.bind((a) => many(parser).bind((x) => result([a, ...x]))),
     result([]),
   );
@@ -502,7 +502,7 @@ export const sepBy = <T, U>(
   parser: Parser<T>,
   sep: Parser<U>,
 ): Parser<T[]> => {
-  return first(sepBy1(parser, sep), result([]));
+  return alt(sepBy1(parser, sep), result([]));
 };
 
 /**
@@ -526,7 +526,7 @@ export const foldL1 = <T, U extends (a: T, b: T) => T>(
   operator: Parser<U>,
 ): Parser<T> => {
   const rest = (x: T): Parser<T> => {
-    return first(
+    return alt(
       operator.bind((f) => item.bind((y) => rest(f(x, y)))),
       result(x),
     );
@@ -554,7 +554,7 @@ export const foldL = <T, U extends (a: T, b: T) => T>(
   item: Parser<T>,
   operator: Parser<U>,
 ): Parser<T> => {
-  return first(foldL1(item, operator), item);
+  return alt(foldL1(item, operator), item);
 };
 
 /**
@@ -567,7 +567,7 @@ export const foldR1 = <T, U extends (a: T, b: T) => T>(
   operator: Parser<U>,
 ): Parser<T> => {
   return item.bind((x) => {
-    return first(
+    return alt(
       operator.bind((f) => foldR1(item, operator).bind((y) => result(f(x, y)))),
       result(x),
     );
@@ -595,7 +595,7 @@ export const foldR = <T, U extends (a: T, b: T) => T>(
   item: Parser<T>,
   operator: Parser<U>,
 ): Parser<T> => {
-  return first(foldR1(item, operator), item);
+  return alt(foldR1(item, operator), item);
 };
 
 // Filtering
@@ -676,7 +676,7 @@ allows us to lazily evaluate this parser definition to avoid directly referencin
  *
  * // integer | (expr)
  * const factor = lazy(() =>
- *   first(
+ *   alt(
  *     integer,
  *     bracket(
  *       literal("("),

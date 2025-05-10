@@ -5,9 +5,9 @@
  */
 
 import {
+  alt,
   bracket,
   createParser,
-  first,
   many,
   type Parser,
   result,
@@ -122,7 +122,7 @@ const attributeName = regex(/^[^\s="'>\/\p{Noncharacter_Code_Point}]+/u)
   .map((name) => name.toLowerCase())
   .error("Expected a valid attribute name");
 
-const attributeValue = first(
+const attributeValue = alt(
   bracket(singleQuote, regex(/^[^']*/), singleQuote),
   bracket(doubleQuote, regex(/^[^"]*/), doubleQuote),
   regex(/^[^\s='"<>`]+/),
@@ -131,7 +131,7 @@ const attributeValue = first(
 /**
  * Parses an HTML attribute as a key, value string tuple
  */
-export const attribute: Parser<[string, string]> = first<[string, string]>(
+export const attribute: Parser<[string, string]> = alt<[string, string]>(
   sequence([
     attributeName,
     literal("=").skip(whitespaces),
@@ -245,7 +245,7 @@ export const element: Parser<MElement> = createParser((input, position) => {
  * The fragments parser
  */
 export const fragments: Parser<MFragment> = many(
-  first<MNode>(rawText, element, comment),
+  alt<MNode>(rawText, element, comment),
 );
 
 /**
