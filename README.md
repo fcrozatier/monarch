@@ -171,7 +171,7 @@ To apply a given parser as many times as possible (0 or more), wrap it with the
 
 ```js
 const digit = regex(/^\d/);
-const { results } = many(digit).parse("23 and more"); // [{value: ["2", "3"], remaining: " and more", ...}]
+const { results } = many0(digit).parse("23 and more"); // [{value: ["2", "3"], remaining: " and more", ...}]
 ```
 
 ### `map`
@@ -184,7 +184,7 @@ value
 const digit = regex(/^\d/).map(Number.parseInt);
 const { results } = digit.parse("23 and more"); // [{value: 2, remaining: "3 and more", ...}]
 
-const natural = many(digit).map((arr) => Number(arr.join("")));
+const natural = many0(digit).map((arr) => Number(arr.join("")));
 const { results } = natural.parse("23 and more"); // [{value: 23, remaining: " and more", ...}]
 ```
 
@@ -214,7 +214,7 @@ sequence with a final value lifted as a parser.
 
 ```ts
 const letter = regex(/^[a-zA-Z]/);
-const alphanumeric = many(regex(/^\w/)); // Parser<string[]>
+const alphanumeric = many0(regex(/^\w/)); // Parser<string[]>
 const identifier = letter.bind((l) =>
   alphanumeric.map((rest) => [l, ...rest].join(""))
 );
@@ -290,7 +290,7 @@ such sequences and `sepBy1` for non-empty sequences
 ```ts
 const listOfNumbers = bracket(
   literal("["),
-  sepBy(number, literal(",")),
+  sepBy0(number, literal(",")),
   literal("]"),
 );
 

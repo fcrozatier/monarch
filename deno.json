@@ -12,6 +12,8 @@
     "coverage": "deno test --coverage && open coverage/html/index.html"
   },
   "imports": {
+    "monarch": "./index.ts",
+    "monarch/common": "./examples/common.ts",
     "@std/assert": "jsr:@std/assert@^1"
   },
   "publish": {
