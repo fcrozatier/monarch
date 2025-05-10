@@ -323,6 +323,18 @@ export const sequence = <const A extends readonly Parser<unknown>[]>(
 
 /**
  * Utility combinator for the common open-body-close pattern
+ *
+ * @example
+ * ```ts
+ * const listOfNumbers = bracket(
+ *   literal("["),
+ *   sepBy(number, literal(",")),
+ *   literal("]"),
+ * );
+ *
+ * listOfNumbers.parse("[1,2,3]");
+ * // [{value: [1,2,3], remaining: ""}]
+ * ```
  */
 export function bracket<T, U, V>(
   openBracket: Parser<T>,
