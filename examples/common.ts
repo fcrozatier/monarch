@@ -10,8 +10,8 @@ import {
   repeat,
   result,
   sepBy,
-  updatePosition,
 } from "../src/index.ts";
+import { updatePosition } from "../src/utilities.ts";
 
 /**
  * Represents a predicate function
