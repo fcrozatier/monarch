@@ -10,7 +10,7 @@ import {
   repeat,
   result,
   sepBy,
-} from "../src/index.ts";
+} from "../src/main.ts";
 import { updatePosition } from "../src/utilities.ts";
 
 /**

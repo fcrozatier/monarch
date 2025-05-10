@@ -4,14 +4,7 @@
  * @module
  */
 
-import {
-  bracket,
-  foldL1,
-  foldR1,
-  lazy,
-  or,
-  type Parser,
-} from "../src/index.ts";
+import { bracket, foldL1, foldR1, lazy, or, type Parser } from "../src/main.ts";
 import { literal, number } from "./common.ts";
 
 const addOp = or(

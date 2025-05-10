@@ -4,14 +4,7 @@
  * @module
  */
 
-import {
-  bracket,
-  many1,
-  or,
-  type Parser,
-  result,
-  sepBy,
-} from "../src/index.ts";
+import { bracket, many1, or, type Parser, result, sepBy } from "../src/main.ts";
 import { first, letters, literal, natural, newline, spaces } from "./common.ts";
 
 /**

@@ -17,7 +17,7 @@ import {
   takeTwo,
   upper,
 } from "../examples/common.ts";
-import { any, filter, repeat } from "../src/index.ts";
+import { any, filter, repeat } from "../src/main.ts";
 import { parseErrors } from "../src/errors.ts";
 
 Deno.test("item", () => {
