@@ -3,7 +3,6 @@
   "version": "2.6.0",
   "exports": {
     ".": "./src/main.ts",
-    "./common": "./examples/common.ts",
     "./html": "./exports/html.ts",
     "./csv": "./exports/csv.ts"
   },

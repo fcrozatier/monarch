@@ -4,8 +4,20 @@
  * @module
  */
 
-import { bracket, many1, or, type Parser, result, sepBy } from "../src/main.ts";
-import { first, letters, literal, natural, newline, spaces } from "./common.ts";
+import {
+  bracket,
+  first,
+  letters,
+  literal,
+  many1,
+  natural,
+  newline,
+  or,
+  type Parser,
+  result,
+  sepBy,
+  spaces,
+} from "../src/main.ts";
 
 /**
  * Zips arrays of the same length

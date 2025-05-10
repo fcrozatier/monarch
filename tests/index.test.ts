@@ -1,14 +1,20 @@
 import { assertEquals, assertIsError, assertThrows } from "@std/assert";
 import { ParseError } from "../src/errors.ts";
 import {
+  and,
+  any,
   digit,
+  iterate,
   letter,
   literal,
+  many,
+  many1,
   number,
+  result,
   take,
   takeTwo,
-} from "../examples/common.ts";
-import { and, any, iterate, many, many1, result, zero } from "../src/main.ts";
+  zero,
+} from "../src/main.ts";
 
 Deno.test("zero is an absorbing element of bind", () => {
   assertEquals(zero.bind(() => take).parse("m"), zero.parse("m"));

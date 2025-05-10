@@ -1,8 +1,10 @@
 import { assertEquals } from "@std/assert";
 import {
+  any,
   decimal,
   defaulted,
   digit,
+  filter,
   first,
   integer,
   last,
@@ -13,11 +15,11 @@ import {
   natural,
   optional,
   regexPredicate,
+  repeat,
   take,
   takeTwo,
   upper,
-} from "../examples/common.ts";
-import { any, filter, repeat } from "../src/main.ts";
+} from "../src/main.ts";
 import { parseErrors } from "../src/errors.ts";
 
 Deno.test("item", () => {

@@ -6,3 +6,10 @@ import type { Parser } from "../src/index.ts";
 export type Unpack<T> = {
   [K in keyof T]: T[K] extends Parser<infer A> ? A : never;
 };
+
+/**
+ * Represents a predicate function
+ *
+ * @internal
+ */
+export type Predicate = (input: string) => boolean;

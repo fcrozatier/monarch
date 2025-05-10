@@ -4,8 +4,16 @@
  * @module
  */
 
-import { bracket, foldL1, foldR1, lazy, or, type Parser } from "../src/main.ts";
-import { literal, number } from "./common.ts";
+import {
+  bracket,
+  foldL1,
+  foldR1,
+  lazy,
+  literal,
+  number,
+  or,
+  type Parser,
+} from "../src/main.ts";
 
 const addOp = or(
   literal("+").map(() => (a: number, b: number) => a + b),
