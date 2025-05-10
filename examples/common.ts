@@ -277,7 +277,7 @@ export function literal(value: string): Parser<string> {
  * Parses a token and discards trailing spaces
  */
 export function token(value: string): Parser<string> {
-  return literal(value).skip(whitespaces);
+  return first(literal(value), whitespaces);
 }
 
 /**
@@ -336,10 +336,13 @@ export const digit: Parser<number> = regex(/^\d/).map(Number.parseInt).error(
 /**
  * Parses a natural number
  */
-export const natural: Parser<number> = foldL1(
-  digit,
-  result((a: number, b: number) => 10 * a + b),
-).skip(spaces).error(parseErrors.natural);
+export const natural: Parser<number> = first(
+  foldL1(
+    digit,
+    result((a: number, b: number) => 10 * a + b),
+  ),
+  spaces,
+).error(parseErrors.natural);
 
 /**
  * Parses an integer (element of ℤ)
@@ -353,15 +356,18 @@ export const integer: Parser<number> = or(
 /**
  * Parses a decimal number aka a float
  */
-export const decimal: Parser<number> = and([
-  integer,
-  literal("."),
-  natural,
-]).map(([integral, _, fractional]) =>
-  integral +
-  Math.sign(integral) * Math.pow(10, -Math.ceil(Math.log10(fractional))) *
-    fractional
-).skip(spaces).error(parseErrors.decimal);
+export const decimal: Parser<number> = first(
+  and([
+    integer,
+    literal("."),
+    natural,
+  ]).map(([integral, _, fractional]) =>
+    integral +
+    Math.sign(integral) * Math.pow(10, -Math.ceil(Math.log10(fractional))) *
+      fractional
+  ),
+  spaces,
+).error(parseErrors.decimal);
 
 /**
  * Parses a number as decimal | integer

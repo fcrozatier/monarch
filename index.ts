@@ -149,7 +149,7 @@ export class Parser<T> {
    * // [{value: "ageUser1", remaining: "= 42", ...}]
    * ```
    *
-   * @see {@linkcode skip}
+   * @see {@linkcode first}
    */
   bind<U>(transform: (value: T) => Parser<U>): Parser<U> {
     return createParser((input, position) => {
@@ -180,27 +180,6 @@ export class Parser<T> {
         results,
       };
     });
-  }
-
-  /**
-   * Convenience method for skipping a parser.
-   *
-   * Shorthand for: `mainParser.bind((r) => parserToSkip.bind(() => result(r)))`
-   *
-   * @example Discard trailing spaces
-   *
-   * ```ts
-   * const token = <T>(parser: Parser<T>) =>
-   *   parser.bind((p) => spaces.bind((_) => result(p)));
-   *
-   * // equivalent to
-   * const token = <T>(parser: Parser<T>) => parser.skip(spaces);
-   * ```
-   *
-   * @see {@linkcode token}
-   */
-  skip<U>(parser: Parser<U>): Parser<T> {
-    return this.bind((r) => parser.bind(() => result(r)));
   }
 
   /**
