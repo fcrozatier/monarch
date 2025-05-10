@@ -32,7 +32,7 @@ the provided base parsers and their error messages.
     - [`map`](#map)
     - [`and`](#and)
     - [`bind`](#bind)
-    - [`skip`](#skip)
+    - [`first` and `last`](#first-and-last)
     - [`or` and `any`](#or-and-any)
     - [`sepBy`](#sepby)
     - [`foldL` and `foldR`](#foldl-and-foldr)
@@ -241,10 +241,11 @@ resulting value to the variable `p`, then applies the `spaces` parser, binds its
 resulting value to the unused variable `_` and as a result of the sequence
 returns `p`, effectively discarding the trailing spaces.
 
-### `skip`
+### `first` and `last`
 
-The `skip` method is a convenient shorthand when you need to skip the result of
-the next parser. We can rewrite the `token` parser from the previous section as
+The `first` combinator is a convenient way when you need to ignore the result of
+the next parser. Similarly, `last` allows you to ignore the result of the
+previous parser. We can rewrite the `token` parser from the previous section as
 follows:
 
 ```ts
@@ -255,7 +256,7 @@ const token = <T>(parser: Parser<T>) =>
   parser.bind((p) => spaces.bind((_) => result(p)));
 
 // Equivalent
-const token = <T>(parser: Parser<T>) => parser.skip(spaces);
+const token = <T>(parser: Parser<T>) => first(parser, spaces);
 ```
 
 ### `or` and `any`

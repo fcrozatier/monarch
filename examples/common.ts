@@ -166,6 +166,44 @@ export const optional = <T>(parser: Parser<T>): Parser<T | undefined> => {
 };
 
 /**
+ * Skips the second parser.
+ * @param parser The first parser.
+ * @param skip The second parser.
+ * @returns A parser returning the result of the first parser.
+ *
+ * @example Discard trailing spaces
+ *
+ * ```ts
+ * const word = first(letters, whitespace);
+ *
+ * word.parse("abc ");
+ * // [{ value: "abc", remaining: "", ... }]
+ * ```
+ */
+export function first<T, U>(parser: Parser<T>, skip: Parser<U>): Parser<T> {
+  return parser.bind((r) => skip.bind((_) => result(r)));
+}
+
+/**
+ * Skips the first parser.
+ * @param skip The first parser.
+ * @param parser The second parser.
+ * @returns A parser returning the result of the second parser.
+ *
+ * @example Discard leading spaces
+ *
+ * ```ts
+ * const word = last(whitespace, letters);
+ *
+ * word.parse(" abc");
+ * // [{ value: "abc", remaining: "", ... }]
+ * ```
+ */
+export function last<T, U>(skip: Parser<T>, parser: Parser<U>): Parser<U> {
+  return skip.bind((_) => parser.bind((r) => result(r)));
+}
+
+/**
  * Parses a single white space with the regex `/\s\/`
  *
  * @throws Throws "Expected a white space character" when the parse fails
