@@ -4,8 +4,9 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
-  dry-run:
+  test:
     runs-on: ubuntu-latest
 
     permissions:
