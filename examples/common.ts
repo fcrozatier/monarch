@@ -178,11 +178,18 @@ export const whitespace: Parser<string> = regex(/^\s/).error(
 );
 
 /**
- * Parses white space (0 or more)
+ * Parses white spaces (0 or more)
  *
  * Regex: /\s*\/
  */
 export const whitespaces: Parser<string> = regex(/^\s*/);
+
+/**
+ * Parses white spaces (1 or more)
+ *
+ * Regex: /\s+\/
+ */
+export const whitespaces1: Parser<string> = regex(/^\s+/);
 
 /**
  * Parses the space character (0 or more)
