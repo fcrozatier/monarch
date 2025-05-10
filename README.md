@@ -413,12 +413,12 @@ even.parseOrThrow("ab");
 - repeat: Repeats a parser a fixed number of times
 - many: Returns the longest matching parse array (0 or more matches)
 - many1: Returns the longest matching parse array (1 or more matches)
-- sepBy: Recognizes sequences (maybe empty) of a given parser and separator, and ignores the
-  separator
+- sepBy: Recognizes sequences (maybe empty) of a given parser and separator, and
+  ignores the separator
 - sepBy1: Recognizes non-empty sequences of a given parser and separator, and
   ignores the separator
-- foldL: Parses maybe-empty sequences of items separated by an operator parser that
-  associates to the left and performs the fold
+- foldL: Parses maybe-empty sequences of items separated by an operator parser
+  that associates to the left and performs the fold
 - foldL1: Parses non-empty sequences of items separated by an operator parser
   that associates to the left and performs the fold
 - foldR: Parses maybe-empty sequences of items separated by an operator parser
