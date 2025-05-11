@@ -1,4 +1,4 @@
-import type { Parser } from "../src/index.ts";
+import type { Parser } from "../src/parser.ts";
 
 /**
  * Unpacks an array of parsers types

@@ -1,4 +1,4 @@
-import { createParser, type Parser } from "../../src/index.ts";
+import { createParser, type Parser } from "../../src/parser.ts";
 import { updatePosition } from "../../src/utilities.ts";
 
 /**

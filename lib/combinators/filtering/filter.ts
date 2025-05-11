@@ -1,4 +1,4 @@
-import { createParser, type Parser } from "../../../src/index.ts";
+import { createParser, type Parser } from "../../../src/parser.ts";
 
 /**
  * Filters a parser with a predicate and matches only if the predicate returns true

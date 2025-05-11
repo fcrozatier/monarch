@@ -1,4 +1,4 @@
-import { createParser, type Parser } from "../../src/index.ts";
+import { createParser, type Parser } from "../../src/parser.ts";
 
 /**
  * The default embedding of a value in the Parser context

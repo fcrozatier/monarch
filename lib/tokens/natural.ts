@@ -1,5 +1,5 @@
 import { parseErrors } from "../../src/errors.ts";
-import type { Parser } from "../../src/index.ts";
+import type { Parser } from "../../src/parser.ts";
 import { foldL1 } from "../combinators/iteration/foldL1.ts";
 import { first } from "../combinators/sequencing/first.ts";
 import { result } from "../primitives/result.ts";

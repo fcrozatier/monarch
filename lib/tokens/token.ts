@@ -1,4 +1,4 @@
-import type { Parser } from "../../src/index.ts";
+import type { Parser } from "../../src/parser.ts";
 import { first } from "../combinators/sequencing/first.ts";
 import { literal } from "./literal.ts";
 import { whitespaces } from "./whitespaces.ts";

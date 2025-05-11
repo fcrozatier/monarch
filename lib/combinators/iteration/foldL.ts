@@ -1,4 +1,4 @@
-import type { Parser } from "../../../src/index.ts";
+import type { Parser } from "../../../src/parser.ts";
 import { or } from "../choice/or.ts";
 import { foldL1 } from "./foldL1.ts";
 

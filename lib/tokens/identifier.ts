@@ -1,4 +1,4 @@
-import type { Parser } from "../../src/index.ts";
+import type { Parser } from "../../src/parser.ts";
 import { alphaNums } from "./alphaNums.ts";
 import { letter } from "./letter.ts";
 

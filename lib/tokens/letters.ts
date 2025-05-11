@@ -1,4 +1,4 @@
-import type { Parser } from "../../src/index.ts";
+import type { Parser } from "../../src/parser.ts";
 import { many } from "../combinators/iteration/many.ts";
 import { letter } from "./letter.ts";
 

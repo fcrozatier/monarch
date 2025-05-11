@@ -1,5 +1,5 @@
 import { result } from "../../primitives/result.ts";
-import type { Parser } from "../../../src/index.ts";
+import type { Parser } from "../../../src/parser.ts";
 
 /**
  * Skips the first parser.

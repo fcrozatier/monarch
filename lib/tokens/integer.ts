@@ -1,5 +1,5 @@
 import { parseErrors } from "../../src/errors.ts";
-import type { Parser } from "../../src/index.ts";
+import type { Parser } from "../../src/parser.ts";
 import { or } from "../combinators/choice/or.ts";
 import { literal } from "./literal.ts";
 import { natural } from "./natural.ts";

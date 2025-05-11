@@ -1,4 +1,4 @@
-export { createParser, Parser } from "./index.ts";
+export { createParser, Parser } from "./parser.ts";
 
 export {
   alphaNums,

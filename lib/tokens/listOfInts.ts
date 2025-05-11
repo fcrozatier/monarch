@@ -1,4 +1,4 @@
-import type { Parser } from "../../src/index.ts";
+import type { Parser } from "../../src/parser.ts";
 import { integer } from "./integer.ts";
 import { listOf } from "./listOf.ts";
 
