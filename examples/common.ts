@@ -28,9 +28,6 @@ type Predicate = (input: string) => boolean;
  * @example
  *
  * ```ts
- * import { regexPredicate, take, regex } from "./examples/common.ts";
- * import { filter } from "./index.ts";
- *
  * const isVowel = regexPredicate(/[aeiouy]/);
  * const vowel = filter(take, isVowel).error("Expected a vowel");
  * vowel.parse("allo"); // [{value: 'a', remaining: 'llo', ...}]
