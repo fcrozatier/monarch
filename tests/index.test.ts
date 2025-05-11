@@ -63,7 +63,9 @@ Deno.test("many", () => {
       position: { line: 1, column: 0 },
     }],
   });
+});
 
+Deno.test("many1", () => {
   // Matches 1 or more times
   assertEquals(many1(digit).error("Expected many digits").parse("a"), {
     success: false,
