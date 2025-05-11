@@ -22,5 +22,5 @@ export function bracket<T, U, V>(
   body: Parser<U>,
   closeBracket: Parser<V>,
 ): Parser<U> {
-  return and([openBracket, body, closeBracket]).bind((arr) => result(arr[1]));
+  return and(openBracket, body, closeBracket).bind((arr) => result(arr[1]));
 }

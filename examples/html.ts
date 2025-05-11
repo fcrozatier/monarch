@@ -89,11 +89,9 @@ export const comment: Parser<MCommentNode> = bracket(
  * Parses a sequence of comments maybe surrounded by whitespace
  */
 export const spacesAndComments: Parser<MSpacesAndComments> = and(
-  [
-    whitespaceOnlyText,
-    sepBy(comment, whitespaces),
-    whitespaceOnlyText,
-  ],
+  whitespaceOnlyText,
+  sepBy(comment, whitespaces),
+  whitespaceOnlyText,
 ).map(([space1, comments, space2]) => [space1, ...comments, space2]);
 
 /**
@@ -101,12 +99,12 @@ export const spacesAndComments: Parser<MSpacesAndComments> = and(
  *
  * https://html.spec.whatwg.org/#syntax-doctype
  */
-export const doctype: Parser<MTextNode> = and([
+export const doctype: Parser<MTextNode> = and(
   regex(/^<!DOCTYPE/i),
   first(whitespace, whitespaces),
   first(regex(/^html/i), whitespaces),
   literal(">"),
-]).map(() => textNode("<!DOCTYPE html>")).error("Expected a valid doctype");
+).map(() => textNode("<!DOCTYPE html>")).error("Expected a valid doctype");
 
 const singleQuote = literal("'");
 const doubleQuote = literal('"');
@@ -135,11 +133,11 @@ const attributeValue = or(
  */
 export const attribute: Parser<[string, string]> = first(
   or<[string, string]>(
-    and([
+    and(
       attributeName,
       first(literal("="), whitespaces),
       attributeValue,
-    ]).map(([name, _, value]) => [name, value]),
+    ).map(([name, _, value]) => [name, value]),
     attributeName.map((name) => [name, ""]),
   ),
   whitespaces,
@@ -152,12 +150,12 @@ const tagName = first(regex(/^[a-zA-Z][a-zA-Z0-9-]*/), whitespaces)
 
 const startTag: Parser<
   { tagName: string; attributes: [string, string][] }
-> = and([
+> = and(
   literal("<"),
   tagName,
   many(attribute),
   regex(/\/?>/),
-]).error("Expected a start tag").bind(([_, tagName, attributes, end]) => {
+).error("Expected a start tag").bind(([_, tagName, attributes, end]) => {
   const selfClosing = end === "/>";
   if (selfClosing && !voidElements.includes(tagName)) {
     return zero.error("Unexpected self-closing tag on a non-void element");
@@ -257,10 +255,10 @@ export const fragments: Parser<MFragment> = many(
  */
 export const shadowRoot: Parser<MFragment> = createParser(
   (input, position) => {
-    const result = and([
+    const result = and(
       spacesAndComments,
       element,
-    ]).map(([comments, element]) => [...comments, element]).parse(
+    ).map(([comments, element]) => [...comments, element]).parse(
       input,
       position,
     );
@@ -297,13 +295,13 @@ export const shadowRoot: Parser<MFragment> = createParser(
  *
  * https://html.spec.whatwg.org/#writing
  */
-export const html: Parser<MFragment> = and([
+export const html: Parser<MFragment> = and(
   spacesAndComments,
   doctype,
   spacesAndComments,
   element,
   spacesAndComments,
-]).map((fragments) => fragments.flat());
+).map((fragments) => fragments.flat());
 
 /**
  * The monarch serialization options

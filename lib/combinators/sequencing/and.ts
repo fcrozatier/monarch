@@ -1,34 +1,29 @@
 import type { Parser } from "../../../src/parser.ts";
 import { result } from "../../primitives/result.ts";
-import type { Unpack } from "../../types.ts";
+import type { UnwrappedTuple } from "../../types.ts";
 
 /**
- * Makes a sequence of parses and returns the array of parse results
+ * Parses a sequence.
  *
- * The input parsers can be of different types
+ * @param parsers The parsers.
+ * @returns A parser returning an array of parse results.
  *
  * @example Reimplementing the `bracket` parser
  *
  * ```ts
- * const parenthesizedNumber = and([literal("("), natural, literal(")")]);
- * // inferred type: Parser<[string, number, string]>
+ * const text = and(digit, letter);
  *
- * const extract: Parser<number> = parenthesizedNumber.map((arr) => arr[1]);
- * const { results } = extract.parse("(42)");
- * // [{value: 42, remaining: "", ...}]
+ * text.parse("1a2b");
+ * // results: [{ value: [1, "a"], remaining: "2b", ... }]
  * ```
- *
- * @see {@linkcode bracket}
  */
-export const and = <const A extends readonly Parser<unknown>[]>(
-  parsers: A,
-  acc = [] as Unpack<A>,
-): Parser<Unpack<A>> => {
-  if (parsers.length > 0) {
-    // @ts-ignore existential types
-    return parsers[0].bind((x) => {
-      return and(parsers.slice(1), [...acc, x]);
-    }).bind((arr) => result(arr));
-  }
-  return result(acc);
-};
+export function and<T extends Parser<unknown>[]>(
+  ...parsers: [...T]
+): Parser<UnwrappedTuple<T>> {
+  //  p1.bind((r1) => p2.bind((r2) => ... => pN.bind((rN) => result([r1, r2, ..., rN])) ... ));
+  return parsers.reduceRight(
+    (acc, parser) =>
+      parser.bind((r) => acc.map((rs) => [r, ...rs] as UnwrappedTuple<T>)),
+    result([] as UnwrappedTuple<T>),
+  );
+}

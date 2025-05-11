@@ -194,11 +194,12 @@ Here the returned value is a number as `digit` and `natural` have the
 ### `and`
 
 For a simple sequencing of parsers, use the
-`and(parsers: Parser<?>[]): Parser<?[]>` combinator. The input parsers can have
-different types, which will be reflected in the resulting parser
+`and(...parsers: Parser<unknown>[]): Parser<unknown[]>` combinator. The input
+parsers can have different types, which will be reflected in the resulting
+parser
 
 ```ts
-const parenthesizedNumber = and([literal("("), natural, literal(")")]); // inferred type: Parser<[string, number, string]>
+const parenthesizedNumber = and(literal("("), natural, literal(")")); // inferred type: Parser<[string, number, string]>
 const extract = parenthesizedNumber.map((arr) => arr[1]); // Parser<number>
 const { results } = extract.parse("(42)"); // [{value: 42, remaining: "", ...}]
 ```

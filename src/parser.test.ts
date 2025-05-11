@@ -2,7 +2,7 @@ import { assertEquals, assertIsError, assertThrows } from "@std/assert";
 import { and, literal, number, take } from "../lib/main.ts";
 import { ParseError } from "./errors.ts";
 
-const thrw = and([number, literal("then"), number]);
+const thrw = and(number, literal("then"), number);
 
 Deno.test("parse error", () => {
   assertEquals(take.parseOrThrow("monad"), "m");

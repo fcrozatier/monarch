@@ -11,11 +11,11 @@ import { spaces } from "./spaces.ts";
  * Parses a decimal number aka a float
  */
 export const decimal: Parser<number> = first(
-  and([
+  and(
     integer,
     literal("."),
     natural,
-  ]).map(([integral, _, fractional]) =>
+  ).map(([integral, _, fractional]) =>
     integral +
     Math.sign(integral) * Math.pow(10, -Math.ceil(Math.log10(fractional))) *
       fractional
