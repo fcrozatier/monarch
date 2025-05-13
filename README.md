@@ -429,7 +429,7 @@ even.parseOrThrow("ab");
 ### Alternation
 
 - any: Returns all matching parses
-- alt: Only returns the first successful parse result
+- alt: Returns the first successful alternative
 
 ### Lazy evaluation
 

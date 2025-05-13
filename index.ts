@@ -375,7 +375,7 @@ export const any = <T>(...parsers: Parser<T>[]): Parser<T> => {
 // Choice
 
 /**
- * Only returns the first successful parse result
+ * Returns the first successful alternative
  *
  * @example Signed integers
  *
@@ -386,9 +386,9 @@ export const any = <T>(...parsers: Parser<T>[]): Parser<T> => {
  *   natural,
  * );
  *
- * integer.parse("-42"); // results: [{value: -42, remaining: ''}]
- * integer.parse("+42"); // results: [{value: 42, remaining: ''}]
- * integer.parse("42"); // results: [{value: 42, remaining: ''}]
+ * integer.parseOrThrow("-42"); // -42
+ * integer.parseOrThrow("+42"); // 42
+ * integer.parseOrThrow("42"); // 42
  * ```
  */
 export const alt = <T>(
@@ -446,6 +446,8 @@ export const many = <T>(parser: Parser<T>): Parser<T[]> => {
 
 /**
  * Returns the longest matching parse array (1 or more matches)
+ *
+ * @see {@linkcode many}
  */
 export const many1 = <T>(parser: Parser<T>): Parser<T[]> => {
   return parser.bind((x) => many(parser).bind((rest) => result([x, ...rest])));
