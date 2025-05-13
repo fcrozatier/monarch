@@ -4,8 +4,20 @@
  * @module
  */
 
-import { alt, bracket, many1, type Parser, result, sepBy } from "../index.ts";
-import { letters, literal, natural, newline, spaces } from "./common.ts";
+import {
+  alt,
+  bracket,
+  first,
+  letters,
+  literal,
+  many1,
+  natural,
+  newline,
+  type Parser,
+  result,
+  sepBy0,
+  spaces,
+} from "../src/main.ts";
 
 /**
  * Zips arrays of the same length
@@ -19,14 +31,14 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
   });
 };
 
-const coma = literal(",").skip(spaces);
+const coma = first(literal(","), spaces);
 const string = bracket(literal('"'), letters, literal('"'));
 const item = alt<string | number>(string, natural);
 
 /**
  * Parses a csv heading and returns the array of headers
  */
-export const headings: Parser<string[]> = sepBy(string, coma).skip(newline);
+export const headings: Parser<string[]> = first(sepBy0(string, coma), newline);
 
 const header: Parser<
   (row: (string | number)[]) => Record<string, string | number>
@@ -38,7 +50,10 @@ const header: Parser<
 /**
  * Parses a csv row and returns the items array
  */
-export const row: Parser<(string | number)[]> = sepBy(item, coma).skip(newline);
+export const row: Parser<(string | number)[]> = first(
+  sepBy0(item, coma),
+  newline,
+);
 const rows = many1(row);
 
 /**

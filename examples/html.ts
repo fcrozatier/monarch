@@ -8,14 +8,14 @@ import {
   alt,
   bracket,
   createParser,
-  many,
+  many0,
   type Parser,
   result,
-  sepBy,
+  sepBy0,
   sequence,
   zero,
 } from "@fcrozatier/monarch";
-import { literal, regex, whitespace, whitespaces } from "./common.ts";
+import { first, literal, regex, whitespace, whitespaces } from "../src/main.ts";
 
 /**
  * A comment node
@@ -91,7 +91,7 @@ export const comment: Parser<MCommentNode> = bracket(
 export const spacesAndComments: Parser<MSpacesAndComments> = sequence(
   [
     whitespaceOnlyText,
-    sepBy(comment, whitespaces),
+    sepBy0(comment, whitespaces),
     whitespaceOnlyText,
   ],
 ).map(([space1, comments, space2]) => [space1, ...comments, space2]);
@@ -103,8 +103,8 @@ export const spacesAndComments: Parser<MSpacesAndComments> = sequence(
  */
 export const doctype: Parser<MTextNode> = sequence([
   regex(/^<!DOCTYPE/i),
-  whitespace.skip(whitespaces),
-  regex(/^html/i).skip(whitespaces),
+  first(whitespace, whitespaces),
+  first(regex(/^html/i), whitespaces),
   literal(">"),
 ]).map(() => textNode("<!DOCTYPE html>")).error("Expected a valid doctype");
 
@@ -117,8 +117,10 @@ const rawText = regex(/^[^<]+/).map(textNode);
  *
  * https://html.spec.whatwg.org/#attributes-2
  */
-const attributeName = regex(/^[^\s="'>\/\p{Noncharacter_Code_Point}]+/u)
-  .skip(whitespaces)
+const attributeName = first(
+  regex(/^[^\s="'>\/\p{Noncharacter_Code_Point}]+/u),
+  whitespaces,
+)
   .map((name) => name.toLowerCase())
   .error("Expected a valid attribute name");
 
@@ -131,18 +133,20 @@ const attributeValue = alt(
 /**
  * Parses an HTML attribute as a key, value string tuple
  */
-export const attribute: Parser<[string, string]> = alt<[string, string]>(
-  sequence([
-    attributeName,
-    literal("=").skip(whitespaces),
-    attributeValue,
-  ]).map(([name, _, value]) => [name, value]),
-  attributeName.map((name) => [name, ""]),
-).skip(whitespaces);
+export const attribute: Parser<[string, string]> = first(
+  alt<[string, string]>(
+    sequence([
+      attributeName,
+      first(literal("="), whitespaces),
+      attributeValue,
+    ]).map(([name, _, value]) => [name, value]),
+    attributeName.map((name) => [name, ""]),
+  ),
+  whitespaces,
+);
 
 // Tags
-const tagName = regex(/^[a-zA-Z][a-zA-Z0-9-]*/)
-  .skip(whitespaces)
+const tagName = first(regex(/^[a-zA-Z][a-zA-Z0-9-]*/), whitespaces)
   .map((name) => name.toLowerCase())
   .error("Expected an ASCII alphanumeric tag name");
 
@@ -151,7 +155,7 @@ const startTag: Parser<
 > = sequence([
   literal("<"),
   tagName,
-  many(attribute),
+  many0(attribute),
   regex(/\/?>/),
 ]).error("Expected a start tag").bind(([_, tagName, attributes, end]) => {
   const selfClosing = end === "/>";
@@ -244,7 +248,7 @@ export const element: Parser<MElement> = createParser((input, position) => {
 /**
  * The fragments parser
  */
-export const fragments: Parser<MFragment> = many(
+export const fragments: Parser<MFragment> = many0(
   alt<MNode>(rawText, element, comment),
 );
 
