@@ -22,6 +22,8 @@ export const parseErrors = {
   takeTwoError: "Expected two characters",
   takeError: "Unexpected end of input",
 
+  whitespace: "Expected whitespace",
+
   letter: "Expected a letter",
   lower: "Expected a lowercase letter",
   upper: "Expected an uppercase letter",
