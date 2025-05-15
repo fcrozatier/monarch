@@ -243,9 +243,10 @@ returns `p`, effectively discarding the trailing spaces.
 
 ### `skipTrailing` and `skipLeading`
 
-The `skipTrailing` method is a convenient shorthand when you need to ignore the result of
-the next parser. Similarly `skipLeading` allows you to ignore the result of the previous parser. We can rewrite the `token` parser from the previous section as
-follows:
+The `skipTrailing` method is a convenient shorthand when you need to ignore the
+result of the next parser. Similarly `skipLeading` allows you to ignore the
+result of the previous parser. We can rewrite the `token` parser from the
+previous section as follows:
 
 ```ts
 /**
