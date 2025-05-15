@@ -15,7 +15,7 @@ import {
   sequence,
   zero,
 } from "@fcrozatier/monarch";
-import { literal, regex, whitespace, whitespaces } from "./common.ts";
+import { literal, regex, whitespaces, whitespaces1 } from "./common.ts";
 
 /**
  * A comment node
@@ -102,9 +102,8 @@ export const spacesAndComments: Parser<MSpacesAndComments> = sequence(
  * https://html.spec.whatwg.org/#syntax-doctype
  */
 export const doctype: Parser<MTextNode> = sequence([
-  regex(/^<!DOCTYPE/i),
-  whitespace.skip(whitespaces),
-  regex(/^html/i).skip(whitespaces),
+  regex(/^<!DOCTYPE/i).skipTrailing(whitespaces1),
+  regex(/^html/i).skipTrailing(whitespaces),
   literal(">"),
 ]).map(() => textNode("<!DOCTYPE html>")).error("Expected a valid doctype");
 
@@ -118,7 +117,7 @@ const rawText = regex(/^[^<]+/).map(textNode);
  * https://html.spec.whatwg.org/#attributes-2
  */
 const attributeName = regex(/^[^\s="'>\/\p{Noncharacter_Code_Point}]+/u)
-  .skip(whitespaces)
+  .skipTrailing(whitespaces)
   .map((name) => name.toLowerCase())
   .error("Expected a valid attribute name");
 
@@ -134,15 +133,15 @@ const attributeValue = alt(
 export const attribute: Parser<[string, string]> = alt<[string, string]>(
   sequence([
     attributeName,
-    literal("=").skip(whitespaces),
+    literal("=").skipTrailing(whitespaces),
     attributeValue,
   ]).map(([name, _, value]) => [name, value]),
   attributeName.map((name) => [name, ""]),
-).skip(whitespaces);
+).skipTrailing(whitespaces);
 
 // Tags
 const tagName = regex(/^[a-zA-Z][a-zA-Z0-9-]*/)
-  .skip(whitespaces)
+  .skipTrailing(whitespaces)
   .map((name) => name.toLowerCase())
   .error("Expected an ASCII alphanumeric tag name");
 
