@@ -4,7 +4,7 @@
  * @module
  */
 
-import { alt, bracket, many1, type Parser, result, sepBy } from "../index.ts";
+import { alt, between, many1, type Parser, result, sepBy } from "../index.ts";
 import { letters, literal, natural, newline, spaces } from "./common.ts";
 
 /**
@@ -19,8 +19,9 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
   });
 };
 
+
 const coma = literal(",").skipTrailing(spaces);
-const string = bracket(literal('"'), letters, literal('"'));
+const string = between(literal('"'), letters, literal('"'));
 const item = alt<string | number>(string, natural);
 
 /**

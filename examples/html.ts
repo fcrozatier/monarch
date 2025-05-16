@@ -6,13 +6,13 @@
 
 import {
   alt,
-  bracket,
+  between,
   createParser,
   many,
   type Parser,
   result,
   sepBy,
-  sequence,
+  seq,
   zero,
 } from "@fcrozatier/monarch";
 import { literal, regex, whitespaces, whitespaces1 } from "./common.ts";
@@ -79,7 +79,7 @@ export const commentNode = (text: string): MCommentNode => ({
  *
  * https://html.spec.whatwg.org/#comments
  */
-export const comment: Parser<MCommentNode> = bracket(
+export const comment: Parser<MCommentNode> = between(
   literal("<!--"),
   regex(/^(?!>|->)(?:.|\n)*?(?=(?:<\!--|-->|--!>|<!-)|$)/),
   literal("-->"),
@@ -88,12 +88,10 @@ export const comment: Parser<MCommentNode> = bracket(
 /**
  * Parses a sequence of comments maybe surrounded by whitespace
  */
-export const spacesAndComments: Parser<MSpacesAndComments> = sequence(
-  [
-    whitespaceOnlyText,
-    sepBy(comment, whitespaces),
-    whitespaceOnlyText,
-  ],
+export const spacesAndComments: Parser<MSpacesAndComments> = seq(
+  whitespaceOnlyText,
+  sepBy(comment, whitespaces),
+  whitespaceOnlyText,
 ).map(([space1, comments, space2]) => [space1, ...comments, space2]);
 
 /**
@@ -101,11 +99,11 @@ export const spacesAndComments: Parser<MSpacesAndComments> = sequence(
  *
  * https://html.spec.whatwg.org/#syntax-doctype
  */
-export const doctype: Parser<MTextNode> = sequence([
+export const doctype: Parser<MTextNode> = seq(
   regex(/^<!DOCTYPE/i).skipTrailing(whitespaces1),
   regex(/^html/i).skipTrailing(whitespaces),
   literal(">"),
-]).map(() => textNode("<!DOCTYPE html>")).error("Expected a valid doctype");
+).map(() => textNode("<!DOCTYPE html>")).error("Expected a valid doctype");
 
 const singleQuote = literal("'");
 const doubleQuote = literal('"');
@@ -122,8 +120,8 @@ const attributeName = regex(/^[^\s="'>\/\p{Noncharacter_Code_Point}]+/u)
   .error("Expected a valid attribute name");
 
 const attributeValue = alt(
-  bracket(singleQuote, regex(/^[^']*/), singleQuote),
-  bracket(doubleQuote, regex(/^[^"]*/), doubleQuote),
+  between(singleQuote, regex(/^[^']*/), singleQuote),
+  between(doubleQuote, regex(/^[^"]*/), doubleQuote),
   regex(/^[^\s='"<>`]+/),
 );
 
@@ -131,11 +129,11 @@ const attributeValue = alt(
  * Parses an HTML attribute as a key, value string tuple
  */
 export const attribute: Parser<[string, string]> = alt<[string, string]>(
-  sequence([
+  seq(
     attributeName,
     literal("=").skipTrailing(whitespaces),
     attributeValue,
-  ]).map(([name, _, value]) => [name, value]),
+  ).map(([name, _, value]) => [name, value]),
   attributeName.map((name) => [name, ""]),
 ).skipTrailing(whitespaces);
 
@@ -147,12 +145,12 @@ const tagName = regex(/^[a-zA-Z][a-zA-Z0-9-]*/)
 
 const startTag: Parser<
   { tagName: string; attributes: [string, string][] }
-> = sequence([
+> = seq(
   literal("<"),
   tagName,
   many(attribute),
   regex(/\/?>/),
-]).error("Expected a start tag").bind(([_, tagName, attributes, end]) => {
+).error("Expected a start tag").bind(([_, tagName, attributes, end]) => {
   const selfClosing = end === "/>";
   if (selfClosing && !voidElements.includes(tagName)) {
     return zero.error("Unexpected self-closing tag on a non-void element");
@@ -252,10 +250,10 @@ export const fragments: Parser<MFragment> = many(
  */
 export const shadowRoot: Parser<MFragment> = createParser(
   (input, position) => {
-    const result = sequence([
+    const result = seq(
       spacesAndComments,
       element,
-    ]).map(([comments, element]) => [...comments, element]).parse(
+    ).map(([comments, element]) => [...comments, element]).parse(
       input,
       position,
     );
@@ -292,13 +290,13 @@ export const shadowRoot: Parser<MFragment> = createParser(
  *
  * https://html.spec.whatwg.org/#writing
  */
-export const html: Parser<MFragment> = sequence([
+export const html: Parser<MFragment> = seq(
   spacesAndComments,
   doctype,
   spacesAndComments,
   element,
   spacesAndComments,
-]).map((fragments) => fragments.flat());
+).map((fragments) => fragments.flat());
 
 /**
  * The monarch serialization options

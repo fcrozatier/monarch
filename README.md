@@ -30,7 +30,7 @@ the provided base parsers and their error messages.
     - [`regex`](#regex)
     - [`many`](#many)
     - [`map`](#map)
-    - [`sequence`](#sequence)
+    - [`seq`](#seq)
     - [`bind`](#bind)
     - [`skipTrailing` and `skipLeading`](#skiptrailing-and-skipleading)
     - [`alt` and `any`](#alt-and-any)
@@ -191,16 +191,16 @@ const { results } = natural.parse("23 and more"); // [{value: 23, remaining: " a
 Here the returned value is a number as `digit` and `natural` have the
 `Parser<number>` type
 
-### `sequence`
+### `seq`
 
 For a simple sequencing of parsers, use the
-`sequence(parsers: Parser<?>[]): Parser<?[]>` combinator. The input parsers can
-have different types, which will be reflected in the resulting parser
+`seq(parsers: Parser<?>[]): Parser<?[]>` combinator. The input parsers can have
+different types, which will be reflected in the resulting parser
 
 ```ts
-const parenthesizedNumber = sequence([literal("("), natural, literal(")")]); // inferred type: Parser<[string, number, string]>
+const parenthesizedNumber = seq(literal("("), natural, literal(")")); // inferred type: Parser<[string, number, string]>
 const extract = parenthesizedNumber.map((arr) => arr[1]); // Parser<number>
-const { results } = extract.parse("(42)"); // [{value: 42, remaining: "", ...}]
+extract.parseOrThrow("(42)"); // 42
 ```
 
 ### `bind`
@@ -289,13 +289,13 @@ discarded. In these situations you can use
 such sequences and `sepBy1` for non-empty sequences
 
 ```ts
-const listOfNumbers = bracket(
+const listOfNumbers = between(
   literal("["),
   sepBy(number, literal(",")),
   literal("]"),
 );
 
-listOfNumbers.parse("[1,2,3]"); // results: [{value: [1,2,3], remaining: ""}]
+listOfNumbers.parseOrThrow("[1,2,3]"); // [1,2,3]
 ```
 
 ### `foldL` and `foldR`
@@ -340,7 +340,7 @@ const mul = literal("*").map(() => (a: number, b: number) => a * b);
 const factor = memoize(() =>
   alt(
     integer,
-    bracket(
+    between(
       literal("("),
       expr,
       literal(")"),
@@ -350,7 +350,7 @@ const factor = memoize(() =>
 const term = foldL(factor, mul);
 const expr = foldL(term, add);
 
-expr.parse("1+2*3"); // results: [{value: 7, remaining: ""}]
+expr.parseOrThrow("1+2*3"); // 7
 ```
 
 Here a `factor` parser is an integer or a parenthesized expression and `memoize`
@@ -405,8 +405,8 @@ even.parseOrThrow("ab");
 
 ### Sequencing
 
-- sequence: Makes a sequence of parses and returns the array of parse results
-- bracket: Utility combinator for the common open/body/close pattern
+- seq: Makes a sequence of parses and returns the array of parse results
+- between: Utility combinator for the common open/body/close pattern
 
 ### Iteration
 

@@ -1,7 +1,7 @@
 import { parseErrors } from "../errors.ts";
 import {
   alt,
-  bracket,
+  between,
   createParser,
   foldL1,
   many,
@@ -9,7 +9,7 @@ import {
   repeat,
   result,
   sepBy,
-  sequence,
+  seq,
   updatePosition,
 } from "../index.ts";
 
@@ -315,11 +315,11 @@ export const integer: Parser<number> = alt(
 /**
  * Parses a decimal number aka a float
  */
-export const decimal: Parser<number> = sequence([
+export const decimal: Parser<number> = seq(
   integer,
   literal("."),
   natural,
-]).map(([integral, _, fractional]) =>
+).map(([integral, _, fractional]) =>
   integral +
   Math.sign(integral) * Math.pow(10, -Math.ceil(Math.log10(fractional))) *
     fractional
@@ -336,7 +336,7 @@ export const number: Parser<number> = alt(decimal, integer).error(
  * Builds a parser that expects the list syntax [p(,p)*]
  */
 export function listOf<T>(parser: Parser<T>): Parser<T[]> {
-  return bracket(
+  return between(
     token("["),
     sepBy(parser, token(",")),
     token("]"),
