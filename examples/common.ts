@@ -3,10 +3,10 @@ import { between } from "../combinators/sequencing/between.ts";
 import { seq } from "../combinators/sequencing/seq.ts";
 import { parseErrors } from "../errors.ts";
 import { createParser, foldL1, type Parser, updatePosition } from "../index.ts";
-import { result } from "../result.ts";
 import { many } from "../combinators/iteration/many.ts";
 import { repeat } from "../combinators/iteration/repeat.ts";
 import { sepBy } from "../combinators/iteration/sepBy.ts";
+import { result } from "../primitives/mod.ts";
 
 /**
  * Represents a predicate function
