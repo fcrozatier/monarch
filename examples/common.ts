@@ -9,7 +9,7 @@ import {
   repeat,
   result,
   sepBy,
-  sequence,
+  seq,
   updatePosition,
 } from "../index.ts";
 
@@ -315,7 +315,7 @@ export const integer: Parser<number> = alt(
 /**
  * Parses a decimal number aka a float
  */
-export const decimal: Parser<number> = sequence([
+export const decimal: Parser<number> = seq([
   integer,
   literal("."),
   natural,

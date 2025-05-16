@@ -30,7 +30,7 @@ the provided base parsers and their error messages.
     - [`regex`](#regex)
     - [`many`](#many)
     - [`map`](#map)
-    - [`sequence`](#sequence)
+    - [`seq`](#seq)
     - [`bind`](#bind)
     - [`skip`](#skip)
     - [`alt` and `any`](#alt-and-any)
@@ -191,14 +191,14 @@ const { results } = natural.parse("23 and more"); // [{value: 23, remaining: " a
 Here the returned value is a number as `digit` and `natural` have the
 `Parser<number>` type
 
-### `sequence`
+### `seq`
 
 For a simple sequencing of parsers, use the
-`sequence(parsers: Parser<?>[]): Parser<?[]>` combinator. The input parsers can
-have different types, which will be reflected in the resulting parser
+`seq(parsers: Parser<?>[]): Parser<?[]>` combinator. The input parsers can have
+different types, which will be reflected in the resulting parser
 
 ```ts
-const parenthesizedNumber = sequence([literal("("), natural, literal(")")]); // inferred type: Parser<[string, number, string]>
+const parenthesizedNumber = seq([literal("("), natural, literal(")")]); // inferred type: Parser<[string, number, string]>
 const extract = parenthesizedNumber.map((arr) => arr[1]); // Parser<number>
 const { results } = extract.parse("(42)"); // [{value: 42, remaining: "", ...}]
 ```
@@ -404,7 +404,7 @@ even.parseOrThrow("ab");
 
 ### Sequencing
 
-- sequence: Makes a sequence of parses and returns the array of parse results
+- seq: Makes a sequence of parses and returns the array of parse results
 - between: Utility combinator for the common open/body/close pattern
 
 ### Iteration

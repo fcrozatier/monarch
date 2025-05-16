@@ -293,12 +293,14 @@ type Unpack<T> = {
 /**
  * Makes a sequence of parses and returns the array of parse results
  *
+ * Succeeds if all parsers in the sequence are successful.
+ *
  * The input parsers can be of different types
  *
  * @example Reimplementing the `between` parser
  *
  * ```ts
- * const parenthesizedNumber = sequence([literal("("), natural, literal(")")]);
+ * const parenthesizedNumber = seq([literal("("), natural, literal(")")]);
  * // inferred type: Parser<[string, number, string]>
  *
  * const extract: Parser<number> = parenthesizedNumber.map((arr) => arr[1]);
@@ -308,14 +310,14 @@ type Unpack<T> = {
  *
  * @see {@linkcode between}
  */
-export const sequence = <const A extends readonly Parser<unknown>[]>(
+export const seq = <const A extends readonly Parser<unknown>[]>(
   parsers: A,
   acc = [] as Unpack<A>,
 ): Parser<Unpack<A>> => {
   if (parsers.length > 0) {
     // @ts-ignore existential types
     return parsers[0].bind((x) => {
-      return sequence(parsers.slice(1), [...acc, x]);
+      return seq(parsers.slice(1), [...acc, x]);
     }).bind((arr) => result(arr));
   }
   return result(acc);
@@ -362,7 +364,7 @@ export function between<T, U, V>(
   body: Parser<U>,
   close: Parser<V>,
 ): Parser<U> {
-  return sequence([open, body, close]).bind((arr) => result(arr[1]));
+  return seq([open, body, close]).bind((arr) => result(arr[1]));
 }
 
 // Alternation
