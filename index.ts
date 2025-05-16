@@ -297,17 +297,6 @@ export const createParser = <T>(
 ): Parser<T> => new Parser(fn);
 
 /**
- * The always failing parser
- *
- * It is the unit of alternation and plus, and also is an absorbing element of bind
- */
-export const zero: Parser<never> = createParser((_, position) => ({
-  success: false,
-  message: "",
-  position,
-}));
-
-/**
  * Parses non-empty sequences of items separated by an operator parser that associates to the left and performs the fold
  *
  * @example Slick natural number parser implementation

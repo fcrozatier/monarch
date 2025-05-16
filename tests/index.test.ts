@@ -12,12 +12,6 @@ import {
   takeTwo,
   whitespace,
 } from "../examples/common.ts";
-import { zero } from "../index.ts";
-
-Deno.test("zero is an absorbing element of bind", () => {
-  assertEquals(zero.bind(() => take).parse("m"), zero.parse("m"));
-  // assertEquals(take.bind(() => zero).parse("m"), zero.parse("m"));
-});
 
 Deno.test("skipTrailing", () => {
   assertEquals(digit.skipTrailing(letter).parse("1a"), {
