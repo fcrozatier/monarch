@@ -6,5 +6,6 @@ import { take } from "./mod.ts";
 /**
  * Parses the next two characters
  */
-export const takeTwo: Parser<string> = repeat(take, 2).map((arr) => arr.join("")
+export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
+  arr.join("")
 ).error(parseErrors.takeTwoError);
