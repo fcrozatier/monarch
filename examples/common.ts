@@ -1,7 +1,7 @@
 import { parseErrors } from "../errors.ts";
 import {
   alt,
-  bracket,
+  between,
   createParser,
   foldL1,
   many,
@@ -336,7 +336,7 @@ export const number: Parser<number> = alt(decimal, integer).error(
  * Builds a parser that expects the list syntax [p(,p)*]
  */
 export function listOf<T>(parser: Parser<T>): Parser<T[]> {
-  return bracket(
+  return between(
     token("["),
     sepBy(parser, token(",")),
     token("]"),

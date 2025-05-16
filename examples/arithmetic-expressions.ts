@@ -4,7 +4,7 @@
  * @module
  */
 
-import { alt, bracket, foldL1, foldR1, lazy, type Parser } from "../index.ts";
+import { alt, between, foldL1, foldR1, lazy, type Parser } from "../index.ts";
 import { literal, number } from "./common.ts";
 
 const addOp = alt(
@@ -21,7 +21,7 @@ const expOp = literal("^").map(() => (a: number, b: number) => a ** b);
 const atom = lazy(() =>
   alt(
     number,
-    bracket(
+    between(
       literal("("),
       expr,
       literal(")"),

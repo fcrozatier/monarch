@@ -288,13 +288,13 @@ discarded. In these situations you can use
 such sequences and `sepBy1` for non-empty sequences
 
 ```ts
-const listOfNumbers = bracket(
+const listOfNumbers = between(
   literal("["),
   sepBy(number, literal(",")),
   literal("]"),
 );
 
-listOfNumbers.parse("[1,2,3]"); // results: [{value: [1,2,3], remaining: ""}]
+listOfNumbers.parseOrThrow("[1,2,3]"); // [1,2,3]
 ```
 
 ### `foldL` and `foldR`
@@ -339,7 +339,7 @@ const mul = literal("*").map(() => (a: number, b: number) => a * b);
 const factor = memoize(() =>
   alt(
     integer,
-    bracket(
+    between(
       literal("("),
       expr,
       literal(")"),
@@ -349,7 +349,7 @@ const factor = memoize(() =>
 const term = foldL(factor, mul);
 const expr = foldL(term, add);
 
-expr.parse("1+2*3"); // results: [{value: 7, remaining: ""}]
+expr.parseOrThrow("1+2*3"); // 7
 ```
 
 Here a `factor` parser is an integer or a parenthesized expression and `memoize`
@@ -405,7 +405,7 @@ even.parseOrThrow("ab");
 ### Sequencing
 
 - sequence: Makes a sequence of parses and returns the array of parse results
-- bracket: Utility combinator for the common open/body/close pattern
+- between: Utility combinator for the common open/body/close pattern
 
 ### Iteration
 

@@ -295,7 +295,7 @@ type Unpack<T> = {
  *
  * The input parsers can be of different types
  *
- * @example Reimplementing the `bracket` parser
+ * @example Reimplementing the `between` parser
  *
  * ```ts
  * const parenthesizedNumber = sequence([literal("("), natural, literal(")")]);
@@ -306,7 +306,7 @@ type Unpack<T> = {
  * // [{value: 42, remaining: "", ...}]
  * ```
  *
- * @see {@linkcode bracket}
+ * @see {@linkcode between}
  */
 export const sequence = <const A extends readonly Parser<unknown>[]>(
   parsers: A,
@@ -322,28 +322,43 @@ export const sequence = <const A extends readonly Parser<unknown>[]>(
 };
 
 /**
- * Utility combinator for the common open-body-close pattern
+ * Structural combinator for the common open-body-close pattern
  *
- * @example
+ * This pattern is common when parsing strings, lists, or scoped content inside curly brackets. The `open` and `close` parsers are discarded by {@linkcode between} and you can {@linkcode Parser.map map} the `body` to the data structure matching you need.
+ *
+ * ### `between` vs skipping
+ *
+ * `between` is functionally equivalent to skipping a prefix and suffix around the body with {@linkcode Parser.skipLeading skipLeading} and {@linkcode Parser.skipTrailing skipTrailing}, but the intent is different:
+ * - `between` is a structural parser and describes your grammar
+ * - skipping is a refinement to express tokenizer concerns or write convenience utilities: skipping whitespaces, extracting data from the body but not the frontmatter etc.
+ *
+ * @example Parsing strings
  * ```ts
- * const listOfNumbers = bracket(
+ * const string = between(literal('"'), letters, literal('"'));
+ *
+ * string.parseOrThrow('"hello world"'); // "hello world"
+ * ```
+ *
+ * @example Parsing lists
+ * ```ts
+ * const listOfNumbers = between(
  *   literal("["),
  *   sepBy(number, literal(",")),
  *   literal("]"),
  * );
  *
- * listOfNumbers.parse("[1,2,3]");
- * // [{value: [1,2,3], remaining: ""}]
+ * listOfNumbers.parseOrThrow("[1,2,3]"); // [1,2,3]
  * ```
+ *
+ * @see {@linkcode Parser.skipTrailing skipLeading}
+ * @see {@linkcode Parser.skipLeading skipTrailing}
  */
-export function bracket<T, U, V>(
-  openBracket: Parser<T>,
+export function between<T, U, V>(
+  open: Parser<T>,
   body: Parser<U>,
-  closeBracket: Parser<V>,
+  close: Parser<V>,
 ): Parser<U> {
-  return sequence([openBracket, body, closeBracket]).bind((arr) =>
-    result(arr[1])
-  );
+  return sequence([open, body, close]).bind((arr) => result(arr[1]));
 }
 
 // Alternation
@@ -491,7 +506,7 @@ export const sepBy1 = <T, U>(
  * @example Lists of numbers
  *
  * ```ts
- * const listOfNumbers = bracket(
+ * const listOfNumbers = between(
  *   literal("["),
  *   sepBy(number, literal(",")),
  *   literal("]"),
@@ -680,7 +695,7 @@ allows us to lazily evaluate this parser definition to avoid directly referencin
  * const factor = lazy(() =>
  *   alt(
  *     integer,
- *     bracket(
+ *     between(
  *       literal("("),
  *       expr,
  *       literal(")"),

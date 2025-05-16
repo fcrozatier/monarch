@@ -6,7 +6,7 @@
 
 import {
   alt,
-  bracket,
+  between,
   createParser,
   many,
   type Parser,
@@ -79,7 +79,7 @@ export const commentNode = (text: string): MCommentNode => ({
  *
  * https://html.spec.whatwg.org/#comments
  */
-export const comment: Parser<MCommentNode> = bracket(
+export const comment: Parser<MCommentNode> = between(
   literal("<!--"),
   regex(/^(?!>|->)(?:.|\n)*?(?=(?:<\!--|-->|--!>|<!-)|$)/),
   literal("-->"),
@@ -123,8 +123,8 @@ const attributeName = regex(/^[^\s="'>\/\p{Noncharacter_Code_Point}]+/u)
   .error("Expected a valid attribute name");
 
 const attributeValue = alt(
-  bracket(singleQuote, regex(/^[^']*/), singleQuote),
-  bracket(doubleQuote, regex(/^[^"]*/), doubleQuote),
+  between(singleQuote, regex(/^[^']*/), singleQuote),
+  between(doubleQuote, regex(/^[^"]*/), doubleQuote),
   regex(/^[^\s='"<>`]+/),
 );
 
