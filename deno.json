@@ -2,7 +2,9 @@
   "name": "@fcrozatier/monarch",
   "version": "2.6.0",
   "exports": {
-    ".": "./index.ts",
+    ".": "./mod.ts",
+    "./alternation": "./combinators/alternation/mod.ts",
+    "./sequencing": "./combinators/sequencing/mod.ts",
     "./common": "./examples/common.ts",
     "./html": "./exports/html.ts",
     "./csv": "./exports/csv.ts"
