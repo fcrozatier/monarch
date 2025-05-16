@@ -171,18 +171,18 @@ export const optional = <T>(parser: Parser<T>): Parser<T | undefined> => {
  * @throws Throws "Expected a white space character" when the parse fails
  */
 export const whitespace: Parser<string> = regex(/^\s/).error(
-  "Expected a white space character",
+  parseErrors.whitespace,
 );
 
 /**
- * Parses white spaces (0 or more)
+ * Parses whitespaces (0 or more)
  *
  * Regex: /\s*\/
  */
 export const whitespaces: Parser<string> = regex(/^\s*/);
 
 /**
- * Parses white spaces (1 or more)
+ * Parses whitespaces (1 or more)
  *
  * Regex: /\s+\/
  */
@@ -239,7 +239,7 @@ export function literal(value: string): Parser<string> {
  * Parses a token and discards trailing spaces
  */
 export function token(value: string): Parser<string> {
-  return literal(value).skip(whitespaces);
+  return literal(value).skipTrailing(whitespaces);
 }
 
 /**
@@ -301,7 +301,7 @@ export const digit: Parser<number> = regex(/^\d/).map(Number.parseInt).error(
 export const natural: Parser<number> = foldL1(
   digit,
   result((a: number, b: number) => 10 * a + b),
-).skip(spaces).error(parseErrors.natural);
+).skipTrailing(spaces).error(parseErrors.natural);
 
 /**
  * Parses an integer (element of ℤ)
@@ -323,7 +323,7 @@ export const decimal: Parser<number> = seq(
   integral +
   Math.sign(integral) * Math.pow(10, -Math.ceil(Math.log10(fractional))) *
     fractional
-).skip(spaces).error(parseErrors.decimal);
+).skipTrailing(spaces).error(parseErrors.decimal);
 
 /**
  * Parses a number as decimal | integer

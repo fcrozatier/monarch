@@ -32,7 +32,7 @@ the provided base parsers and their error messages.
     - [`map`](#map)
     - [`seq`](#seq)
     - [`bind`](#bind)
-    - [`skip`](#skip)
+    - [`skipTrailing` and `skipLeading`](#skiptrailing-and-skipleading)
     - [`alt` and `any`](#alt-and-any)
     - [`sepBy`](#sepby)
     - [`foldL` and `foldR`](#foldl-and-foldr)
@@ -241,11 +241,12 @@ resulting value to the variable `p`, then applies the `spaces` parser, binds its
 resulting value to the unused variable `_` and as a result of the sequence
 returns `p`, effectively discarding the trailing spaces.
 
-### `skip`
+### `skipTrailing` and `skipLeading`
 
-The `skip` method is a convenient shorthand when you need to skip the result of
-the next parser. We can rewrite the `token` parser from the previous section as
-follows:
+The `skipTrailing` method is a convenient shorthand when you need to ignore the
+result of the next parser. Similarly `skipLeading` allows you to ignore the
+result of the previous parser. We can rewrite the `token` parser from the
+previous section as follows:
 
 ```ts
 /**
@@ -255,7 +256,7 @@ const token = <T>(parser: Parser<T>) =>
   parser.bind((p) => spaces.bind((_) => result(p)));
 
 // Equivalent
-const token = <T>(parser: Parser<T>) => parser.skip(spaces);
+const token = <T>(parser: Parser<T>) => parser.skipTrailing(spaces);
 ```
 
 ### `alt` and `any`

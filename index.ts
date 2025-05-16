@@ -149,7 +149,7 @@ export class Parser<T> {
    * // [{value: "ageUser1", remaining: "= 42", ...}]
    * ```
    *
-   * @see {@linkcode skip}
+   * @see {@linkcode skipTrailing}
    */
   bind<U>(transform: (value: T) => Parser<U>): Parser<U> {
     return createParser((input, position) => {
@@ -183,24 +183,62 @@ export class Parser<T> {
   }
 
   /**
-   * Convenience method for skipping a parser.
+   * Skips trailing parsers.
    *
-   * Shorthand for: `mainParser.bind((r) => parserToSkip.bind(() => result(r)))`
+   * The parsers to skip can consume characters and must all succeed
    *
    * @example Discard trailing spaces
    *
    * ```ts
-   * const token = <T>(parser: Parser<T>) =>
-   *   parser.bind((p) => spaces.bind((_) => result(p)));
+   * const ident = letter.skipTrailing(whitespaces);
    *
-   * // equivalent to
-   * const token = <T>(parser: Parser<T>) => parser.skip(spaces);
+   * ident.parseOrThrow("a"); // "a"
+   * ident.parseOrThrow("a ") // "a"
+   *
+   * const ident1 = letter.skipTrailing(whitespaces1);
+   *
+   * ident1.parseOrThrow("a"); // Error: Expected whitespace
+   * ident1.parseOrThrow("a ") // "a"
    * ```
    *
-   * @see {@linkcode token}
+   * @param parsers Parsers to skip
+   *
+   * @see {@linkcode skipLeading}
    */
-  skip<U>(parser: Parser<U>): Parser<T> {
-    return this.bind((r) => parser.bind(() => result(r)));
+  skipTrailing(...parsers: Parser<unknown>[]): Parser<T> {
+    return [this, ...parsers].reduceRight((acc, current) =>
+      current.bind((r) => acc.bind(() => result(r)))
+    ) as Parser<T>;
+  }
+
+  /**
+   * Skips leading parsers.
+   *
+   * The parsers to skip can consume characters and must all succeed
+   *
+   * @example Discard leading spaces
+   *
+   * ```ts
+   * const ident = letter.skipLeading(whitespaces);
+   *
+   * ident.parseOrThrow("a"); // "a"
+   * ident.parseOrThrow(" a") // "a"
+   *
+   * const ident1 = letter.skipLeading(whitespaces1);
+   *
+   * ident1.parseOrThrow("a"); // Error: Expected whitespace
+   * ident1.parseOrThrow(" a") // "a"
+   * ```
+   *
+   * @param parsers Parsers to skip
+   *
+   * @see {@linkcode skipTrailing}
+   */
+  skipLeading(...parsers: Parser<unknown>[]): Parser<T> {
+    return parsers.reduceRight(
+      (acc, current) => current.bind(() => acc),
+      this,
+    ) as Parser<T>;
   }
 
   /**
@@ -214,9 +252,9 @@ export class Parser<T> {
 
       if (results.every((r) => r.success === false)) {
         // Heuristic: return the error message of the most successful parse
-        const error = results.sort((a, b) =>
+        const [error] = results.sort((a, b) =>
           sortPosition(a.position, b.position)
-        )[0];
+        );
 
         return error;
       }
