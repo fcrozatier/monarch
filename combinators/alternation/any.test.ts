@@ -1,7 +1,8 @@
 import { assertEquals } from "@std/assert";
 import { any } from "./any.ts";
 import { parseErrors } from "../../errors.ts";
-import { literal, take, takeTwo } from "../../examples/common.ts";
+import { take, takeTwo } from "../../primitives/mod.ts";
+import { literal } from "../../common/mod.ts";
 
 const oneOrTwoItems = any(take, takeTwo);
 

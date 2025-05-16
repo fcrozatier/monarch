@@ -4,13 +4,13 @@
  * @module
  */
 
-import { alt } from "../combinators/alternation/alt.ts";
-import type { Parser } from "../index.ts";
-import { result } from "../primitives/result.ts";
-import { many1 } from "../combinators/iteration/many1.ts";
-import { sepBy } from "../combinators/iteration/sepBy.ts";
-import { letters, literal, natural, newline, spaces } from "./common.ts";
+import { alt } from "../combinators/alternation/mod.ts";
+import { many1, sepBy } from "../combinators/iteration/mod.ts";
 import { between } from "../combinators/sequencing/mod.ts";
+import { letters, literal, natural, newline } from "../common/mod.ts";
+import type { Parser } from "../index.ts";
+import { result } from "../primitives/mod.ts";
+import { spaces } from "./spaces.ts";
 
 /**
  * Zips arrays of the same length

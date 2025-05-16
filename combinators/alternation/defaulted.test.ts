@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { digit } from "../../examples/common.ts";
+import { digit } from "../../common/mod.ts";
 import { defaulted } from "./defaulted.ts";
 
 Deno.test("defaulted", () => {

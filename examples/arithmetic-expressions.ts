@@ -4,10 +4,10 @@
  * @module
  */
 
-import { alt } from "../combinators/alternation/alt.ts";
+import { alt } from "../combinators/alternation/mod.ts";
 import { between } from "../combinators/sequencing/mod.ts";
 import { foldL1, foldR1, lazy, type Parser } from "../index.ts";
-import { literal, number } from "./common.ts";
+import { literal, number } from "../common/mod.ts";
 
 const addOp = alt(
   literal("+").map(() => (a: number, b: number) => a + b),

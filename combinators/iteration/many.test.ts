@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert/equals";
 import { many } from "./many.ts";
-import { digit } from "../../examples/common.ts";
+import { digit } from "../../common/mod.ts";
 
 Deno.test("many", () => {
   assertEquals(many(digit).parse("23 and more"), {

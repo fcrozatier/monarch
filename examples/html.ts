@@ -5,11 +5,9 @@
  */
 
 import { createParser, type Parser } from "@fcrozatier/monarch";
-import { literal, whitespaces, whitespaces1 } from "./common.ts";
-import { regex } from "../common/regex.ts";
-import { alt } from "../combinators/alternation/alt.ts";
-import { between } from "../combinators/sequencing/between.ts";
-import { seq } from "../combinators/sequencing/seq.ts";
+import { literal, regex, whitespaces, whitespaces1 } from "../common/mod.ts";
+import { alt } from "../combinators/alternation/mod.ts";
+import { between, seq } from "../combinators/sequencing/mod.ts";
 import { many, sepBy } from "../combinators/iteration/mod.ts";
 import { result, zero } from "../primitives/mod.ts";
 

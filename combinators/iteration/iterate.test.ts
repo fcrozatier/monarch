@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert/equals";
-import { digit, letter } from "../../examples/common.ts";
+import { digit, letter } from "../../common/mod.ts";
 import { iterate } from "./iterate.ts";
 
 Deno.test("iterate", () => {
