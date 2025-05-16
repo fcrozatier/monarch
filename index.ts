@@ -284,43 +284,43 @@ export const zero: Parser<never> = createParser((_, position) => ({
 // Sequencing
 
 /**
- * Unpacks an array of parsers types
+ * Maps an heterogeneous array of Parser types to their inner types
+ *
+ * @internal
  */
-type Unpack<T> = {
-  [K in keyof T]: T[K] extends Parser<infer A> ? A : never;
+type Unwrap<T extends Parser<unknown>[]> = {
+  [K in keyof T]: T[K] extends Parser<infer U> ? U : never;
 };
 
 /**
- * Makes a sequence of parses and returns the array of parse results
+ * The sequence combinator
  *
- * Succeeds if all parsers in the sequence are successful.
+ * Succeeds if all parsers of the sequence are successful.
  *
  * The input parsers can be of different types
  *
  * @example Reimplementing the `between` parser
  *
  * ```ts
- * const parenthesizedNumber = seq([literal("("), natural, literal(")")]);
+ * const parenthesizedNumber = seq(literal("("), natural, literal(")"));
  * // inferred type: Parser<[string, number, string]>
  *
- * const extract: Parser<number> = parenthesizedNumber.map((arr) => arr[1]);
- * const { results } = extract.parse("(42)");
- * // [{value: 42, remaining: "", ...}]
+ * const extract = parenthesizedNumber.map((arr) => arr[1]);
+ * extract.parseOrThrow("(42)"); // 42
  * ```
+ *
+ * @param parsers The parsers
  *
  * @see {@linkcode between}
  */
-export const seq = <const A extends readonly Parser<unknown>[]>(
-  parsers: A,
-  acc = [] as Unpack<A>,
-): Parser<Unpack<A>> => {
-  if (parsers.length > 0) {
-    // @ts-ignore existential types
-    return parsers[0].bind((x) => {
-      return seq(parsers.slice(1), [...acc, x]);
-    }).bind((arr) => result(arr));
-  }
-  return result(acc);
+export const seq = <T extends Parser<unknown>[]>(
+  ...parsers: T
+): Parser<Unwrap<T>> => {
+  return parsers.reduceRight(
+    (acc: Parser<Unwrap<T>>, parser) =>
+      parser.bind((r) => acc.map((rest) => [r, ...rest] as Unwrap<T>)),
+    result([] as Unwrap<T>),
+  );
 };
 
 /**
@@ -364,7 +364,7 @@ export function between<T, U, V>(
   body: Parser<U>,
   close: Parser<V>,
 ): Parser<U> {
-  return seq([open, body, close]).bind((arr) => result(arr[1]));
+  return seq(open, body, close).bind((arr) => result(arr[1]));
 }
 
 // Alternation

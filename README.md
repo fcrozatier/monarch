@@ -198,9 +198,9 @@ For a simple sequencing of parsers, use the
 different types, which will be reflected in the resulting parser
 
 ```ts
-const parenthesizedNumber = seq([literal("("), natural, literal(")")]); // inferred type: Parser<[string, number, string]>
+const parenthesizedNumber = seq(literal("("), natural, literal(")")); // inferred type: Parser<[string, number, string]>
 const extract = parenthesizedNumber.map((arr) => arr[1]); // Parser<number>
-const { results } = extract.parse("(42)"); // [{value: 42, remaining: "", ...}]
+extract.parseOrThrow("(42)"); // 42
 ```
 
 ### `bind`

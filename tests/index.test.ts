@@ -76,7 +76,7 @@ Deno.test("many1", () => {
 
 Deno.test("sequence", () => {
   assertEquals(
-    seq([literal("a"), digit]).bind(([str, num]) =>
+    seq(literal("a"), digit).bind(([str, num]) =>
       result(str.toUpperCase() + `${num * 100}`)
     ).parse("a3"),
     {
@@ -123,7 +123,7 @@ Deno.test("explore", () => {
   });
 });
 
-const thrw = seq([number, literal("then"), number]);
+const thrw = seq(number, literal("then"), number);
 
 Deno.test("parse error", () => {
   assertEquals(take.parseOrThrow("monad"), "m");
