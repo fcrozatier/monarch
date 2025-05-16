@@ -7,7 +7,7 @@
     "./iteration": "./combinators/iteration/mod.ts",
     "./sequencing": "./combinators/sequencing/mod.ts",
     "./primitives": "./primitives/mod.ts",
-    "./common": "./examples/common.ts",
+    "./common": "./common/mod.ts",
     "./html": "./exports/html.ts",
     "./csv": "./exports/csv.ts"
   },
