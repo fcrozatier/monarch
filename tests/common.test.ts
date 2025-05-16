@@ -1,4 +1,5 @@
 import { assertEquals } from "@std/assert";
+import { parseErrors } from "../errors.ts";
 import {
   decimal,
   defaulted,
@@ -15,8 +16,7 @@ import {
   takeTwo,
   upper,
 } from "../examples/common.ts";
-import { any, filter, repeat } from "../index.ts";
-import { parseErrors } from "../errors.ts";
+import { filter, repeat } from "../index.ts";
 
 Deno.test("item", () => {
   assertEquals(take.parse(""), {
@@ -45,34 +45,6 @@ Deno.test("two items", () => {
   assertEquals(takeTwo.parse("monad"), {
     success: true,
     results: [{
-      value: "mo",
-      remaining: "nad",
-      position: { line: 1, column: 2 },
-    }],
-  });
-});
-
-const oneOrTwoItems = any(take, takeTwo);
-
-Deno.test("alternation", () => {
-  assertEquals(oneOrTwoItems.parse(""), {
-    success: false,
-    position: { line: 1, column: 0 },
-    message: parseErrors.takeError,
-  });
-
-  assertEquals(oneOrTwoItems.parse("m"), {
-    success: true,
-    results: [{ value: "m", remaining: "", position: { line: 1, column: 1 } }],
-  });
-
-  assertEquals(oneOrTwoItems.parse("monad"), {
-    success: true,
-    results: [{
-      value: "m",
-      remaining: "onad",
-      position: { line: 1, column: 1 },
-    }, {
       value: "mo",
       remaining: "nad",
       position: { line: 1, column: 2 },
