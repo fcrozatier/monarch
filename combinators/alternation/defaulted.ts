@@ -1,4 +1,4 @@
-import { type Parser, result } from "../index.ts";
+import { type Parser, result } from "../../index.ts";
 import { alt } from "./alt.ts";
 
 /**

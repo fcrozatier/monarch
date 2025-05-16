@@ -9,7 +9,8 @@ import {
   takeTwo,
   whitespace,
 } from "../examples/common.ts";
-import { any, iterate, many, many1, result, seq, zero } from "../index.ts";
+import { iterate, many, many1, result, seq, zero } from "../index.ts";
+import { any } from "../combinators/alternation/any.ts";
 
 Deno.test("zero is an absorbing element of bind", () => {
   assertEquals(zero.bind(() => take).parse("m"), zero.parse("m"));

@@ -1,4 +1,4 @@
-import { createParser, type Parser, sortPosition } from "../index.ts";
+import { createParser, type Parser, sortPosition } from "../../index.ts";
 
 /**
  * Returns the first successful alternative

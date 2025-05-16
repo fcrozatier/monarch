@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { digit } from "../examples/common.ts";
+import { digit } from "../../examples/common.ts";
 import { optional } from "./optional.ts";
 
 Deno.test("optional", () => {

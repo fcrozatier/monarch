@@ -4,7 +4,8 @@
  * @module
  */
 
-import { alt, between, many1, type Parser, result, sepBy } from "../index.ts";
+import { alt } from "../combinators/alternation/alt.ts";
+import { between, many1, type Parser, result, sepBy } from "../index.ts";
 import { letters, literal, natural, newline, spaces } from "./common.ts";
 
 /**

@@ -1,4 +1,4 @@
-import { alt } from "./alternation/alt.ts";
+import { alt } from "./combinators/alternation/alt.ts";
 import { ParseError } from "./errors.ts";
 import type { ParseResult, ParsingHandler, Position } from "./types.ts";
 

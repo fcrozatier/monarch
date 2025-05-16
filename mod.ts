@@ -1,4 +1,4 @@
-export { any } from "./alternation/any.ts";
-export { alt } from "./alternation/alt.ts";
-export { defaulted } from "./alternation/defaulted.ts";
-export { optional } from "./alternation/optional.ts";
+export { any } from "./combinators/alternation/any.ts";
+export { alt } from "./combinators/alternation/alt.ts";
+export { defaulted } from "./combinators/alternation/defaulted.ts";
+export { optional } from "./combinators/alternation/optional.ts";

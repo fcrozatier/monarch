@@ -1,4 +1,4 @@
-import { alt } from "../alternation/alt.ts";
+import { alt } from "../combinators/alternation/alt.ts";
 import { parseErrors } from "../errors.ts";
 import {
   between,

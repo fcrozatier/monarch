@@ -4,7 +4,8 @@
  * @module
  */
 
-import { alt, between, foldL1, foldR1, lazy, type Parser } from "../index.ts";
+import { alt } from "../combinators/alternation/alt.ts";
+import { between, foldL1, foldR1, lazy, type Parser } from "../index.ts";
 import { literal, number } from "./common.ts";
 
 const addOp = alt(

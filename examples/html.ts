@@ -5,7 +5,6 @@
  */
 
 import {
-  alt,
   between,
   createParser,
   many,
@@ -16,6 +15,7 @@ import {
   zero,
 } from "@fcrozatier/monarch";
 import { literal, regex, whitespaces, whitespaces1 } from "./common.ts";
+import { alt } from "../combinators/alternation/alt.ts";
 
 /**
  * A comment node
