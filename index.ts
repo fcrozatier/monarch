@@ -350,6 +350,10 @@ export const sequence = <const A extends readonly Parser<unknown>[]>(
  * listOfNumbers.parseOrThrow("[1,2,3]"); // [1,2,3]
  * ```
  *
+ * @param open The open parser to discard
+ * @param body The main parser of the body
+ * @param close The close parser to discard
+ *
  * @see {@linkcode Parser.skipTrailing skipLeading}
  * @see {@linkcode Parser.skipLeading skipTrailing}
  */
