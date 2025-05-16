@@ -4,7 +4,7 @@
  * @module
  */
 
-import { createParser, type Parser } from "@fcrozatier/monarch";
+import { createParser, type Parser } from "../index.ts";
 import { literal, regex, whitespaces, whitespaces1 } from "../common/mod.ts";
 import { alt } from "../combinators/alternation/mod.ts";
 import { between, seq } from "../combinators/sequencing/mod.ts";
