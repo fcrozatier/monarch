@@ -1,5 +1,6 @@
 import { alt } from "./combinators/alternation/alt.ts";
 import { ParseError } from "./errors.ts";
+import { result } from "./primitives/result.ts";
 import type { ParseResult, ParsingHandler, Position } from "./types.ts";
 
 // Utilities
@@ -294,18 +295,6 @@ export class Parser<T> {
 export const createParser = <T>(
   fn: ParsingHandler<T>,
 ): Parser<T> => new Parser(fn);
-
-/**
- * The default embedding of a value in the Parser context
- *
- * Succeeds without consuming any of the input string
- */
-export const result = <T>(value: T): Parser<T> => {
-  return createParser((
-    remaining,
-    position,
-  ) => ({ success: true, results: [{ value, remaining, position }] }));
-};
 
 /**
  * The always failing parser

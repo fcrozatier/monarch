@@ -1,5 +1,6 @@
 import { alt } from "../alternation/alt.ts";
-import { type Parser, result } from "../../index.ts";
+import type { Parser } from "../../index.ts";
+import { result } from "../../primitives/result.ts";
 import { sepBy1 } from "./sepBy1.ts";
 
 /**

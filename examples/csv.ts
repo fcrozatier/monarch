@@ -5,7 +5,8 @@
  */
 
 import { alt } from "../combinators/alternation/alt.ts";
-import { type Parser, result } from "../index.ts";
+import type {  Parser } from "../index.ts";
+import { result } from "../primitives/result.ts";
 import { many1 } from "../combinators/iteration/many1.ts";
 import { sepBy } from "../combinators/iteration/sepBy.ts";
 import { letters, literal, natural, newline, spaces } from "./common.ts";
