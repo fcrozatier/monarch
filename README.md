@@ -43,9 +43,7 @@ the provided base parsers and their error messages.
     - [`parseOrThrow`](#parseorthrow)
   - [API Reference](#api-reference)
     - [Base helpers](#base-helpers)
-    - [Sequencing](#sequencing)
     - [Iteration](#iteration)
-    - [Alternation](#alternation)
     - [Lazy evaluation](#lazy-evaluation)
   - [References](#references)
 
@@ -403,11 +401,6 @@ even.parseOrThrow("ab");
 - result: The default embedding of a value in the Parser context
 - zero: The always failing parser
 
-### Sequencing
-
-- seq: Makes a sequence of parses and returns the array of parse results
-- between: Utility combinator for the common open/body/close pattern
-
 ### Iteration
 
 - iterate: Returns an array of all iterated parses
@@ -426,11 +419,6 @@ even.parseOrThrow("ab");
   that associates to the right and performs the fold
 - foldR1: Parses non-empty sequences of items separated by an operator parser
   that associates to the right and performs the fold
-
-### Alternation
-
-- any: Returns all matching parses
-- alt: Returns the first successful alternative
 
 ### Lazy evaluation
 

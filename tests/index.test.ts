@@ -1,4 +1,6 @@
 import { assertEquals, assertIsError, assertThrows } from "@std/assert";
+import { any } from "../combinators/alternation/any.ts";
+import { seq } from "../combinators/sequencing/seq.ts";
 import { ParseError, parseErrors } from "../errors.ts";
 import {
   digit,
@@ -9,8 +11,7 @@ import {
   takeTwo,
   whitespace,
 } from "../examples/common.ts";
-import { iterate, many, many1, result, seq, zero } from "../index.ts";
-import { any } from "../combinators/alternation/any.ts";
+import { iterate, many, many1, zero } from "../index.ts";
 
 Deno.test("zero is an absorbing element of bind", () => {
   assertEquals(zero.bind(() => take).parse("m"), zero.parse("m"));
@@ -150,22 +151,6 @@ Deno.test("many1", () => {
     message: "Expected many digits",
     position: { line: 1, column: 0 },
   });
-});
-
-Deno.test("sequence", () => {
-  assertEquals(
-    seq(literal("a"), digit).bind(([str, num]) =>
-      result(str.toUpperCase() + `${num * 100}`)
-    ).parse("a3"),
-    {
-      success: true,
-      results: [{
-        value: "A300",
-        remaining: "",
-        position: { line: 1, column: 2 },
-      }],
-    },
-  );
 });
 
 // Explore a search space

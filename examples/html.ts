@@ -5,17 +5,17 @@
  */
 
 import {
-  between,
   createParser,
   many,
   type Parser,
   result,
   sepBy,
-  seq,
   zero,
 } from "@fcrozatier/monarch";
 import { literal, regex, whitespaces, whitespaces1 } from "./common.ts";
 import { alt } from "../combinators/alternation/alt.ts";
+import { between } from "../combinators/sequencing/between.ts";
+import { seq } from "../combinators/sequencing/seq.ts";
 
 /**
  * A comment node

@@ -1,7 +1,8 @@
 import { alt } from "../combinators/alternation/alt.ts";
+import { between } from "../combinators/sequencing/between.ts";
+import { seq } from "../combinators/sequencing/seq.ts";
 import { parseErrors } from "../errors.ts";
 import {
-  between,
   createParser,
   foldL1,
   many,
@@ -9,7 +10,6 @@ import {
   repeat,
   result,
   sepBy,
-  seq,
   updatePosition,
 } from "../index.ts";
 
