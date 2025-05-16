@@ -1,5 +1,4 @@
 import { alt } from "../alternation/alt.ts";
-import { defaulted } from "../alternation/defaulted.ts";
 import { parseErrors } from "../errors.ts";
 import {
   between,
@@ -125,24 +124,6 @@ export const take: Parser<string> = createParser(
 export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
   arr.join("")
 ).error(parseErrors.takeTwoError);
-
-/**
- * Tries a parser or defaults to `undefined`.
- * @param parser The parser.
- * @returns A parser returning the successful parse result or `undefined`.
- *
- * @example
- * ```ts
- * const number = optional(digit);
- *
- * number.parse("123");
- * // [{ value: 1, remaining: "23", ... }]
- * number.parse("abc");
- * // [{ value: undefined, remaining: "abc", ... }]
- */
-export const optional = <T>(parser: Parser<T>): Parser<T | undefined> => {
-  return defaulted(parser, undefined);
-};
 
 /**
  * Parses a single white space with the regex `/\s\/`
