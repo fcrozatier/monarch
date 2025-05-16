@@ -1,6 +1,7 @@
+import { alt } from "../alternation/alt.ts";
+import { defaulted } from "../alternation/defaulted.ts";
 import { parseErrors } from "../errors.ts";
 import {
-  alt,
   between,
   createParser,
   foldL1,
@@ -124,28 +125,6 @@ export const take: Parser<string> = createParser(
 export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
   arr.join("")
 ).error(parseErrors.takeTwoError);
-
-/**
- * Tries a parser or defaults to a value.
- * @param parser The parser.
- * @param value The default value.
- * @returns A parser returning the successful parse result or the default value.
- *
- * @example
- * ```ts
- * const number = defaulted(digit, 42);
- *
- * number.parse("123");
- * // [{ value: 1, remaining: "23", ... }]
- * number.parse("abc");
- * // [{ value: 42, remaining: "abc", ... }]
- */
-export const defaulted = <T>(
-  parser: Parser<T>,
-  value: T,
-): Parser<T> => {
-  return alt(parser, result(value));
-};
 
 /**
  * Tries a parser or defaults to `undefined`.
