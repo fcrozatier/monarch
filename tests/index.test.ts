@@ -1,5 +1,6 @@
 import { assertEquals, assertIsError, assertThrows } from "@std/assert";
 import { any } from "../combinators/alternation/any.ts";
+import { many } from "../combinators/iteration/many.ts";
 import { seq } from "../combinators/sequencing/seq.ts";
 import { ParseError, parseErrors } from "../errors.ts";
 import {
@@ -11,7 +12,7 @@ import {
   takeTwo,
   whitespace,
 } from "../examples/common.ts";
-import { iterate, many, many1, zero } from "../index.ts";
+import { zero } from "../index.ts";
 
 Deno.test("zero is an absorbing element of bind", () => {
   assertEquals(zero.bind(() => take).parse("m"), zero.parse("m"));
@@ -91,65 +92,6 @@ Deno.test("skipLeading", () => {
     success: false,
     message: parseErrors.whitespace,
     position: { line: 1, column: 1 },
-  });
-});
-
-Deno.test("iterate", () => {
-  assertEquals(iterate(digit).parse("23 and more"), {
-    success: true,
-    results: [
-      {
-        value: [2, 3],
-        remaining: " and more",
-        position: { line: 1, column: 2 },
-      },
-      { value: [2], remaining: "3 and more", position: { line: 1, column: 1 } },
-      { value: [], remaining: "23 and more", position: { line: 1, column: 0 } },
-    ],
-  });
-
-  assertEquals(iterate(letter).parse("Yes!"), {
-    success: true,
-    results: [
-      {
-        value: ["Y", "e", "s"],
-        remaining: "!",
-        position: { line: 1, column: 3 },
-      },
-      { value: ["Y", "e"], remaining: "s!", position: { line: 1, column: 2 } },
-      { value: ["Y"], remaining: "es!", position: { line: 1, column: 1 } },
-      { value: [], remaining: "Yes!", position: { line: 1, column: 0 } },
-    ],
-  });
-});
-
-Deno.test("many", () => {
-  assertEquals(many(digit).parse("23 and more"), {
-    success: true,
-    results: [{
-      value: [2, 3],
-      remaining: " and more",
-      position: { line: 1, column: 2 },
-    }],
-  });
-
-  // Matches 0 or more times
-  assertEquals(many(digit).parse("a"), {
-    success: true,
-    results: [{
-      value: [],
-      remaining: "a",
-      position: { line: 1, column: 0 },
-    }],
-  });
-});
-
-Deno.test("many1", () => {
-  // Matches 1 or more times
-  assertEquals(many1(digit).error("Expected many digits").parse("a"), {
-    success: false,
-    message: "Expected many digits",
-    position: { line: 1, column: 0 },
   });
 });
 

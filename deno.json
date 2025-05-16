@@ -4,6 +4,7 @@
   "exports": {
     ".": "./mod.ts",
     "./alternation": "./combinators/alternation/mod.ts",
+    "./iteration": "./combinators/iteration/mod.ts",
     "./sequencing": "./combinators/sequencing/mod.ts",
     "./common": "./examples/common.ts",
     "./html": "./exports/html.ts",

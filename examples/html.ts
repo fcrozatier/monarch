@@ -4,18 +4,12 @@
  * @module
  */
 
-import {
-  createParser,
-  many,
-  type Parser,
-  result,
-  sepBy,
-  zero,
-} from "@fcrozatier/monarch";
+import { createParser, type Parser, result, zero } from "@fcrozatier/monarch";
 import { literal, regex, whitespaces, whitespaces1 } from "./common.ts";
 import { alt } from "../combinators/alternation/alt.ts";
 import { between } from "../combinators/sequencing/between.ts";
 import { seq } from "../combinators/sequencing/seq.ts";
+import { many, sepBy } from "../combinators/iteration/mod.ts";
 
 /**
  * A comment node

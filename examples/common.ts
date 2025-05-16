@@ -5,13 +5,13 @@ import { parseErrors } from "../errors.ts";
 import {
   createParser,
   foldL1,
-  many,
   type Parser,
-  repeat,
   result,
-  sepBy,
   updatePosition,
 } from "../index.ts";
+import { many } from "../combinators/iteration/many.ts";
+import { repeat } from "../combinators/iteration/repeat.ts";
+import { sepBy } from "../combinators/iteration/sepBy.ts";
 
 /**
  * Represents a predicate function

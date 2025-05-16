@@ -5,8 +5,11 @@
  */
 
 import { alt } from "../combinators/alternation/alt.ts";
-import { between, many1, type Parser, result, sepBy } from "../index.ts";
+import { type Parser, result } from "../index.ts";
+import { many1 } from "../combinators/iteration/many1.ts";
+import { sepBy } from "../combinators/iteration/sepBy.ts";
 import { letters, literal, natural, newline, spaces } from "./common.ts";
+import { between } from "../combinators/sequencing/mod.ts";
 
 /**
  * Zips arrays of the same length

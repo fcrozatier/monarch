@@ -14,7 +14,8 @@ import {
   takeTwo,
   upper,
 } from "../examples/common.ts";
-import { filter, repeat } from "../index.ts";
+import { filter } from "../index.ts";
+import { repeat } from "../combinators/iteration/repeat.ts";
 
 Deno.test("item", () => {
   assertEquals(take.parse(""), {
