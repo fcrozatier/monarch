@@ -19,7 +19,6 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
   });
 };
 
-
 const coma = literal(",").skipTrailing(spaces);
 const string = between(literal('"'), letters, literal('"'));
 const item = alt<string | number>(string, natural);
