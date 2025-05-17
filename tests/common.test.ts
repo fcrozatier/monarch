@@ -1,20 +1,18 @@
 import { assertEquals } from "@std/assert";
-import { regexPredicate } from "../examples/common.ts";
+import { repeat } from "../combinators/iteration/mod.ts";
 import { lower } from "../common/mod.ts";
 import { take } from "../primitives/mod.ts";
-import { filter } from "../index.ts";
-import { repeat } from "../combinators/iteration/mod.ts";
 
 export const twoLower = repeat(lower, 2).map((letters) => letters.join(""))
   .error(
     "Expected two lowercase letters",
   );
 
-const even = filter(take, regexPredicate(/^[02468]/)).error(
+const even = take.filter((r) => /^[02468]/.test(r)).error(
   "Expected an even number",
 );
 
-Deno.test("filter even", () => {
+Deno.test("filter", () => {
   assertEquals(even.parse("2"), {
     success: true,
     results: [{

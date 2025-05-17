@@ -182,6 +182,47 @@ export class Parser<T> {
   }
 
   /**
+   * Filters a parser with a predicate and matches only if the predicate returns true
+   *
+   * For regex predicate, prefer using the {@linkcode regex} parser
+   *
+   * Preserves `zero` and distributes over alternation
+   *
+   * @example
+   *
+   * ```ts
+   * const isVowel = (char) => ["a", "e", "i", "o", "u", "y"].includes(char);
+   * const vowel = take.filter(isVowel).error("Expected a vowel");
+   *
+   * const { results } = vowel.parse("a");
+   * // [{value: 'a', remaining: '', ...}]
+   *
+   * const { message } = vowel.parse("b");
+   * // "Expected a vowel"
+   * ```
+   *
+   * @see {@linkcode regex}
+   */
+  filter(predicate: (value: T) => boolean): Parser<T> {
+    return createParser((input, position) => {
+      const result = this.parse(input, position);
+
+      if (!result.success) return result;
+
+      const results = result.results.filter((r) => predicate(r.value));
+
+      if (results.length === 0) {
+        return {
+          success: false,
+          message: "Expected to match against predicate",
+          position,
+        };
+      }
+      return { success: true, results };
+    });
+  }
+
+  /**
    * Skips trailing parsers.
    *
    * The parsers to skip can consume characters and must all succeed
@@ -284,55 +325,9 @@ export class Parser<T> {
   }
 }
 
-// Helpers
-
 /**
  * Utility to create a new parser
  */
 export const createParser = <T>(
   fn: ParsingHandler<T>,
 ): Parser<T> => new Parser(fn);
-
-// Filtering
-
-/**
- * Filters a parser with a predicate and matches only if the predicate returns true
- *
- * Preserves `zero` and distributes over alternation
- *
- * @example
- *
- * ```ts
- * const isVowel = (char) => ["a", "e", "i", "o", "u", "y"].includes(char);
- * const vowel = filter(take, isVowel).error("Expected a vowel");
- *
- * const { results } = vowel.parse("a");
- * // [{value: 'a', remaining: '', ...}]
- *
- * const { message } = vowel.parse("b");
- * // "Expected a vowel"
- * ```
- *
- * @see {@linkcode regex}
- */
-export const filter = <T>(
-  parser: Parser<T>,
-  predicate: (value: T) => boolean,
-): Parser<T> => {
-  return createParser((input, position) => {
-    const result = parser.parse(input, position);
-
-    if (!result.success) return result;
-
-    const results = result.results.filter((r) => predicate(r.value));
-
-    if (results.length === 0) {
-      return {
-        success: false,
-        message: "Expected to match against predicate",
-        position,
-      };
-    }
-    return { success: true, results };
-  });
-};

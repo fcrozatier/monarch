@@ -134,12 +134,9 @@ const { message } = dot.parse("0.23"); // "Expected '.' but got '0'"
 
 ### `filter`
 
-To specialize a parser you can filter it with a predicate. With
-`filter<T>(parser: Parser<T>, predicate: (value: T)=> boolean):Parser<T>` the
-filtered parser will only match if the predicate is satisfied.
-
-You can easily create a regex predicate with the
-`regexPredicate(regex: RegExp): (value: string) => boolean` helper
+To specialize a parser you can filter it with a predicate. Use the
+`filter<T>(predicate: (value: T)=> boolean):Parser<T>` method to filter a
+parser. A filtered parser only matches when the predicate is satisfied.
 
 ```js
 const isVowel = (char) => ["a", "e", "i", "o", "u", "y"].includes(char);

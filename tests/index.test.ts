@@ -2,14 +2,10 @@ import { assertEquals, assertIsError, assertThrows } from "@std/assert";
 import { any } from "../combinators/alternation/mod.ts";
 import { many } from "../combinators/iteration/many.ts";
 import { seq } from "../combinators/sequencing/seq.ts";
+import { digit, letter, literal, number, whitespace } from "../common/mod.ts";
 import { ParseError, parseErrors } from "../errors.ts";
-import { takeTwo } from "../primitives/takeTwo.ts";
-import { number } from "../common/number.ts";
-import { digit } from "../common/digit.ts";
-import { letter } from "../common/letter.ts";
-import { literal } from "../common/literal.ts";
-import { whitespace } from "../common/whitespace.ts";
 import { take } from "../primitives/take.ts";
+import { takeTwo } from "../primitives/mod.ts";
 
 Deno.test("skipTrailing", () => {
   assertEquals(digit.skipTrailing(letter).parse("1a"), {
