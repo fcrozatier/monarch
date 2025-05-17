@@ -1,4 +1,6 @@
-import { createParser, type Parser, updatePosition } from "../index.ts";
+import type { Parser } from "../index.ts";
+import { createParser, updatePosition } from "../index.ts";
+import { whitespaces } from "./mod.ts";
 
 /**
  * Matches against a specific character or keyword
@@ -14,7 +16,6 @@ import { createParser, type Parser, updatePosition } from "../index.ts";
  * // "Expected '.' but got '0'"
  * ```
  */
-
 export function literal(value: string): Parser<string> {
   return (createParser((input, position) => {
     if (!input.startsWith(value)) {
@@ -36,4 +37,16 @@ export function literal(value: string): Parser<string> {
       }],
     };
   }));
+}
+
+/**
+ * Parses a literal and discards trailing spaces
+ *
+ * @param value The literal value to parse
+ * @param trailing The kind of whitespace to skip. Default to {@linkcode whitespaces}
+ *
+ * @see {@linkcode literal}
+ */
+export function token(value: string, trailing = whitespaces): Parser<string> {
+  return literal(value).skipTrailing(trailing);
 }

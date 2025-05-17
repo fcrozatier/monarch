@@ -11,7 +11,6 @@ import { createParser, type Parser, updatePosition } from "../index.ts";
  * const { message } = even.parse("13"); // "Expected an even number"
  * ```
  */
-
 export function regex(re: RegExp): Parser<string> {
   return createParser((input, position) => {
     const match = input.match(re);

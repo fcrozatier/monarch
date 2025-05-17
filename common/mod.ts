@@ -1,21 +1,6 @@
-export { alphaNums } from "./alphaNums.ts";
-export { decimal } from "./decimal.ts";
-export { digit } from "./digit.ts";
-export { identifier } from "./identifier.ts";
-export { integer } from "./integer.ts";
-export { letter } from "./letter.ts";
-export { letters } from "./letters.ts";
-export { list } from "./list.ts";
-export { listOfInts } from "./listOfInts.ts";
-export { literal } from "./literal.ts";
-export { lower } from "./lower.ts";
-export { natural } from "./natural.ts";
-export { newline } from "./newline.ts";
-export { number } from "./number.ts";
+export * from "./list.ts";
 export { regex } from "./regex.ts";
-export { spaces } from "./spaces.ts";
-export { token } from "./token.ts";
-export { upper } from "./upper.ts";
-export { whitespace } from "./whitespace.ts";
-export { whitespaces } from "./whitespaces.ts";
-export { whitespaces1 } from "./whitespaces1.ts";
+export * from "./tokens.ts";
+export * from "./whitespaces.ts";
+export * from "./numbers.ts"
+export * from "./characters.ts"
