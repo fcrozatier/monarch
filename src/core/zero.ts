@@ -5,7 +5,6 @@ import { createParser, type Parser } from "./parser.ts";
  *
  * It is the unit of alternation and plus, and also is an absorbing element of bind
  */
-
 export const zero: Parser<never> = createParser((_, position) => ({
   success: false,
   message: "",

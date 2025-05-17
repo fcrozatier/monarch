@@ -1,10 +1,10 @@
 import { ParseError } from "./errors.ts";
 import { result } from "./result.ts";
 import type { ParseResult, ParsingHandler, Position } from "./types.ts";
-import { sortPosition } from "./utils.ts";
+import { sortPosition } from "../utils.ts";
 
 /**
- * The monadic parser class
+ * The parser class
  */
 export class Parser<T> {
   #parse: ParsingHandler<T>;

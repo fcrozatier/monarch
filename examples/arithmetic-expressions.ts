@@ -6,7 +6,7 @@
 
 import { alt, between, foldL1, foldR1, lazy } from "$combinators";
 import { literal, number } from "$common";
-import type { Parser } from "../src/parser.ts";
+import type { Parser } from "$core";
 
 const addOp = alt(
   literal("+").map(() => (a: number, b: number) => a + b),

@@ -1,4 +1,4 @@
-import { parseErrors } from "../errors.ts";
+import { parseErrors } from "$core";
 import type { Parser } from "$core";
 import { regex } from "./mod.ts";
 

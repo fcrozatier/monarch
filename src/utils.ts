@@ -1,4 +1,4 @@
-import type { Position } from "./types.ts";
+import type { Position } from "./core/types.ts";
 
 /**
  * Compute the new position from the current position and the consumed string

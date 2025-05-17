@@ -1,5 +1,5 @@
 import { regex } from "$common";
-import { parseErrors } from "../errors.ts";
+import { parseErrors } from "$core";
 import { createParser, type Parser } from "$core";
 import { updatePosition } from "../utils.ts";
 

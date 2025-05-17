@@ -2,7 +2,7 @@
   "name": "@fcrozatier/monarch",
   "version": "2.6.0",
   "exports": {
-    ".": "./src/mod.ts",
+    ".": "./src/core/mod.ts",
     "./alternation": "./src/combinators/alternation/mod.ts",
     "./iteration": "./src/combinators/iteration/mod.ts",
     "./sequencing": "./src/combinators/sequencing/mod.ts",
@@ -17,7 +17,8 @@
   "imports": {
     "$combinators": "./src/combinators/mod.ts",
     "$common": "./src/common/mod.ts",
-    "$core": "./src/mod.ts",
+    "$core": "./src/core/mod.ts",
+
     "@std/assert": "jsr:@std/assert@^1"
   },
   "publish": {
