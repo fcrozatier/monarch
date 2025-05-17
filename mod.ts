@@ -1,5 +1,5 @@
 /**
- * Build parsers by combining structural combinators and semantic refinements
+ * Build parsers by composing structural combinators and chaining semantic refinements
  *
  * Combinators are composed with function composition
  *

@@ -1,9 +1,9 @@
 import { assertEquals } from "@std/assert";
 import { digit } from "../../common/mod.ts";
-import { defaulted } from "./defaulted.ts";
+import { fallback } from "./fallback.ts";
 
-Deno.test("defaulted", () => {
-  assertEquals(defaulted(digit, 42).parse("123"), {
+Deno.test("fallback", () => {
+  assertEquals(fallback(digit, 42).parse("123"), {
     success: true,
     results: [{
       value: 1,
@@ -12,7 +12,7 @@ Deno.test("defaulted", () => {
     }],
   });
 
-  assertEquals(defaulted(digit, 42).parse("abc"), {
+  assertEquals(fallback(digit, 42).parse("abc"), {
     success: true,
     results: [{
       value: 42,
@@ -21,7 +21,7 @@ Deno.test("defaulted", () => {
     }],
   });
 
-  assertEquals(defaulted(digit, 42).parse(""), {
+  assertEquals(fallback(digit, 42).parse(""), {
     success: true,
     results: [{
       value: 42,

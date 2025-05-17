@@ -1,5 +1,5 @@
 import type { Parser } from "$core";
-import { defaulted } from "./defaulted.ts";
+import { fallback } from "./fallback.ts";
 
 /**
  * Tries a parser or defaults to `undefined`.
@@ -16,5 +16,5 @@ import { defaulted } from "./defaulted.ts";
  * // [{ value: undefined, remaining: "abc", ... }]
  */
 export const optional = <T>(parser: Parser<T>): Parser<T | undefined> => {
-  return defaulted(parser, undefined);
+  return fallback(parser, undefined);
 };
