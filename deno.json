@@ -2,16 +2,24 @@
   "name": "@fcrozatier/monarch",
   "version": "2.6.0",
   "exports": {
-    ".": "./index.ts",
-    "./common": "./examples/common.ts",
-    "./html": "./exports/html.ts",
-    "./csv": "./exports/csv.ts"
+    ".": "./src/core/mod.ts",
+    "./alternation": "./src/combinators/alternation/mod.ts",
+    "./iteration": "./src/combinators/iteration/mod.ts",
+    "./recursion": "./src/combinators/recursion/mod.ts",
+    "./reduction": "./src/combinators/reduction/mod.ts",
+    "./sequencing": "./src/combinators/sequencing/mod.ts",
+    "./common": "./src/common/mod.ts",
+    "./examples": "./examples/mod.ts"
   },
   "license": "MIT",
   "tasks": {
     "coverage": "deno test --coverage && open coverage/html/index.html"
   },
   "imports": {
+    "$combinators": "./src/combinators/mod.ts",
+    "$common": "./src/common/mod.ts",
+    "$core": "./src/core/mod.ts",
+
     "@std/assert": "jsr:@std/assert@^1"
   },
   "publish": {

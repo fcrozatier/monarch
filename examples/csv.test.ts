@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { csv, headings, row } from "../examples/csv.ts";
+import { csv, headings, row } from "./csv.ts";
 
 const data = `
 "name", "sex", "age", "height", "weight"

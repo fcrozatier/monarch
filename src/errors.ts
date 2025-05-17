@@ -1,5 +1,8 @@
-import type { Position } from "./types.ts";
+import type { Position } from "./core/types.ts";
 
+/**
+ * @internal
+ */
 export class ParseError extends Error {
   constructor(
     { line, column }: Position,
@@ -18,6 +21,9 @@ export class ParseError extends Error {
   }
 }
 
+/**
+ * @internal
+ */
 export const parseErrors = {
   takeTwoError: "Expected two characters",
   takeError: "Unexpected end of input",

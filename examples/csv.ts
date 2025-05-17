@@ -4,8 +4,10 @@
  * @module
  */
 
-import { alt, between, many1, type Parser, result, sepBy } from "../index.ts";
-import { letters, literal, natural, newline, spaces } from "./common.ts";
+import { alt, between, many1, sepBy } from "$combinators";
+import { letters, literal, natural, newline, spaces, token } from "$common";
+import type { Parser } from "$core";
+import { result } from "$core";
 
 /**
  * Zips arrays of the same length
@@ -19,7 +21,7 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
   });
 };
 
-const coma = literal(",").skipTrailing(spaces);
+const coma = token(",", spaces);
 const string = between(literal('"'), letters, literal('"'));
 const item = alt<string | number>(string, natural);
 

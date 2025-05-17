@@ -1,3 +1,10 @@
+/**
+ * Real-life examples, including a CSV parser, an HTML parser and an arithmetic expression parser
+ *
+ * @module
+ */
+
+export { csv } from "./csv.ts";
 export {
   booleanAttributes,
   commentNode,
@@ -15,4 +22,5 @@ export {
   serializeNode,
   shadowRoot,
   textNode,
-} from "../examples/html.ts";
+} from "./html.ts";
+export { expr } from "./arithmetic-expressions.ts";

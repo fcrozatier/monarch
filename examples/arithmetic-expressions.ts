@@ -4,8 +4,9 @@
  * @module
  */
 
-import { alt, between, foldL1, foldR1, lazy, type Parser } from "../index.ts";
-import { literal, number } from "./common.ts";
+import { alt, between, foldL1, foldR1, lazy } from "$combinators";
+import { literal, number } from "$common";
+import type { Parser } from "$core";
 
 const addOp = alt(
   literal("+").map(() => (a: number, b: number) => a + b),
@@ -32,4 +33,7 @@ const atom = lazy(() =>
 const factor = foldR1(atom, expOp);
 const term = foldL1(factor, mulOp);
 
+/**
+ * Parses arithmetic expressions
+ */
 export const expr: Parser<number> = foldL1(term, addOp);

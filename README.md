@@ -41,12 +41,7 @@ the provided base parsers and their error messages.
   - [Parse errors](#parse-errors)
     - [Custom error message](#custom-error-message)
     - [`parseOrThrow`](#parseorthrow)
-  - [API Reference](#api-reference)
-    - [Base helpers](#base-helpers)
-    - [Sequencing](#sequencing)
-    - [Iteration](#iteration)
-    - [Alternation](#alternation)
-    - [Lazy evaluation](#lazy-evaluation)
+  - [API](#api)
   - [References](#references)
 
 ## Installation
@@ -63,8 +58,10 @@ yarn dlx jsr add @fcrozatier/monarch
 ## Examples
 
 The [`/examples`](/examples/) folder contains an arithmetic expression
-interpreter, a csv parser, an html parser, as well as common utility parsers
-(digit, integer, number, literal etc.)
+interpreter, a csv parser and an html parser
+
+Common utility parsers (digit, integer, number, literal etc.) are provided in
+the `common` module
 
 ## Getting Started Guide
 
@@ -136,12 +133,9 @@ const { message } = dot.parse("0.23"); // "Expected '.' but got '0'"
 
 ### `filter`
 
-To specialize a parser you can filter it with a predicate. With
-`filter<T>(parser: Parser<T>, predicate: (value: T)=> boolean):Parser<T>` the
-filtered parser will only match if the predicate is satisfied.
-
-You can easily create a regex predicate with the
-`regexPredicate(regex: RegExp): (value: string) => boolean` helper
+To specialize a parser you can filter it with a predicate. Use the
+`filter<T>(predicate: (value: T)=> boolean):Parser<T>` method to filter a
+parser. A filtered parser only matches when the predicate is satisfied.
 
 ```js
 const isVowel = (char) => ["a", "e", "i", "o", "u", "y"].includes(char);
@@ -396,46 +390,7 @@ even.parseOrThrow("ab");
 //Reason: Expected an even number
 ```
 
-## [API Reference](https://jsr.io/@fcrozatier/monarch/doc)
-
-### Base helpers
-
-- result: The default embedding of a value in the Parser context
-- zero: The always failing parser
-
-### Sequencing
-
-- seq: Makes a sequence of parses and returns the array of parse results
-- between: Utility combinator for the common open/body/close pattern
-
-### Iteration
-
-- iterate: Returns an array of all iterated parses
-- repeat: Repeats a parser a fixed number of times
-- many: Returns the longest matching parse array (0 or more matches)
-- many1: Returns the longest matching parse array (1 or more matches)
-- sepBy: Recognizes sequences (maybe empty) of a given parser and separator, and
-  ignores the separator
-- sepBy1: Recognizes non-empty sequences of a given parser and separator, and
-  ignores the separator
-- foldL: Parses maybe-empty sequences of items separated by an operator parser
-  that associates to the left and performs the fold
-- foldL1: Parses non-empty sequences of items separated by an operator parser
-  that associates to the left and performs the fold
-- foldR: Parses maybe-empty sequences of items separated by an operator parser
-  that associates to the right and performs the fold
-- foldR1: Parses non-empty sequences of items separated by an operator parser
-  that associates to the right and performs the fold
-
-### Alternation
-
-- any: Returns all matching parses
-- alt: Returns the first successful alternative
-
-### Lazy evaluation
-
-- memoize: Takes a parser thunk and memoize it upon evaluation.
-- lazy: Defers evaluation, without memoization
+## [API](https://jsr.io/@fcrozatier/monarch/doc)
 
 ## References
 

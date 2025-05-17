@@ -1,21 +1,15 @@
 /**
  * Example html parser
  *
+ * For an updated, production-ready version, see [@radish/htmlcrunch](https://jsr.io/@radish/htmlcrunch)
+ *
  * @module
  */
 
-import {
-  alt,
-  between,
-  createParser,
-  many,
-  type Parser,
-  result,
-  sepBy,
-  seq,
-  zero,
-} from "@fcrozatier/monarch";
-import { literal, regex, whitespaces, whitespaces1 } from "./common.ts";
+import { alt, between, many, sepBy, seq } from "$combinators";
+import { literal, regex, whitespaces, whitespaces1 } from "$common";
+import { createParser, type Parser } from "$core";
+import { result, zero } from "$core";
 
 /**
  * A comment node
@@ -167,11 +161,11 @@ export const element: Parser<MElement> = createParser((input, position) => {
 
   if (!openTag.success) return openTag;
 
-  const {
+  const [{
     value: { tagName, attributes },
     remaining,
     position: openTagPosition,
-  } = openTag.results[0];
+  }] = openTag.results;
 
   const kind = elementKind(tagName);
 
@@ -212,11 +206,11 @@ export const element: Parser<MElement> = createParser((input, position) => {
 
   if (!childrenElements.success) return childrenElements;
 
-  const {
+  const [{
     value: children,
     remaining: childrenRemaining,
     position: childrenPosition,
-  } = childrenElements.results[0];
+  }] = childrenElements.results;
 
   const res = endTagParser.parse(childrenRemaining, childrenPosition);
 
