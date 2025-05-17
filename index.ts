@@ -1,4 +1,3 @@
-import { alt } from "./combinators/alternation/alt.ts";
 import { ParseError } from "./errors.ts";
 import { result } from "./primitives/result.ts";
 import type { ParseResult, ParsingHandler, Position } from "./types.ts";
@@ -295,99 +294,6 @@ export class Parser<T> {
 export const createParser = <T>(
   fn: ParsingHandler<T>,
 ): Parser<T> => new Parser(fn);
-
-/**
- * Parses non-empty sequences of items separated by an operator parser that associates to the left and performs the fold
- *
- * @example Slick natural number parser implementation
- *
- * We revisit the `natural` parser as a sequence of digits that are combined together
-by folding a binary operator around the digits.
- *
- * ```ts
- * const natural = foldL1(digit, result((a: number, b: number) => 10 * a + b));
- *
- * natural.parse("123"); // results: [{value: 123, remaining: ""}]
- * ```
- *
- * @see {@linkcode foldL}
- */
-export const foldL1 = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  const rest = (x: T): Parser<T> => {
-    return alt(
-      operator.bind((f) => item.bind((y) => rest(f(x, y)))),
-      result(x),
-    );
-  };
-  return item.bind(rest);
-};
-
-/**
- * Parses maybe-empty sequences of items separated by an operator parser that associates to the left and performs the fold
- *
- * @example Addition
- *
- * We lift the addition literal `+` into a binary function parser and apply a left fold
- *
- * ```ts
- * const add = literal("+").map(() => (a: number, b: number) => a + b);
- * const addition = foldL(number, add);
- *
- * addition.parse("1+2+3"); // results: [{value: 6, remaining: "" }]
- * ```
- *
- * @see {@linkcode foldR}
- */
-export const foldL = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  return alt(foldL1(item, operator), item);
-};
-
-/**
- * Parses non-empty sequences of items separated by an operator parser that associates to the right and performs the fold
- *
- * @see {@linkcode foldR}
- */
-export const foldR1 = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  return item.bind((x) => {
-    return alt(
-      operator.bind((f) => foldR1(item, operator).bind((y) => result(f(x, y)))),
-      result(x),
-    );
-  });
-};
-
-/**
- * Parses maybe-empty sequences of items separated by an operator parser that associates to the right and performs the fold
- *
- * @example Exponentiation
- *
- * We lift the power literal `^` into a binary function parser and apply a right fold since exponentiation associates to the right
- *
- * ```ts
- * const pow = literal("^").map(() => (a: number, b: number) => a ** b);
- * const exponentiation = foldR(number, pow);
- *
- * exponentiation.parse("2^2^3");
- * // results: [{value: 256, remaining: ""}]
- * ```
- *
- * @see {@linkcode foldL}
- */
-export const foldR = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  return alt(foldR1(item, operator), item);
-};
 
 // Filtering
 

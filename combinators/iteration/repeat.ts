@@ -10,7 +10,6 @@ import { result } from "../../primitives/result.ts";
  * const { results } = repeat(take, 2).parse("hello"); // [{value: 'he', remaining: 'llo', ...}]
  * ```
  */
-
 export const repeat = <T>(parser: Parser<T>, times: number): Parser<T[]> => {
   if (times > 0) {
     return parser.bind((a) =>

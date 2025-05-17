@@ -5,9 +5,9 @@
  */
 
 import { alt } from "../combinators/alternation/mod.ts";
-import { between } from "../combinators/sequencing/mod.ts";
-import { foldL1, foldR1, lazy, type Parser } from "../index.ts";
+import { between, foldL1, foldR1 } from "../combinators/sequencing/mod.ts";
 import { literal, number } from "../common/mod.ts";
+import { lazy, type Parser } from "../index.ts";
 
 const addOp = alt(
   literal("+").map(() => (a: number, b: number) => a + b),

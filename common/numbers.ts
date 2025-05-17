@@ -1,9 +1,9 @@
 import { alt } from "../combinators/alternation/mod.ts";
-import { seq } from "../combinators/sequencing/mod.ts";
+import { foldL1, seq } from "../combinators/sequencing/mod.ts";
 import { parseErrors } from "../errors.ts";
-import { literal, regex, spaces } from "./mod.ts";
-import { foldL1, type Parser } from "../index.ts";
+import type { Parser } from "../index.ts";
 import { result } from "../primitives/mod.ts";
+import { literal, regex, spaces } from "./mod.ts";
 
 /**
  * Parses a single digit
