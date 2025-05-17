@@ -58,8 +58,9 @@ yarn dlx jsr add @fcrozatier/monarch
 ## Examples
 
 The [`/examples`](/examples/) folder contains an arithmetic expression
-interpreter, a csv parser, an html parser, as well as common utility parsers
-(digit, integer, number, literal etc.)
+interpreter, a csv parser and an html parser
+
+Common utility parsers (digit, integer, number, literal etc.) are provided in the `common` module
 
 ## Getting Started Guide
 
