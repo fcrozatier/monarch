@@ -41,10 +41,7 @@ the provided base parsers and their error messages.
   - [Parse errors](#parse-errors)
     - [Custom error message](#custom-error-message)
     - [`parseOrThrow`](#parseorthrow)
-  - [API Reference](#api-reference)
-    - [Base helpers](#base-helpers)
-    - [Iteration](#iteration)
-    - [Lazy evaluation](#lazy-evaluation)
+  - [API](#api)
   - [References](#references)
 
 ## Installation
@@ -391,36 +388,7 @@ even.parseOrThrow("ab");
 //Reason: Expected an even number
 ```
 
-## [API Reference](https://jsr.io/@fcrozatier/monarch/doc)
-
-### Base helpers
-
-- result: The default embedding of a value in the Parser context
-- zero: The always failing parser
-
-### Iteration
-
-- iterate: Returns an array of all iterated parses
-- repeat: Repeats a parser a fixed number of times
-- many: Returns the longest matching parse array (0 or more matches)
-- many1: Returns the longest matching parse array (1 or more matches)
-- sepBy: Recognizes sequences (maybe empty) of a given parser and separator, and
-  ignores the separator
-- sepBy1: Recognizes non-empty sequences of a given parser and separator, and
-  ignores the separator
-- foldL: Parses maybe-empty sequences of items separated by an operator parser
-  that associates to the left and performs the fold
-- foldL1: Parses non-empty sequences of items separated by an operator parser
-  that associates to the left and performs the fold
-- foldR: Parses maybe-empty sequences of items separated by an operator parser
-  that associates to the right and performs the fold
-- foldR1: Parses non-empty sequences of items separated by an operator parser
-  that associates to the right and performs the fold
-
-### Lazy evaluation
-
-- memoize: Takes a parser thunk and memoize it upon evaluation.
-- lazy: Defers evaluation, without memoization
+## [API](https://jsr.io/@fcrozatier/monarch/doc)
 
 ## References
 
