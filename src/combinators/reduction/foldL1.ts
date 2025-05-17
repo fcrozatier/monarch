@@ -5,10 +5,9 @@ import { result } from "$core";
 /**
  * Parses non-empty sequences of items separated by an operator parser that associates to the left and performs the fold
  *
- * @example Slick natural number parser implementation
+ * @example Natural numbers
  *
- * We revisit the `natural` parser as a sequence of digits that are combined together
-by folding a binary operator around the digits.
+ * Natural numbers can be expressed as a sequence of digits combined together in base 10
  *
  * ```ts
  * const natural = foldL1(digit, result((a: number, b: number) => 10 * a + b));

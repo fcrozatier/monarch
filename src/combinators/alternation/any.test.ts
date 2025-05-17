@@ -12,7 +12,7 @@ export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
   arr.join("")
 ).error(parseErrors.takeTwoError);
 
-const oneOrTwoItems = any(take, takeTwo);
+const oneOrTwoChars = any(take, takeTwo);
 
 Deno.test("take two", () => {
   assertEquals(takeTwo.parse("m"), {
@@ -32,18 +32,18 @@ Deno.test("take two", () => {
 });
 
 Deno.test("any", () => {
-  assertEquals(oneOrTwoItems.parse(""), {
+  assertEquals(oneOrTwoChars.parse(""), {
     success: false,
     position: { line: 1, column: 0 },
     message: parseErrors.takeError,
   });
 
-  assertEquals(oneOrTwoItems.parse("m"), {
+  assertEquals(oneOrTwoChars.parse("m"), {
     success: true,
     results: [{ value: "m", remaining: "", position: { line: 1, column: 1 } }],
   });
 
-  assertEquals(oneOrTwoItems.parse("monad"), {
+  assertEquals(oneOrTwoChars.parse("monad"), {
     success: true,
     results: [{
       value: "m",
@@ -66,7 +66,7 @@ Deno.test("any", () => {
 });
 
 // Explore a search space
-const explore = many(oneOrTwoItems);
+const explore = many(oneOrTwoChars);
 
 Deno.test("explore", () => {
   assertEquals(explore.parse("many"), {
