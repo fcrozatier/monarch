@@ -1,11 +1,9 @@
+import { any, many, seq } from "$combinators";
+import { digit, letter, literal, number, whitespace } from "$common";
 import { assertEquals, assertIsError, assertThrows } from "@std/assert";
-import { any } from "./combinators/alternation/mod.ts";
-import { many } from "./combinators/iteration/many.ts";
-import { seq } from "./combinators/sequencing/seq.ts";
-import { digit, letter, literal, number, whitespace } from "./common/mod.ts";
 import { ParseError, parseErrors } from "./errors.ts";
-import { take } from "./primitives/take.ts";
 import { takeTwo } from "./primitives/mod.ts";
+import { take } from "./primitives/take.ts";
 
 const even = take.filter((r) => /^[02468]/.test(r)).error(
   "Expected an even number",

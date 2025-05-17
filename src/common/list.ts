@@ -1,7 +1,6 @@
-import { sepBy } from "../combinators/iteration/mod.ts";
-import { between } from "../combinators/sequencing/mod.ts";
+import { between, sepBy } from "$combinators";
+import { integer, token } from "$common";
 import type { Parser } from "../index.ts";
-import { integer, token } from "./mod.ts";
 
 /**
  * Parses the list syntax [p(,p)*] with square brackets and comma-separated items

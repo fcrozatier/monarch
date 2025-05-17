@@ -1,4 +1,4 @@
-import { repeat } from "../combinators/iteration/mod.ts";
+import { repeat } from "$combinators";
 import { parseErrors } from "../errors.ts";
 import type { Parser } from "../index.ts";
 import { take } from "./mod.ts";

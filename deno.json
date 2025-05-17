@@ -3,12 +3,12 @@
   "version": "2.6.0",
   "exports": {
     ".": "./mod.ts",
-    "./alternation": "./combinators/alternation/mod.ts",
-    "./iteration": "./combinators/iteration/mod.ts",
-    "./sequencing": "./combinators/sequencing/mod.ts",
-    "./lazy": "./combinators/lazy-evaluation/mod.ts",
-    "./primitives": "./primitives/mod.ts",
-    "./common": "./common/mod.ts",
+    "./alternation": "./src/combinators/alternation/mod.ts",
+    "./iteration": "./src/combinators/iteration/mod.ts",
+    "./sequencing": "./src/combinators/sequencing/mod.ts",
+    "./lazy": "./src/combinators/lazy-evaluation/mod.ts",
+    "./primitives": "./src/primitives/mod.ts",
+    "./common": "./src/common/mod.ts",
     "./examples": "./examples/mod.ts"
   },
   "license": "MIT",
@@ -16,6 +16,8 @@
     "coverage": "deno test --coverage && open coverage/html/index.html"
   },
   "imports": {
+    "$combinators": "./src/combinators/mod.ts",
+    "$common": "./src/common/mod.ts",
     "@std/assert": "jsr:@std/assert@^1"
   },
   "publish": {

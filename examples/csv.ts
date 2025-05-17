@@ -4,19 +4,10 @@
  * @module
  */
 
-import { alt } from "../combinators/alternation/mod.ts";
-import { many1, sepBy } from "../combinators/iteration/mod.ts";
-import { between } from "../combinators/sequencing/mod.ts";
-import {
-  letters,
-  literal,
-  natural,
-  newline,
-  spaces,
-  token,
-} from "../common/mod.ts";
-import type { Parser } from "../index.ts";
-import { result } from "../primitives/mod.ts";
+import { alt, between, many1, sepBy } from "$combinators";
+import { letters, literal, natural, newline, spaces, token } from "$common";
+import type { Parser } from "../src/index.ts";
+import { result } from "../src/primitives/mod.ts";
 
 /**
  * Zips arrays of the same length

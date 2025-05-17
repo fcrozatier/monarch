@@ -4,12 +4,10 @@
  * @module
  */
 
-import { createParser, type Parser } from "../index.ts";
-import { literal, regex, whitespaces, whitespaces1 } from "../common/mod.ts";
-import { alt } from "../combinators/alternation/mod.ts";
-import { between, seq } from "../combinators/sequencing/mod.ts";
-import { many, sepBy } from "../combinators/iteration/mod.ts";
-import { result, zero } from "../primitives/mod.ts";
+import { alt, between, many, sepBy, seq } from "$combinators";
+import { literal, regex, whitespaces, whitespaces1 } from "$common";
+import { createParser, type Parser } from "../src/index.ts";
+import { result, zero } from "../src/primitives/mod.ts";
 
 /**
  * A comment node

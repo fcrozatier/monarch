@@ -1,5 +1,5 @@
 import { ParseError } from "./errors.ts";
-import { result } from "./primitives/result.ts";
+import { result } from "./primitives/mod.ts";
 import type { ParseResult, ParsingHandler, Position } from "./types.ts";
 
 // Utilities
