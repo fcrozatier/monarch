@@ -1,9 +1,7 @@
-import { any, many, seq } from "$combinators";
-import { digit, letter, literal, number, whitespace } from "$common";
+import { seq } from "$combinators";
+import { digit, letter, literal, number, take, whitespace } from "$common";
 import { assertEquals, assertIsError, assertThrows } from "@std/assert";
 import { ParseError, parseErrors } from "./errors.ts";
-import { takeTwo } from "./primitives/mod.ts";
-import { take } from "./primitives/take.ts";
 
 const even = take.filter((r) => /^[02468]/.test(r)).error(
   "Expected an even number",
@@ -102,42 +100,9 @@ Deno.test("skipLeading", () => {
   });
 });
 
-// Explore a search space
-const oneOrTwoItems = any(take, takeTwo);
-const explore = many(oneOrTwoItems);
-
-Deno.test("explore", () => {
-  assertEquals(explore.parse("many"), {
-    success: true,
-    results: [
-      {
-        remaining: "",
-        value: ["m", "a", "n", "y"],
-        position: { line: 1, column: 4 },
-      },
-      {
-        remaining: "",
-        value: ["m", "a", "ny"],
-        position: { line: 1, column: 4 },
-      },
-      {
-        remaining: "",
-        value: ["m", "an", "y"],
-        position: { line: 1, column: 4 },
-      },
-      {
-        remaining: "",
-        value: ["ma", "n", "y"],
-        position: { line: 1, column: 4 },
-      },
-      { remaining: "", value: ["ma", "ny"], position: { line: 1, column: 4 } },
-    ],
-  });
-});
-
 const thrw = seq(number, literal("then"), number);
 
-Deno.test("parse error", () => {
+Deno.test("parseOrThrow", () => {
   assertEquals(take.parseOrThrow("monad"), "m");
 
   assertThrows(() => (thrw.parseOrThrow("1 next 2")));

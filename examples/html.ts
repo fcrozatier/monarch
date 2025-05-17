@@ -6,8 +6,8 @@
 
 import { alt, between, many, sepBy, seq } from "$combinators";
 import { literal, regex, whitespaces, whitespaces1 } from "$common";
-import { createParser, type Parser } from "../src/index.ts";
-import { result, zero } from "../src/primitives/mod.ts";
+import { createParser, type Parser } from "$core";
+import { result, zero } from "$core";
 
 /**
  * A comment node

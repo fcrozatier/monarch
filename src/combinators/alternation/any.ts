@@ -1,4 +1,5 @@
-import { createParser, type Parser, sortPosition } from "../../index.ts";
+import { createParser, type Parser } from "$core";
+import { sortPosition } from "../../utils.ts";
 
 /**
  * Returns all matching parses

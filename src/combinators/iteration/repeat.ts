@@ -1,5 +1,5 @@
-import type { Parser } from "../../index.ts";
-import { result } from "../../primitives/result.ts";
+import type { Parser } from "$core";
+import { result } from "$core";
 
 /**
  * Repeats a parser a predefined number of times

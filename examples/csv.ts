@@ -6,8 +6,8 @@
 
 import { alt, between, many1, sepBy } from "$combinators";
 import { letters, literal, natural, newline, spaces, token } from "$common";
-import type { Parser } from "../src/index.ts";
-import { result } from "../src/primitives/mod.ts";
+import type { Parser } from "$core";
+import { result } from "$core";
 
 /**
  * Zips arrays of the same length

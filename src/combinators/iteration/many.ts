@@ -1,6 +1,6 @@
 import { alt } from "../alternation/alt.ts";
-import type { Parser } from "../../index.ts";
-import { result } from "../../primitives/result.ts";
+import type { Parser } from "$core";
+import { result } from "$core";
 
 /**
  * Returns the longest matching parse array (0 or more matches)

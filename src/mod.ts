@@ -5,6 +5,6 @@
  */
 
 export { result } from "./result.ts";
-export { take } from "./take.ts";
-export { takeTwo } from "./takeTwo.ts";
 export { zero } from "./zero.ts";
+export { createParser, Parser } from "./parser.ts";
+export { parseErrors } from "./errors.ts";

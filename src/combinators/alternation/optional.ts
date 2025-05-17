@@ -1,4 +1,4 @@
-import type { Parser } from "../../index.ts";
+import type { Parser } from "$core";
 import { defaulted } from "./defaulted.ts";
 
 /**

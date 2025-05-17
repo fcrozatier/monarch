@@ -1,4 +1,4 @@
-import { createParser, type Parser } from "../../index.ts";
+import { createParser, type Parser } from "$core";
 
 /**
  * Defers evaluation, without memoization

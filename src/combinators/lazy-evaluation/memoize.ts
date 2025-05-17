@@ -1,4 +1,4 @@
-import { createParser, type Parser } from "../../index.ts";
+import { createParser, type Parser } from "$core";
 
 /**
  * Takes a parser thunk and memoize it upon evaluation.

@@ -1,6 +1,6 @@
 import { alt } from "../alternation/mod.ts";
 import { foldR1 } from "./foldR1.ts";
-import type { Parser } from "../../index.ts";
+import type { Parser } from "$core";
 
 /**
  * Parses maybe-empty sequences of items separated by an operator parser that associates to the right and performs the fold

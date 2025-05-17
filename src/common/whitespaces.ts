@@ -1,5 +1,5 @@
 import { parseErrors } from "../errors.ts";
-import type { Parser } from "../index.ts";
+import type { Parser } from "../parser.ts";
 import { regex } from "./mod.ts";
 
 /**

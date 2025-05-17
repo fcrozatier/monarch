@@ -1,5 +1,5 @@
-import type { Parser } from "../../index.ts";
-import { result } from "../../primitives/result.ts";
+import type { Parser } from "$core";
+import { result } from "$core";
 
 /**
  * Returns an array of all iterated parses

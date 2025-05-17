@@ -1,5 +1,6 @@
 import { assertEquals } from "@std/assert";
-import { take, zero } from "./mod.ts";
+import { zero } from "$core";
+import { take } from "$common";
 
 Deno.test("zero is an absorbing element of bind", () => {
   assertEquals(zero.bind(() => take).parse("m"), zero.parse("m"));

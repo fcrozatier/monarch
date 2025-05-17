@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert/equals";
 import { digit, literal } from "../../common/mod.ts";
-import { result } from "../../primitives/mod.ts";
+import { result } from "$core";
 import { seq } from "./seq.ts";
 
 Deno.test("sequence", () => {
