@@ -1,4 +1,4 @@
-export { csv } from "../examples/csv.ts";
+export { csv } from "./csv.ts";
 export {
   booleanAttributes,
   commentNode,
@@ -16,5 +16,5 @@ export {
   serializeNode,
   shadowRoot,
   textNode,
-} from "../examples/html.ts";
+} from "./html.ts";
 export { expr } from "./arithmetic-expressions.ts";
