@@ -59,8 +59,8 @@ Deno.test("any", () => {
 
   assertEquals(aOrB.parse("1"), {
     success: false,
-    message: "",
-    position: { line: 1, column: 1 },
+    message: "Expected 'a', but got '1'",
+    position: { line: 1, column: 0 },
   });
 });
 
