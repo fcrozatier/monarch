@@ -1,4 +1,5 @@
-import { createParser, type Parser, updatePosition } from "../parser.ts";
+import { createParser, type Parser } from "$core";
+import { updatePosition } from "../utils.ts";
 
 /**
  * Creates a parser matching against a given regex

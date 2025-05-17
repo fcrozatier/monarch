@@ -1,5 +1,6 @@
-import type { Parser } from "../parser.ts";
-import { createParser, updatePosition } from "../parser.ts";
+import type { Parser } from "$core";
+import { createParser } from "$core";
+import { updatePosition } from "../utils.ts";
 import { whitespaces } from "./mod.ts";
 
 /**

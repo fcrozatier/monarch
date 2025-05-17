@@ -1,7 +1,7 @@
 import { alt, foldL1, seq } from "$combinators";
 import { literal, regex, spaces } from "$common";
 import { parseErrors } from "../errors.ts";
-import type { Parser } from "../parser.ts";
+import type { Parser } from "$core";
 import { result } from "$core";
 
 /**
