@@ -137,9 +137,9 @@ export class Parser<T> {
 
       if (nextResults.every((r) => r.success === false)) {
         // Heuristic: return the error message of the most successful parse
-        const error = nextResults.sort((a, b) =>
+        const [error] = nextResults.sort((a, b) =>
           sortPosition(a.position, b.position)
-        )[0];
+        );
 
         return error;
       }

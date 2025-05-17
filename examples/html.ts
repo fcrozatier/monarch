@@ -161,11 +161,11 @@ export const element: Parser<MElement> = createParser((input, position) => {
 
   if (!openTag.success) return openTag;
 
-  const {
+  const [{
     value: { tagName, attributes },
     remaining,
     position: openTagPosition,
-  } = openTag.results[0];
+  }] = openTag.results;
 
   const kind = elementKind(tagName);
 
@@ -206,11 +206,11 @@ export const element: Parser<MElement> = createParser((input, position) => {
 
   if (!childrenElements.success) return childrenElements;
 
-  const {
+  const [{
     value: children,
     remaining: childrenRemaining,
     position: childrenPosition,
-  } = childrenElements.results[0];
+  }] = childrenElements.results;
 
   const res = endTagParser.parse(childrenRemaining, childrenPosition);
 
