@@ -20,12 +20,12 @@ by folding a binary operator around the digits.
  */
 export const foldL1 = <T, U extends (a: T, b: T) => T>(
   item: Parser<T>,
-  operator: Parser<U>
+  operator: Parser<U>,
 ): Parser<T> => {
   const rest = (x: T): Parser<T> => {
     return alt(
       operator.bind((f) => item.bind((y) => rest(f(x, y)))),
-      result(x)
+      result(x),
     );
   };
   return item.bind(rest);

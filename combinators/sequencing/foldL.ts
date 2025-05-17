@@ -20,7 +20,7 @@ import type { Parser } from "../../index.ts";
  */
 export const foldL = <T, U extends (a: T, b: T) => T>(
   item: Parser<T>,
-  operator: Parser<U>
+  operator: Parser<U>,
 ): Parser<T> => {
   return alt(foldL1(item, operator), item);
 };
