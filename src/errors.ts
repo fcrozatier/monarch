@@ -1,4 +1,4 @@
-import type { Position } from "./types.ts";
+import type { Position } from "./core/types.ts";
 
 export class ParseError extends Error {
   constructor(

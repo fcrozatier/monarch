@@ -1,7 +1,7 @@
 import { seq } from "$combinators";
 import { digit, letter, literal, number, take, whitespace } from "$common";
 import { assertEquals, assertIsError, assertThrows } from "@std/assert";
-import { ParseError, parseErrors } from "./errors.ts";
+import { ParseError, parseErrors } from "../errors.ts";
 
 const even = take.filter((r) => /^[02468]/.test(r)).error(
   "Expected an even number",
