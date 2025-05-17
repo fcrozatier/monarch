@@ -1,3 +1,9 @@
+/**
+ * Real-life examples, including a CSV parser, an HTML parser and an arithmetic expression parser
+ *
+ * @module
+ */
+
 export { csv } from "./csv.ts";
 export {
   booleanAttributes,

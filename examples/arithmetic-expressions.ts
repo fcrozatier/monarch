@@ -33,4 +33,8 @@ const atom = lazy(() =>
 const factor = foldR1(atom, expOp);
 const term = foldL1(factor, mulOp);
 
+
+/**
+ * Parses arithmetic expressions
+ */
 export const expr: Parser<number> = foldL1(term, addOp);
