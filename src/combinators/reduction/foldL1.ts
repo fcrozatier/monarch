@@ -13,7 +13,7 @@ by folding a binary operator around the digits.
  * ```ts
  * const natural = foldL1(digit, result((a: number, b: number) => 10 * a + b));
  *
- * natural.parse("123"); // results: [{value: 123, remaining: ""}]
+ * natural.parse("123"); // [{value: 123, remaining: "", ...}]
  * ```
  *
  * @see {@linkcode foldL}

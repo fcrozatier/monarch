@@ -13,7 +13,7 @@ import type { Parser } from "$core";
  * const add = literal("+").map(() => (a: number, b: number) => a + b);
  * const addition = foldL(number, add);
  *
- * addition.parse("1+2+3"); // results: [{value: 6, remaining: "" }]
+ * addition.parseOrThrow("1+2+3"); // 6
  * ```
  *
  * @see {@linkcode foldR}

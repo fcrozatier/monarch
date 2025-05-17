@@ -13,8 +13,7 @@ import type { Parser } from "$core";
  * const pow = literal("^").map(() => (a: number, b: number) => a ** b);
  * const exponentiation = foldR(number, pow);
  *
- * exponentiation.parse("2^2^3");
- * // results: [{value: 256, remaining: ""}]
+ * exponentiation.parseOrThrow("2^2^3"); // 256
  * ```
  *
  * @see {@linkcode foldL}
