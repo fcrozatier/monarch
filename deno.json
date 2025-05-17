@@ -5,8 +5,9 @@
     ".": "./src/core/mod.ts",
     "./alternation": "./src/combinators/alternation/mod.ts",
     "./iteration": "./src/combinators/iteration/mod.ts",
-    "./sequencing": "./src/combinators/sequencing/mod.ts",
     "./recursion": "./src/combinators/recursion/mod.ts",
+    "./reduction": "./src/combinators/reduction/mod.ts",
+    "./sequencing": "./src/combinators/sequencing/mod.ts",
     "./common": "./src/common/mod.ts",
     "./examples": "./examples/mod.ts"
   },
