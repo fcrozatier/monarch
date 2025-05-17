@@ -1,8 +1,9 @@
 import { many, repeat } from "$combinators";
 import { literal, take } from "$common";
-import { parseErrors, type Parser } from "$core";
+import type { Parser } from "$core";
 import { assertEquals } from "@std/assert";
 import { any } from "./any.ts";
+import { parseErrors } from "../../errors.ts";
 
 /**
  * Parses the next two characters

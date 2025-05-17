@@ -1,5 +1,5 @@
 import { letter, lower, take, upper } from "$common";
-import { parseErrors } from "$core";
+import { parseErrors } from "../errors.ts";
 import { assertEquals } from "@std/assert";
 
 Deno.test("take", () => {
