@@ -7,10 +7,16 @@
 import { alt } from "../combinators/alternation/mod.ts";
 import { many1, sepBy } from "../combinators/iteration/mod.ts";
 import { between } from "../combinators/sequencing/mod.ts";
-import { letters, literal, natural, newline } from "../common/mod.ts";
+import {
+  letters,
+  literal,
+  natural,
+  newline,
+  spaces,
+  token,
+} from "../common/mod.ts";
 import type { Parser } from "../index.ts";
 import { result } from "../primitives/mod.ts";
-import { spaces } from "./spaces.ts";
 
 /**
  * Zips arrays of the same length
@@ -24,7 +30,7 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
   });
 };
 
-const coma = literal(",").skipTrailing(spaces);
+const coma = token(",", spaces);
 const string = between(literal('"'), letters, literal('"'));
 const item = alt<string | number>(string, natural);
 

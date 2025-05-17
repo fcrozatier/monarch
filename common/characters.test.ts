@@ -39,7 +39,6 @@ Deno.test("lower", () => {
   });
 });
 
-
 Deno.test("upper", () => {
   assertEquals(upper.parse("Hello"), {
     success: true,
