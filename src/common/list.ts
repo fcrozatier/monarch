@@ -1,6 +1,7 @@
 import { between, sepBy } from "$combinators";
-import { integer, token } from "$common";
+import { token } from "$common";
 import type { Parser } from "$core";
+import { integer } from "./numbers.ts";
 
 /**
  * Parses the list syntax [p(,p)*] with square brackets and comma-separated items

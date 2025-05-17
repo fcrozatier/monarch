@@ -1,8 +1,9 @@
 import { alt, foldL1, seq } from "$combinators";
-import { literal, regex, spaces } from "$common";
+import { literal, regex } from "$common";
 import { parseErrors } from "../errors.ts";
 import type { Parser } from "$core";
 import { result } from "$core";
+import { spaces } from "./whitespaces.ts";
 
 /**
  * Parses a single digit
