@@ -4,7 +4,7 @@ import type { Parser } from "$core";
 import { integer } from "./numbers.ts";
 
 /**
- * Parses the list syntax [p(,p)*] with square brackets and comma-separated items
+ * Parses the list syntax [p(,p)*,?] with square brackets and comma-separated items, allowing an optional trailing comma
  *
  * @param parser The item parser
  *
