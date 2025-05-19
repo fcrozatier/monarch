@@ -2,6 +2,15 @@ import { assertEquals } from "@std/assert";
 import { listOfInts } from "./mod.ts";
 
 Deno.test("list of integers", () => {
+  assertEquals(listOfInts.parse("[1, 2, 3,]"), {
+    success: true,
+    results: [{
+      value: [1, 2, 3],
+      remaining: "",
+      position: { line: 1, column: 10 },
+    }],
+  });
+
   assertEquals(listOfInts.parse("[1 ,  -2, 3] and more"), {
     success: true,
     results: [{

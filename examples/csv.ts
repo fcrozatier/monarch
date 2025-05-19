@@ -21,14 +21,14 @@ const zip = <T, U>(array1: T[], array2: U[]): [T, U][] => {
   });
 };
 
-const coma = token(",", spaces);
+const comma = token(",", spaces);
 const string = between(literal('"'), letters, literal('"'));
 const item = alt<string | number>(string, natural);
 
 /**
  * Parses a csv heading and returns the array of headers
  */
-export const headings: Parser<string[]> = sepBy(string, coma).skipTrailing(
+export const headings: Parser<string[]> = sepBy(string, comma).skipTrailing(
   newline,
 );
 
@@ -42,7 +42,7 @@ const header: Parser<
 /**
  * Parses a csv row and returns the items array
  */
-export const row: Parser<(string | number)[]> = sepBy(item, coma).skipTrailing(
+export const row: Parser<(string | number)[]> = sepBy(item, comma).skipTrailing(
   newline,
 );
 const rows = many1(row);
