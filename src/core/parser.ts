@@ -155,6 +155,32 @@ export class Parser<T> {
   }
 
   /**
+   * Returns a fallback value on failure.
+   *
+   * @example `public` and `private` class modifiers
+   *
+   * ```ts
+   * const visibility = alt(token('public'), token('private')).fallback('public');
+   *
+   * visibility.parse('myIdentifier')// [{value: 'public', remaining: 'myIdentifier', ...}]
+   * ```
+   *
+   * @param value The fallback value
+   * @returns A parser returning the successful parse result or the fallback value
+   */
+  fallback(value: T): Parser<T> {
+    return createParser((input, position) => {
+      const result = this.parse(input, position);
+      if (result.success === true) return result;
+
+      return {
+        success: true,
+        results: [{ value, position, remaining: input }],
+      };
+    });
+  }
+
+  /**
    * Filters a parser with a predicate and matches only if the predicate returns true
    *
    * For regex predicate, prefer using the {@linkcode regex} parser

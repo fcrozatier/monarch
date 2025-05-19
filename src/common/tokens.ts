@@ -44,7 +44,7 @@ export function literal(value: string): Parser<string> {
  * Parses a literal and discards trailing spaces
  *
  * @param value The literal value to parse
- * @param trailing The kind of whitespace to skip. Default to {@linkcode whitespaces}
+ * @param trailing The kind of whitespace to skip. Defaults to {@linkcode whitespaces}
  *
  * @see {@linkcode literal}
  */

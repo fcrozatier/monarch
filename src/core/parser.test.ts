@@ -1,13 +1,61 @@
-import { seq } from "$combinators";
-import { digit, letter, literal, number, take, whitespace } from "$common";
+import { alt, seq } from "$combinators";
+import {
+  digit,
+  letter,
+  literal,
+  number,
+  take,
+  token,
+  whitespace,
+} from "$common";
 import { assertEquals, assertIsError, assertThrows } from "@std/assert";
 import { ParseError, parseErrors } from "../errors.ts";
 
-const even = take.filter((r) => /^[02468]/.test(r)).error(
-  "Expected an even number",
-);
+Deno.test("fallback", () => {
+  assertEquals(digit.fallback(42).parse("123"), {
+    success: true,
+    results: [{
+      value: 1,
+      remaining: "23",
+      position: { line: 1, column: 1 },
+    }],
+  });
+
+  assertEquals(digit.fallback(42).parse("abc"), {
+    success: true,
+    results: [{
+      value: 42,
+      remaining: "abc",
+      position: { line: 1, column: 0 },
+    }],
+  });
+
+  assertEquals(digit.fallback(42).parse(""), {
+    success: true,
+    results: [{
+      value: 42,
+      remaining: "",
+      position: { line: 1, column: 0 },
+    }],
+  });
+
+  const visibility = alt(token("public"), token("private")).fallback("public");
+
+  assertEquals(visibility.parse("myIdentifier"), {
+    success: true,
+    results: [{
+      value: "public",
+      remaining: "myIdentifier",
+      position: { line: 1, column: 0 },
+    }],
+  });
+});
 
 Deno.test("filter", () => {
+  const even = take.filter((r) => /^[02468]/.test(r)).error(
+    "Expected an even number",
+  );
+
   assertEquals(even.parse("2"), {
     success: true,
     results: [{
@@ -100,9 +148,9 @@ Deno.test("skipLeading", () => {
   });
 });
 
-const thrw = seq(number, literal("then"), number);
-
 Deno.test("parseOrThrow", () => {
+  const thrw = seq(number, literal("then"), number);
+
   assertEquals(take.parseOrThrow("monad"), "m");
 
   assertThrows(() => (thrw.parseOrThrow("1 next 2")));
