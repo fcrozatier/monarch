@@ -2,12 +2,12 @@ import { createParser, type Parser } from "$core";
 import { sortPosition } from "../../utils.ts";
 
 /**
- * Returns all matching parses
+ * Explores all input parsers and returns all successful matches
  *
  * @example Parse one or two characters
  *
  * ```ts
- * const oneOrTwoChars = any(take, takeTwo);
+ * const oneOrTwoChars = explore(take, takeTwo);
  *
  * assertEquals(oneOrTwoChars.parse("monad"), {
  *   success: true,
@@ -21,15 +21,15 @@ import { sortPosition } from "../../utils.ts";
  *     position: { line: 1, column: 2 },
  *   }],
  * }
- *
  * ```
  *
  * @example Explore a search space
  *
- * The backtracking behavior of the `any` combinator can be leverage to explore spaces of possibilities
+ * The backtracking behavior of the `explore` combinator can be leveraged to explore spaces of possibilities
  *
  * ```ts
- * assertEquals(explore.parse("many"), {
+ * const search = many(oneOrTwoChars);
+ * assertEquals(search.parse("many"), {
  *   success: true,
  *   results: [
  *     {
@@ -56,8 +56,12 @@ import { sortPosition } from "../../utils.ts";
  *   ],
  *  }
  * ```
+ *
+ * @param parsers The parsers to explore
+ *
+ * @see {@linkcode iterate}
  */
-export const any = <T>(...parsers: Parser<T>[]): Parser<T> => {
+export const explore = <T>(...parsers: Parser<T>[]): Parser<T> => {
   return createParser((input, position) => {
     const results = parsers.map((parser) => parser.parse(input, position));
 
@@ -72,9 +76,9 @@ export const any = <T>(...parsers: Parser<T>[]): Parser<T> => {
 
     return {
       success: true,
-      results: results.filter((res) => res.success === true).flatMap((r) =>
-        r.results
-      ),
+      results: results
+        .filter((res) => res.success === true)
+        .flatMap((r) => r.results),
     };
   });
 };

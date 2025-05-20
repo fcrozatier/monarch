@@ -25,7 +25,6 @@ export class ParseError extends Error {
  * @internal
  */
 export const parseErrors = {
-  takeTwoError: "Expected two characters",
   takeError: "Unexpected end of input",
 
   whitespace: "Expected whitespace",

@@ -1,23 +1,17 @@
 import { many, repeat } from "$combinators";
 import { literal, take } from "$common";
-import type { Parser } from "$core";
 import { assertEquals } from "@std/assert";
-import { any } from "./any.ts";
 import { parseErrors } from "../../errors.ts";
+import { explore } from "./explore.ts";
 
-/**
- * Parses the next two characters
- */
-export const takeTwo: Parser<string> = repeat(take, 2).map((arr) =>
-  arr.join("")
-).error(parseErrors.takeTwoError);
-
-const oneOrTwoChars = any(take, takeTwo);
+const takeTwoError = "Expected two characters";
+const takeTwo = repeat(take, 2).map((arr) => arr.join("")).error(takeTwoError);
+const oneOrTwoChars = explore(take, takeTwo);
 
 Deno.test("take two", () => {
   assertEquals(takeTwo.parse("m"), {
     success: false,
-    message: parseErrors.takeTwoError,
+    message: takeTwoError,
     position: { line: 1, column: 0 },
   });
 
@@ -31,7 +25,7 @@ Deno.test("take two", () => {
   });
 });
 
-Deno.test("any", () => {
+Deno.test("explore", () => {
   assertEquals(oneOrTwoChars.parse(""), {
     success: false,
     position: { line: 1, column: 0 },
@@ -56,7 +50,7 @@ Deno.test("any", () => {
     }],
   });
 
-  const aOrB = any(literal("a"), literal("b"));
+  const aOrB = explore(literal("a"), literal("b"));
 
   assertEquals(aOrB.parse("1"), {
     success: false,
@@ -65,11 +59,9 @@ Deno.test("any", () => {
   });
 });
 
-// Explore a search space
-const explore = many(oneOrTwoChars);
-
-Deno.test("explore", () => {
-  assertEquals(explore.parse("many"), {
+Deno.test("search space", () => {
+  const search = many(oneOrTwoChars);
+  assertEquals(search.parse("many"), {
     success: true,
     results: [
       {

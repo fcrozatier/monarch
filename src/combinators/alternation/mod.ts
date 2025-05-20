@@ -4,6 +4,6 @@
  * @module
  */
 
-export { any } from "./any.ts";
+export { explore } from "./explore.ts";
 export { alt } from "./alt.ts";
 export { optional } from "./optional.ts";
