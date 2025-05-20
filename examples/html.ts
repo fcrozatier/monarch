@@ -9,7 +9,7 @@
 import { alt, between, many, sepBy, seq } from "$combinators";
 import { literal, regex, whitespaces, whitespaces1 } from "$common";
 import { createParser, type Parser } from "$core";
-import { result, fail } from "$core";
+import { fail, result } from "$core";
 
 /**
  * A comment node
