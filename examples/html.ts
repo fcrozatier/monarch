@@ -9,7 +9,7 @@
 import { alt, between, many, sepBy, seq } from "$combinators";
 import { literal, regex, whitespaces, whitespaces1 } from "$common";
 import { createParser, type Parser } from "$core";
-import { result, zero } from "$core";
+import { result, fail } from "$core";
 
 /**
  * A comment node
@@ -147,7 +147,7 @@ const startTag: Parser<
 ).error("Expected a start tag").bind(([_, tagName, attributes, end]) => {
   const selfClosing = end === "/>";
   if (selfClosing && !voidElements.includes(tagName)) {
-    return zero.error("Unexpected self-closing tag on a non-void element");
+    return fail.error("Unexpected self-closing tag on a non-void element");
   }
 
   return result({ tagName, attributes });

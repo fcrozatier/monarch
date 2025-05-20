@@ -16,8 +16,6 @@
  * - mapping
  * - skipping
  *
- * Refinements are expressed with method chaining
- *
  * @module
  */
 

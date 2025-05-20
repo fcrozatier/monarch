@@ -183,9 +183,7 @@ export class Parser<T> {
   /**
    * Filters a parser with a predicate and matches only if the predicate returns true
    *
-   * For regex predicate, prefer using the {@linkcode regex} parser
-   *
-   * Preserves `zero` and distributes over alternation
+   * For regex predicates, prefer using the {@linkcode regex} parser
    *
    * @example
    *
