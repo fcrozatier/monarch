@@ -62,6 +62,7 @@ export const any = <T>(...parsers: Parser<T>[]): Parser<T> => {
     const results = parsers.map((parser) => parser.parse(input, position));
 
     if (results.every((r) => r.success === false)) {
+      // Heuristic: return the error message of the most successful parse
       const [error] = results.sort((a, b) =>
         sortPosition(a.position, b.position)
       );

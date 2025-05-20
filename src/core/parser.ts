@@ -281,32 +281,6 @@ export class Parser<T> {
   }
 
   /**
-   * Concatenates the resulting parse arrays
-   */
-  plus(...parsers: Parser<T>[]): Parser<T> {
-    return createParser((input, position) => {
-      const results = [this, ...parsers].map((parser) =>
-        parser.#parse(input, position)
-      );
-
-      if (results.every((r) => r.success === false)) {
-        // Heuristic: return the error message of the most successful parse
-        const [error] = results.sort((a, b) =>
-          sortPosition(a.position, b.position)
-        );
-
-        return error;
-      }
-      return {
-        success: true,
-        results: results.filter((r) => r.success === true).flatMap((r) =>
-          r.results
-        ),
-      };
-    });
-  }
-
-  /**
    * Customize the error message of a parser
    *
    * @example

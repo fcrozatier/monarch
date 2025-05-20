@@ -1,5 +1,6 @@
 import type { Parser } from "$core";
 import { result } from "$core";
+import { any } from "$combinators";
 
 /**
  * Returns an array of all iterated parses
@@ -12,6 +13,8 @@ import { result } from "$core";
  * ```
  */
 export const iterate = <T>(parser: Parser<T>): Parser<T[]> => {
-  return parser.bind((a) => iterate(parser).bind((x) => result([a, ...x])))
-    .plus(result([]));
+  return any(
+    parser.bind((a) => iterate(parser).bind((x) => result([a, ...x]))),
+    result([]),
+  );
 };
