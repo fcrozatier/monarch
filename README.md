@@ -31,7 +31,7 @@ the provided base parsers and their error messages.
     - [`many`](#many)
     - [`map`](#map)
     - [`seq`](#seq)
-    - [`bind`](#bind)
+    - [`flatMap`](#flatmap)
     - [`skipTrailing` and `skipLeading`](#skiptrailing-and-skipleading)
     - [`alt` and `any`](#alt-and-any)
     - [`sepBy`](#sepby)
@@ -197,19 +197,19 @@ const extract = parenthesizedNumber.map((arr) => arr[1]); // Parser<number>
 extract.parseOrThrow("(42)"); // 42
 ```
 
-### `bind`
+### `flatMap`
 
 When you want more control over the sequencing, for dynamic parsing or if a
-later operation depends on the result of a preceding parser, use `bind`. The
-`bind(fn: (value: T)=> Parser<U>)` method allows you to bind the result of a
-`Parser<T>` as the input of a function whose returned value is the next parser
-in the sequence. Use the `result(value: T): Parser<T>` helper to end the
+later operation depends on the result of a preceding parser, use `flatMap`. The
+`flatMap(fn: (value: T)=> Parser<U>)` method allows you to lift the result of a
+`Parser<T>` into the next parser
+of the sequence. Use the `result(value: T): Parser<T>` helper to end the
 sequence with a final value lifted as a parser.
 
 ```ts
 const letter = regex(/^[a-zA-Z]/);
 const alphanumeric = many(regex(/^\w/)); // Parser<string[]>
-const identifier = letter.bind((l) =>
+const identifier = letter.flatMap((l) =>
   alphanumeric.map((rest) => [l, ...rest].join(""))
 );
 
@@ -221,7 +221,7 @@ const spaces = regex(/^\s*/);
  * Discards the trailing spaces after a given parser
  */
 const token = <T>(parser: Parser<T>) =>
-  parser.bind((p) => spaces.bind((_) => result(p)));
+  parser.flatMap((p) => spaces.flatMap((_) => result(p)));
 
 const { results } = token(identifier).parse("ageUser1  = 42"); // [{value: "ageUser1", remaining: "= 42", ...}]
 ```
@@ -247,7 +247,7 @@ previous section as follows:
  * Discards the trailing spaces after a given parser
  */
 const token = <T>(parser: Parser<T>) =>
-  parser.bind((p) => spaces.bind((_) => result(p)));
+  parser.flatMap((p) => spaces.flatMap((_) => result(p)));
 
 // Equivalent
 const token = <T>(parser: Parser<T>) => parser.skipTrailing(spaces);
@@ -262,8 +262,8 @@ while `alt` returns early.
 
 ```ts
 const integer = alt(
-  literal("-").bind(() => natural).map((x) => -x),
-  literal("+").bind(() => natural).map((x) => x),
+  literal("-").flatMap(() => natural).map((x) => -x),
+  literal("+").flatMap(() => natural).map((x) => x),
   natural,
 );
 
