@@ -50,6 +50,6 @@ const rows = many1(row);
 /**
  * Parses a csv file
  */
-export const csv: Parser<Record<string, string | number>[]> = header.bind((
+export const csv: Parser<Record<string, string | number>[]> = header.flatMap((
   makeEntry,
-) => rows.bind((rows) => result(rows.map(makeEntry))));
+) => rows.flatMap((rows) => result(rows.map(makeEntry))));

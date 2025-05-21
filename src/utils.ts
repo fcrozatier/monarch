@@ -1,7 +1,7 @@
 import type { Position } from "./core/types.ts";
 
 /**
- * Compute the new position from the current position and the consumed string
+ * Computes the new position from the current position and the consumed string
  */
 export const updatePosition = (
   position: Position,
@@ -19,7 +19,7 @@ export const updatePosition = (
 };
 
 /**
- * Sort positions in a descending (line, column) order
+ * Sorts positions in a descending (line, column) order
  */
 export const sortPosition = (a: Position, b: Position): number => {
   if (a.line !== b.line) return b.line - a.line;

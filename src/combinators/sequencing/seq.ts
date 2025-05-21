@@ -36,7 +36,7 @@ export const seq = <T extends Parser<unknown>[]>(
 ): Parser<Unwrap<T>> => {
   return parsers.reduceRight(
     (acc: Parser<Unwrap<T>>, parser) =>
-      parser.bind((r) => acc.map((rest) => [r, ...rest] as Unwrap<T>)),
+      parser.flatMap((r) => acc.map((rest) => [r, ...rest] as Unwrap<T>)),
     result([] as Unwrap<T>),
   );
 };

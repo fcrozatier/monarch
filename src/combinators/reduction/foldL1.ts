@@ -23,9 +23,9 @@ export const foldL1 = <T, U extends (a: T, b: T) => T>(
 ): Parser<T> => {
   const rest = (x: T): Parser<T> => {
     return alt(
-      operator.bind((f) => item.bind((y) => rest(f(x, y)))),
+      operator.flatMap((f) => item.flatMap((y) => rest(f(x, y)))),
       result(x),
     );
   };
-  return item.bind(rest);
+  return item.flatMap(rest);
 };

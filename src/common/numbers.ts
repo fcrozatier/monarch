@@ -26,8 +26,8 @@ export const natural: Parser<number> = foldL1(
  * Parses an integer (an element of ℤ)
  */
 export const integer: Parser<number> = alt(
-  literal("-").bind(() => natural).map((x) => -x),
-  literal("+").bind(() => natural).map((x) => x),
+  literal("-").flatMap(() => natural).map((x) => -x),
+  literal("+").flatMap(() => natural).map((x) => x),
   natural,
 ).error(parseErrors.integer);
 

@@ -84,6 +84,6 @@ export const letters: Parser<string> = regex(/^[a-zA-Z]*/);
 /**
  * Parses an identifier as letter + alphanums
  */
-export const identifier: Parser<string> = letter.bind((l) =>
+export const identifier: Parser<string> = letter.flatMap((l) =>
   alphaNums.map((rest) => l + rest)
 );

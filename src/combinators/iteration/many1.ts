@@ -8,5 +8,5 @@ import { result } from "$core";
  * @see {@linkcode many}
  */
 export const many1 = <T>(parser: Parser<T>): Parser<T[]> => {
-  return parser.bind((x) => many(parser).bind((rest) => result([x, ...rest])));
+  return parser.flatMap((x) => many(parser).flatMap((rest) => result([x, ...rest])));
 };

@@ -11,9 +11,9 @@ export const foldR1 = <T, U extends (a: T, b: T) => T>(
   item: Parser<T>,
   operator: Parser<U>,
 ): Parser<T> => {
-  return item.bind((x) => {
+  return item.flatMap((x) => {
     return alt(
-      operator.bind((f) => foldR1(item, operator).bind((y) => result(f(x, y)))),
+      operator.flatMap((f) => foldR1(item, operator).flatMap((y) => result(f(x, y)))),
       result(x),
     );
   });

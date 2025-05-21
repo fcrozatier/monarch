@@ -43,5 +43,5 @@ export function between<T, U, V>(
   body: Parser<U>,
   close: Parser<V>,
 ): Parser<U> {
-  return seq(open, body, close).bind((arr) => result(arr[1]));
+  return seq(open, body, close).flatMap((arr) => result(arr[1]));
 }

@@ -12,8 +12,8 @@ import { result } from "$core";
  */
 export const repeat = <T>(parser: Parser<T>, times: number): Parser<T[]> => {
   if (times > 0) {
-    return parser.bind((a) =>
-      repeat(parser, times - 1).bind((rest) => result([a, ...rest]))
+    return parser.flatMap((a) =>
+      repeat(parser, times - 1).flatMap((rest) => result([a, ...rest]))
     );
   }
   return result([]);

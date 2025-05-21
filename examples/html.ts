@@ -144,7 +144,7 @@ const startTag: Parser<
   tagName,
   many(attribute),
   regex(/\/?>/),
-).error("Expected a start tag").bind(([_, tagName, attributes, end]) => {
+).error("Expected a start tag").flatMap(([_, tagName, attributes, end]) => {
   const selfClosing = end === "/>";
   if (selfClosing && !voidElements.includes(tagName)) {
     return fail.error("Unexpected self-closing tag on a non-void element");
