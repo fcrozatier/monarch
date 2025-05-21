@@ -201,10 +201,10 @@ extract.parseOrThrow("(42)"); // 42
 
 When you want more control over the sequencing, for dynamic parsing or if a
 later operation depends on the result of a preceding parser, use `flatMap`. The
-`flatMap(fn: (value: T)=> Parser<U>)` method allows you to lift the result of a
-`Parser<T>` into the next parser
-of the sequence. Use the `result(value: T): Parser<T>` helper to end the
-sequence with a final value lifted as a parser.
+`flatMap(fn: (value: T)=> Parser<U>)` method allows you to chain the result of a
+`Parser<T>` with the next parser of the sequence. Use the
+`result(value: T): Parser<T>` helper to end the sequence with a final value
+lifted as a parser.
 
 ```ts
 const letter = regex(/^[a-zA-Z]/);
