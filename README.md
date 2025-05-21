@@ -23,7 +23,7 @@ the provided base parsers and their error messages.
   - [Installation](#installation)
   - [Examples](#examples)
   - [Getting Started Guide](#getting-started-guide)
-    - [`take`](#take)
+    - [`anyChar`](#anyChar)
     - [`repeat`](#repeat)
     - [`literal`](#literal)
     - [`filter`](#filter)
@@ -101,15 +101,15 @@ section for more.
 Here's a progressive introduction to the various available base parsers and
 combinators of the library.
 
-### `take`
+### `anyChar`
 
-The `take` parser consumes the next character of the input
+The `anyChar` parser consumes the next character of the input
 
 ```js
-const { results } = take.parse("hello"); // [{value: 'h', remaining: 'ello', ...}]
+const { results } = anyChar.parse("hello"); // [{value: 'h', remaining: 'ello', ...}]
 ```
 
-The return value is a string as `take` is a `Parser<string>`
+The return value is a string as `anyChar` is a `Parser<string>`
 
 ### `repeat`
 
@@ -117,7 +117,7 @@ To apply a given parser a specific amount of times you can wrap it with the
 `repeat<T>(parser: Parser<T>, times: number): Parser<T>` combinator
 
 ```js
-const { results } = repeat(take, 2).parse("hello"); // [{value: 'he', remaining: 'llo', ...}]
+const { results } = repeat(anyChar, 2).parse("hello"); // [{value: 'he', remaining: 'llo', ...}]
 ```
 
 ### `literal`
@@ -139,7 +139,7 @@ parser. A filtered parser only matches when the predicate is satisfied.
 
 ```js
 const isVowel = (char) => ["a", "e", "i", "o", "u", "y"].includes(char);
-const vowel = filter(take, isVowel).error("Expected a vowel");
+const vowel = filter(anyChar, isVowel).error("Expected a vowel");
 const { results } = vowel.parse("a"); // [{value: '2', remaining: '', ...}]
 const { message } = vowel.parse("1"); // "Expected a vowel"
 ```

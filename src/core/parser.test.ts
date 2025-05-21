@@ -4,7 +4,7 @@ import {
   letter,
   literal,
   number,
-  take,
+  anyChar,
   token,
   whitespace,
 } from "$common";
@@ -52,7 +52,7 @@ Deno.test("fallback", () => {
 });
 
 Deno.test("filter", () => {
-  const even = take.filter((r) => /^[02468]/.test(r)).error(
+  const even = anyChar.filter((char) => /^[02468]/.test(char)).error(
     "Expected an even number",
   );
 
@@ -151,7 +151,7 @@ Deno.test("skipLeading", () => {
 Deno.test("parseOrThrow", () => {
   const thrw = seq(number, literal("then"), number);
 
-  assertEquals(take.parseOrThrow("monad"), "m");
+  assertEquals(anyChar.parseOrThrow("monad"), "m");
 
   assertThrows(() => (thrw.parseOrThrow("1 next 2")));
 

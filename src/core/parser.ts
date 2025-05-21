@@ -194,7 +194,7 @@ export class Parser<T> {
    *
    * ```ts
    * const isVowel = (char) => ["a", "e", "i", "o", "u", "y"].includes(char);
-   * const vowel = take.filter(isVowel).error("Expected a vowel");
+   * const vowel = anyChar.filter(isVowel).error("Expected a vowel");
    *
    * const { results } = vowel.parse("a");
    * // [{value: 'a', remaining: '', ...}]

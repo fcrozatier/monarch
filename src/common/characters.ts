@@ -9,18 +9,18 @@ import { updatePosition } from "../utils.ts";
  * @example Non-empty input
  *
  * ```ts
- * const { results } = take.parse("hello");
+ * const { results } = anyChar.parse("hello");
  * // [{value: 'h', remaining: 'ello', ...}]
  * ```
  *
  * @example Empty input
  *
  * ```ts
- * const { message } = take.parse("");
+ * const { message } = anyChar.parse("");
  * // "Unexpected end of input"
  * ```
  */
-export const take: Parser<string> = createParser(
+export const anyChar: Parser<string> = createParser(
   (input, position) => {
     if (input.length === 0) {
       return {

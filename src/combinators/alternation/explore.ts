@@ -7,7 +7,7 @@ import { sortPosition } from "../../utils.ts";
  * @example Parse one or two characters
  *
  * ```ts
- * const oneOrTwoChars = explore(take, takeTwo);
+ * const oneOrTwoChars = explore(anyChar, repeat(anyChar, 2));
  *
  * assertEquals(oneOrTwoChars.parse("monad"), {
  *   success: true,

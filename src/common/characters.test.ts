@@ -1,15 +1,15 @@
-import { letter, lower, take, upper } from "$common";
+import { letter, lower, anyChar, upper } from "$common";
 import { parseErrors } from "../errors.ts";
 import { assertEquals } from "@std/assert";
 
-Deno.test("take", () => {
-  assertEquals(take.parse(""), {
+Deno.test("anyChar", () => {
+  assertEquals(anyChar.parse(""), {
     success: false,
     message: parseErrors.takeError,
     position: { line: 1, column: 0 },
   });
 
-  assertEquals(take.parse("monad"), {
+  assertEquals(anyChar.parse("monad"), {
     success: true,
     results: [{
       value: "m",

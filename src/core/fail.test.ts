@@ -1,10 +1,10 @@
 import { assertEquals } from "@std/assert";
 import { fail } from "$core";
-import { take } from "$common";
+import { anyChar } from "$common";
 
 Deno.test("fail", () => {
-  assertEquals(fail.flatMap(() => take).parse("m"), fail.parse("m"));
-  assertEquals(take.flatMap(() => fail).parse("m"), {
+  assertEquals(fail.flatMap(() => anyChar).parse("m"), fail.parse("m"));
+  assertEquals(anyChar.flatMap(() => fail).parse("m"), {
     success: false,
     message: "",
     position: {
