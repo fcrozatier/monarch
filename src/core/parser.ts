@@ -96,6 +96,8 @@ export class Parser<T> {
   /**
    * Monadic sequencing of parsers.
    *
+   * This method chains the result of a `Parser<T>` with the next parser of the sequence.
+   *
    * Useful when you want more control over the sequencing, for dynamic parsing or context aware parsing where a later parser result depends on the result of a previous parser
    *
    * @example Parse simple identifiers
