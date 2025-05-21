@@ -1,4 +1,4 @@
-import { letter, lower, anyChar, upper } from "$common";
+import { anyChar, letter, lower, upper } from "$common";
 import { parseErrors } from "../errors.ts";
 import { assertEquals } from "@std/assert";
 

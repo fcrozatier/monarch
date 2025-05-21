@@ -1,11 +1,13 @@
 import { many, repeat } from "$combinators";
-import { literal, anyChar } from "$common";
+import { anyChar, literal } from "$common";
 import { assertEquals } from "@std/assert";
 import { parseErrors } from "../../errors.ts";
 import { explore } from "./explore.ts";
 
 const takeTwoError = "Expected two characters";
-const takeTwo = repeat(anyChar, 2).map((arr) => arr.join("")).error(takeTwoError);
+const takeTwo = repeat(anyChar, 2).map((arr) => arr.join("")).error(
+  takeTwoError,
+);
 const oneOrTwoChars = explore(anyChar, takeTwo);
 
 Deno.test("take two", () => {

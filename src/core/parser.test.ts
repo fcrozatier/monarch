@@ -1,10 +1,10 @@
 import { alt, seq } from "$combinators";
 import {
+  anyChar,
   digit,
   letter,
   literal,
   number,
-  anyChar,
   token,
   whitespace,
 } from "$common";
