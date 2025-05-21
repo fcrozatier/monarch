@@ -13,7 +13,9 @@ export const foldR1 = <T, U extends (a: T, b: T) => T>(
 ): Parser<T> => {
   return item.flatMap((x) => {
     return alt(
-      operator.flatMap((f) => foldR1(item, operator).flatMap((y) => result(f(x, y)))),
+      operator.flatMap((f) =>
+        foldR1(item, operator).flatMap((y) => result(f(x, y)))
+      ),
       result(x),
     );
   });

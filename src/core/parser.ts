@@ -124,7 +124,6 @@ export class Parser<T> {
    * @param transform A function lifting the value of the previous parse into another parser
    * @returns A flattened parser with the return type of the `transform` parameter
    *
-   *
    * @see {@linkcode skipTrailing}
    */
   flatMap<U>(transform: (value: T) => Parser<U>): Parser<U> {
