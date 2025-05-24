@@ -1,4 +1,4 @@
-name: deno publish
+name: publish
 
 on:
   release:
