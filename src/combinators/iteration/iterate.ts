@@ -3,16 +3,19 @@ import { result } from "$core";
 import { explore } from "$combinators";
 
 /**
- * Returns an array of all iterated parses
+ * A parser that runs a parser iteratively
+ *
+ * @param parser The parser
+ * @returns A parser returning an array of iterative parse results
  *
  * @example
  *
  * ```ts
- * const { results } = iterate(digit).parse("42");
- * // [{value: [4, 2], remaining: ""}, {value: [4], remaining: "2"}, {value: [], remaining: "42"}]
- * ```
+ * const digits = iterate(digit);
  *
- * @see {@linkcode explore}
+ * digits.parse("123abc");
+ * // [{ value: [1, 2, 3], remaining: "abc", ... }, { value: [1, 2], remaining: "3abc", ... }, { value: [1], remaining: "23abc", ... }, { value: [], remaining: "123abc", ... }]
+ * ```
  */
 export const iterate = <T>(parser: Parser<T>): Parser<T[]> => {
   return explore(

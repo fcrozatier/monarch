@@ -1,4 +1,4 @@
-import { many, repeat } from "$combinators";
+import { many0, repeat } from "$combinators";
 import { anyChar, literal } from "$common";
 import { assertEquals } from "@std/assert";
 import { parseErrors } from "../../errors.ts";
@@ -62,7 +62,7 @@ Deno.test("explore", () => {
 });
 
 Deno.test("search space", () => {
-  const search = many(oneOrTwoChars);
+  const search = many0(oneOrTwoChars);
   assertEquals(search.parse("many"), {
     success: true,
     results: [

@@ -1,20 +1,29 @@
 import type { Parser } from "$core";
-import { result } from "$core";
+import { many } from "$combinators";
 
 /**
  * Repeats a parser a predefined number of times
  *
- * @example Repeated {@linkcode anyChar}
+ * - alias for `many(parser, times, times)`
+ *
+ * @example List of numbers
  *
  * ```ts
- * const { results } = repeat(anyChar, 2).parse("hello"); // [{value: 'he', remaining: 'llo', ...}]
+ * const numbers = repeat(digit, 2);
+ *
+ * numbers.parse("123abc");
+ * // [{ value: [1, 2], remaining: "3abc", ... }]
+ * numbers.parse("1");
+ * // message: "Expected a digit"
+ * numbers.parse("");
+ * // message: "Expected a digit"
  * ```
+ *
+ * @see {@linkcode many}
  */
 export const repeat = <T>(parser: Parser<T>, times: number): Parser<T[]> => {
-  if (times > 0) {
-    return parser.flatMap((a) =>
-      repeat(parser, times - 1).flatMap((rest) => result([a, ...rest]))
-    );
+  if (times < 0) {
+    throw new Error("repeat: times cannot be negative");
   }
-  return result([]);
+  return many(parser, times, times);
 };

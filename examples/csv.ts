@@ -4,7 +4,7 @@
  * @module
  */
 
-import { alt, between, many1, sepBy } from "$combinators";
+import { alt, between, many1, sepBy0 } from "$combinators";
 import { letters, literal, natural, newline, spaces, token } from "$common";
 import type { Parser } from "$core";
 import { result } from "$core";
@@ -28,7 +28,7 @@ const item = alt<string | number>(string, natural);
 /**
  * Parses a csv heading and returns the array of headers
  */
-export const headings: Parser<string[]> = sepBy(string, comma).skipTrailing(
+export const headings: Parser<string[]> = sepBy0(string, comma).skipTrailing(
   newline,
 );
 
@@ -42,9 +42,10 @@ const header: Parser<
 /**
  * Parses a csv row and returns the items array
  */
-export const row: Parser<(string | number)[]> = sepBy(item, comma).skipTrailing(
-  newline,
-);
+export const row: Parser<(string | number)[]> = sepBy0(item, comma)
+  .skipTrailing(
+    newline,
+  );
 const rows = many1(row);
 
 /**

@@ -1,6 +1,6 @@
-import { assertEquals } from "@std/assert/equals";
-import { digit, letter } from "../../common/mod.ts";
-import { iterate } from "./iterate.ts";
+import { assertEquals } from "@std/assert";
+import { iterate } from "$combinators";
+import { digit, letter } from "$common";
 
 Deno.test("iterate", () => {
   assertEquals(iterate(digit).parse("23 and more"), {

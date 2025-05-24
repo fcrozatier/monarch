@@ -71,7 +71,7 @@ export class Parser<T> {
    * const { results } = digit.parse("23 and more");
    * // [{value: 2, remaining: "3 and more", ...}]
    *
-   * const natural = many(digit).map((arr) => Number(arr.join("")));
+   * const natural = many0(digit).map((arr) => Number(arr.join("")));
    * const { results } = natural.parse("23 and more");
    * // [{value: 23, remaining: " and more", ...}]
    * ```
@@ -104,7 +104,7 @@ export class Parser<T> {
    *
    * ```ts
    * const letter = regex(/^[a-zA-Z]/);
-   * const alphanumeric = many(regex(/^\w/)); // Parser<string[]>
+   * const alphanumeric = many0(regex(/^\w/)); // Parser<string[]>
    * const identifier = letter.flatMap((l) =>
    *   alphanumeric.map((rest) => [l, ...rest].join(""))
    * );

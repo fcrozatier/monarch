@@ -1,31 +1,24 @@
-import { alt } from "../alternation/mod.ts";
 import type { Parser } from "$core";
-import { result } from "$core";
+import { foldL } from "$combinators";
 
 /**
- * Parses non-empty sequences of items separated by an operator parser that associates to the left and performs the fold
+ * Repeats an item parser and a left-associative operator parser greedily 1 or more times, inclusive. Alias for `foldL(itemParser, operatorParser, 1)`
  *
- * @example Natural numbers
- *
- * Natural numbers can be expressed as a sequence of digits combined together in base 10
+ * @example Addition
  *
  * ```ts
- * const natural = foldL1(digit, result((a: number, b: number) => 10 * a + b));
+ * const plus = literal("+").map(() => (a: number, b: number) => a + b);
+ * const addition = foldL1(digit, plus);
  *
- * natural.parse("123"); // [{value: 123, remaining: "", ...}]
+ * addition.parse("1+2+3+a+b+c");
+ * // results: [{ value: 6, remaining: "+a+b+c" } ]
+ * addition.parse("1");
+ * // results: [{ value: 1, remaining: "" } ]
  * ```
  *
  * @see {@linkcode foldL}
  */
-export const foldL1 = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  const rest = (x: T): Parser<T> => {
-    return alt(
-      operator.flatMap((f) => item.flatMap((y) => rest(f(x, y)))),
-      result(x),
-    );
-  };
-  return item.flatMap(rest);
-};
+export const foldL1 = <T, O extends (a: T, b: T) => T>(
+  parser: Parser<T>,
+  operator: Parser<O>,
+): Parser<T> => foldL(parser, operator, 1);

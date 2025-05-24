@@ -1,20 +1,73 @@
-import { alt } from "../alternation/alt.ts";
 import type { Parser } from "$core";
 import { result } from "$core";
 
 /**
- * Returns the longest matching parse array (0 or more matches)
+ * Recursive helper for `many`
  *
- * @example
+ * @param parser The parser
+ * @param min The minimum number of times the parser must succeed
+ * @param max The maximum number of times the parser can succeed
+ * @param count The current count of successful parses
+ * @param acc The accumulator for the parsed values
+ * @returns A parser returning an array of parse results
+ */
+const manyRecursive = <T>(
+  parser: Parser<T>,
+  min: number,
+  max: number,
+  count: number,
+  acc: T[],
+): Parser<T[]> => {
+  if (count >= max) {
+    return result(acc);
+  }
+
+  const rest = parser.flatMap((item) =>
+    manyRecursive(parser, min, max, count + 1, [...acc, item])
+  );
+
+  if (count >= min) {
+    return rest.fallback(acc);
+  } else {
+    return rest;
+  }
+};
+
+/**
+ * Repeats a parser greedily between min and max times, inclusive
+ *
+ * @param parser The parser
+ * @param min The minimum number of times the parser must succeed
+ * @param max The maximum number of times the parser can succeed (default: Infinity)
+ * @returns A parser returning an array of parse results
+ *
+ * @example List of numbers
  *
  * ```ts
- * const digit = regex(/^\d/);
- * const { results } = many(digit).parse("23 and more"); // [{value: ["2", "3"], remaining: " and more", ...}]
+ * const numbers = many(digit, 2, 3);
+ *
+ * numbers.parse("1234ab");
+ * // [{ value: [1, 2, 3], remaining: "4ab", ... }]
+ * numbers.parse("1");
+ * // message: "Expected a digit"
+ * numbers.parse("");
+ * // message: "Expected a digit"
  * ```
  */
-export const many = <T>(parser: Parser<T>): Parser<T[]> => {
-  return alt(
-    parser.flatMap((a) => many(parser).flatMap((x) => result([a, ...x]))),
-    result([]),
-  );
+export const many = <T>(
+  parser: Parser<T>,
+  min: number,
+  max: number = Infinity,
+): Parser<T[]> => {
+  if (min < 0) {
+    throw new Error("many: min cannot be negative");
+  }
+  if (max < min) {
+    throw new Error("many: max cannot be less than min");
+  }
+  if (max === 0 && min === 0) {
+    return result([]);
+  }
+
+  return manyRecursive(parser, min, max, 0, []);
 };

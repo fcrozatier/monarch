@@ -28,7 +28,7 @@ import { sortPosition } from "../../utils.ts";
  * The backtracking behavior of the `explore` combinator can be leveraged to explore spaces of possibilities
  *
  * ```ts
- * const search = many(oneOrTwoChars);
+ * const search = many0(oneOrTwoChars);
  * assertEquals(search.parse("many"), {
  *   success: true,
  *   results: [

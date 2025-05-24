@@ -1,4 +1,4 @@
-import { between, sepBy } from "$combinators";
+import { between, sepBy0 } from "$combinators";
 import { regex, token } from "$common";
 import type { Parser } from "$core";
 import { integer } from "./numbers.ts";
@@ -13,7 +13,7 @@ import { integer } from "./numbers.ts";
 export function list<T>(parser: Parser<T>): Parser<T[]> {
   return between(
     token("["),
-    sepBy(parser, token(",")).skipTrailing(regex(/,?/)),
+    sepBy0(parser, token(",")).skipTrailing(regex(/,?/)),
     token("]"),
   );
 }

@@ -26,7 +26,7 @@ import { alt } from "$combinators";
  * ```ts
  * const array = between(
  *   token('['),
- *   sepBy(parser, token(",")).skipTrailing(optional(token(','))),
+ *   sepBy0(parser, token(",")).skipTrailing(optional(token(','))),
  *   token(']')
  * );
  * ```
