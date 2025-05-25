@@ -134,7 +134,7 @@ const { message } = dot.parse("0.23"); // "Expected '.' but got '0'"
 ### `filter`
 
 To specialize a parser you can filter it with a predicate. Use the
-`filter<T>(predicate: (value: T)=> boolean):Parser<T>` method to filter a
+`filter<T>(predicate: (value: T) => boolean): Parser<T>` method to filter a
 parser. A filtered parser only matches when the predicate is satisfied.
 
 ```js
@@ -149,7 +149,7 @@ You can easily customize the error message with the `error(msg: string)` method.
 ### `regex`
 
 Often you only need a simple filtering based on a regex. The
-`regex(re: RegExp):Parser<string>` utility will help with this use-case
+`regex(re: RegExp): Parser<string>` utility will help with this use-case
 
 ```js
 const even = regex(/^[02468]/).error("Expected an even number");
@@ -188,8 +188,8 @@ Here the returned value is a number as `digit` and `natural` have the
 ### `seq`
 
 For a simple sequencing of parsers, use the
-`seq(parsers: Parser<?>[]): Parser<?[]>` combinator. The input parsers can have
-different types, which will be reflected in the resulting parser
+`seq(...parsers: Parser<?>[]): Parser<?[]>` combinator. The input parsers can
+have different types, which will be reflected in the resulting parser
 
 ```ts
 const parenthesizedNumber = seq(literal("("), natural, literal(")")); // inferred type: Parser<[string, number, string]>
@@ -201,8 +201,8 @@ extract.parseOrThrow("(42)"); // 42
 
 When you want more control over the sequencing, for dynamic parsing or if a
 later operation depends on the result of a preceding parser, use `flatMap`. The
-`flatMap(fn: (value: T)=> Parser<U>)` method allows you to chain the result of a
-`Parser<T>` with the next parser of the sequence. Use the
+`flatMap(fn: (value: T) => Parser<U>)` method allows you to chain the result of
+a `Parser<T>` with the next parser of the sequence. Use the
 `result(value: T): Parser<T>` helper to end the sequence with a final value
 lifted as a parser.
 
