@@ -7,7 +7,7 @@ import { sortPosition } from "../../utils.ts";
  * @example Parse one or two characters
  *
  * ```ts
- * const oneOrTwoChars = explore(anyChar, repeat(anyChar, 2));
+ * const oneOrTwoChars = explore(anyChar, repeatN(anyChar, 2));
  *
  * assertEquals(oneOrTwoChars.parse("monad"), {
  *   success: true,
@@ -28,7 +28,7 @@ import { sortPosition } from "../../utils.ts";
  * The backtracking behavior of the `explore` combinator can be leveraged to explore spaces of possibilities
  *
  * ```ts
- * const search = many(oneOrTwoChars);
+ * const search = repeat0(oneOrTwoChars);
  * assertEquals(search.parse("many"), {
  *   success: true,
  *   results: [

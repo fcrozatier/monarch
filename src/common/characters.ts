@@ -45,7 +45,7 @@ export const anyChar: Parser<string> = createParser(
 );
 
 /**
- * Parses alphanumeric characters (0+)
+ * Parses zero or more alphanumeric characters
  *
  * Regex: \w*
  */
@@ -75,7 +75,7 @@ export const letter: Parser<string> = regex(/^[a-zA-Z]/).error(
 );
 
 /**
- * Parses many letters (0+)
+ * Parses zero or more letters
  *
  * Regex: [a-zA-Z]*
  */

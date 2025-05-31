@@ -2,26 +2,26 @@ import type { Parser } from "$core";
 import { sepBy } from "$combinators";
 
 /**
- * Repeats a parser and a separator greedily 1 or more times
+ * Repeats a parser and a separator greedily 0 or more times
  *
- * - alias for `sepBy(parser, separator, 1)`
+ * - alias for `sepBy(parser, separator, 0)`
  *
  * @example List of numbers
  *
  * ```ts
- * const numbers = sepBy1(digit, literal(","));
+ * const numbers = sepBy0(digit, literal(","));
  *
  * numbers.parse("1,2,3,a,b,c");
  * // results: [{ value: [1, 2, 3], remaining: ",a,b,c" }]
  * numbers.parse("1");
  * // results: [{ value: [1], remaining: "" }]
  * numbers.parse("");
- * // message: "Expected a digit"
+ * // results: [{ value: [], remaining: "" }]
  * ```
  *
  * @see {@linkcode sepBy}
  */
-export const sepBy1 = <T, U>(
+export const sepBy0 = <T, U>(
   parser: Parser<T>,
   separator: Parser<U>,
-): Parser<T[]> => sepBy(parser, separator, 1);
+): Parser<T[]> => sepBy(parser, separator, 0);

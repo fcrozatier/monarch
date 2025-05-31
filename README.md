@@ -24,11 +24,10 @@ the provided base parsers and their error messages.
   - [Examples](#examples)
   - [Getting Started Guide](#getting-started-guide)
     - [`anyChar`](#anyChar)
-    - [`repeat`](#repeat)
     - [`literal`](#literal)
     - [`filter`](#filter)
     - [`regex`](#regex)
-    - [`many`](#many)
+    - [`repeat`](#repeat)
     - [`map`](#map)
     - [`seq`](#seq)
     - [`flatMap`](#flatmap)
@@ -111,15 +110,6 @@ const { results } = anyChar.parse("hello"); // [{value: 'h', remaining: 'ello', 
 
 The return value is a string as `anyChar` is a `Parser<string>`
 
-### `repeat`
-
-To apply a given parser a specific amount of times you can wrap it with the
-`repeat<T>(parser: Parser<T>, times: number): Parser<T>` combinator
-
-```js
-const { results } = repeat(anyChar, 2).parse("hello"); // [{value: 'he', remaining: 'llo', ...}]
-```
-
 ### `literal`
 
 To match against a specific character or keyword use the
@@ -157,15 +147,23 @@ const { results } = even.parse("24"); // [{value: '2', remaining: '4', ...}]
 const { message } = even.parse("ab"); // "Expected an even number"
 ```
 
-### `many`
+### `repeat`
 
 To apply a given parser as many times as possible (0 or more), wrap it with the
-`many<T>(parser: Parser<T>): Parser<T[]>` combinator. To apply the given parser
-1 or more times, use `many1`. Its success return value is an array of `T` values
+`repeat0<T>(parser: Parser<T>): Parser<T[]>` combinator. To apply the given
+parser 1 or more times, use `repeat1`. Its success return value is an array of
+`T` values
 
 ```js
 const digit = regex(/^\d/);
-const { results } = many(digit).parse("23 and more"); // [{value: ["2", "3"], remaining: " and more", ...}]
+const { results } = repeat0(digit).parse("23 and more"); // [{value: ["2", "3"], remaining: " and more", ...}]
+```
+
+To apply a given parser a specific amount of times you can wrap it with the
+`repeatN<T>(parser: Parser<T>, times: number): Parser<T>` combinator
+
+```js
+const { results } = repeatN(anyChar, 2).parse("hello"); // [{value: 'he', remaining: 'llo', ...}]
 ```
 
 ### `map`
@@ -178,7 +176,7 @@ value
 const digit = regex(/^\d/).map(Number.parseInt);
 const { results } = digit.parse("23 and more"); // [{value: 2, remaining: "3 and more", ...}]
 
-const natural = many(digit).map((arr) => Number(arr.join("")));
+const natural = repeat0(digit).map((arr) => Number(arr.join("")));
 const { results } = natural.parse("23 and more"); // [{value: 23, remaining: " and more", ...}]
 ```
 
@@ -208,7 +206,7 @@ lifted as a parser.
 
 ```ts
 const letter = regex(/^[a-zA-Z]/);
-const alphanumeric = many(regex(/^\w/)); // Parser<string[]>
+const alphanumeric = repeat0(regex(/^\w/)); // Parser<string[]>
 const identifier = letter.flatMap((l) =>
   alphanumeric.map((rest) => [l, ...rest].join(""))
 );
@@ -279,13 +277,13 @@ interested in the result of the first matching alternative
 
 It's common to have a pattern of tokens separated by a separator that should be
 discarded. In these situations you can use
-`sepBy<T, U>(parser: Parser<T>, separator: Parser<U>): Parser<T[]>` to recognize
-such sequences and `sepBy1` for non-empty sequences
+`sepBy0<T, U>(parser: Parser<T>, separator: Parser<U>): Parser<T[]>` to
+recognize such sequences and `sepBy1` for non-empty sequences
 
 ```ts
 const listOfNumbers = between(
   literal("["),
-  sepBy(number, literal(",")),
+  sepBy0(number, literal(",")),
   literal("]"),
 );
 
@@ -354,7 +352,7 @@ directly referencing `expr` which is not yet defined.
 ### `iterate`
 
 The `iterate<T>(parser: T): Parser<T[]>` combinator applies a given parser many
-times, like the `many` combinator, but returns all the intermediate results.
+times, like the `repeat` combinator, but returns all the intermediate results.
 
 ```ts
 iterate(digit).parse("42"); // results: [{value: [4, 2], remaining: ""}, {value: [4], remaining: "2"}, {value: [], remaining: "42"}]

@@ -24,7 +24,7 @@ import { seq } from "./seq.ts";
  * ```ts
  * const listOfNumbers = between(
  *   literal("["),
- *   sepBy(number, literal(",")),
+ *   sepBy0(number, literal(",")),
  *   literal("]"),
  * );
  *

@@ -1,11 +1,11 @@
-import { many, repeat } from "$combinators";
+import { repeat0, repeatN } from "$combinators";
 import { anyChar, literal } from "$common";
 import { assertEquals } from "@std/assert";
 import { parseErrors } from "../../errors.ts";
 import { explore } from "./explore.ts";
 
 const takeTwoError = "Expected two characters";
-const takeTwo = repeat(anyChar, 2).map((arr) => arr.join("")).error(
+const takeTwo = repeatN(anyChar, 2).map((arr) => arr.join("")).error(
   takeTwoError,
 );
 const oneOrTwoChars = explore(anyChar, takeTwo);
@@ -62,7 +62,7 @@ Deno.test("explore", () => {
 });
 
 Deno.test("search space", () => {
-  const search = many(oneOrTwoChars);
+  const search = repeat0(oneOrTwoChars);
   assertEquals(search.parse("many"), {
     success: true,
     results: [

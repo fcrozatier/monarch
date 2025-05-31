@@ -1,22 +1,24 @@
-import { alt } from "../alternation/mod.ts";
 import type { Parser } from "$core";
-import { result } from "$core";
+import { foldR } from "$combinators";
 
 /**
- * Parses non-empty sequences of items separated by an operator parser that associates to the right and performs the fold
+ * Repeats a parser and a right-associative operator parser greedily 1 or more times, inclusive. Alias for `foldR(itemParser, operatorParser, 1)`
+ *
+ * @example Exponentiation
+ *
+ * ```ts
+ * const caret = literal("^").map(() => (a: number, b: number) => a ** b);
+ * const exponentiation = foldR1(digit, caret);
+ *
+ * exponentiation.parse("3^2^1^a^b^c");
+ * // results: [{ value: 9, remaining: "^a^b^c" }]
+ * exponentiation.parse("1");
+ * // results: [{ value: 1, remaining: "" }]
+ * ```
  *
  * @see {@linkcode foldR}
  */
-export const foldR1 = <T, U extends (a: T, b: T) => T>(
-  item: Parser<T>,
-  operator: Parser<U>,
-): Parser<T> => {
-  return item.flatMap((x) => {
-    return alt(
-      operator.flatMap((f) =>
-        foldR1(item, operator).flatMap((y) => result(f(x, y)))
-      ),
-      result(x),
-    );
-  });
-};
+export const foldR1 = <T, O extends (a: T, b: T) => T>(
+  parser: Parser<T>,
+  operator: Parser<O>,
+): Parser<T> => foldR(parser, operator, 1);

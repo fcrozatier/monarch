@@ -10,44 +10,44 @@ import { regex } from "./mod.ts";
 export const newline: Parser<string> = regex(/^\n/);
 
 /**
- * Parses many newlines (0+)
+ * Parses zero or more newlines
  *
  * Regex \n*
  */
 export const newlines: Parser<string> = regex(/^\n*/);
 
 /**
- * Parses many newlines (1+)
+ * Parses one or more newlines
  *
  * Regex \n+
  */
 export const newlines1: Parser<string> = regex(/^\n+/);
 
 /**
- * Parses the space character (0+)
+ * Parses zero or more spaces
  */
 export const spaces: Parser<string> = regex(/^ */);
 
 /**
- * Parses a single white space
+ * Parses a single whitespace
  *
  * Regex \s
  *
- * @throws Throws "Expected a white space character" when the parse fails
+ * @throws Throws "Expected whitespace" when the parse fails
  */
 export const whitespace: Parser<string> = regex(/^\s/).error(
   parseErrors.whitespace,
 );
 
 /**
- * Parses whitespaces (0+)
+ * Parses zero or more whitespaces
  *
  * Regex: \s*
  */
 export const whitespaces: Parser<string> = regex(/^\s*/);
 
 /**
- * Parses whitespaces (1+)
+ * Parses one or more whitespaces
  *
  * Regex: \s+
  */
