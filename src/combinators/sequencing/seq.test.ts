@@ -5,7 +5,7 @@ import { seq } from "./seq.ts";
 
 Deno.test("sequence", () => {
   assertEquals(
-    seq(literal("a"), digit).flatMap(([str, num]) =>
+    seq(literal("a"), digit).chain(([str, num]) =>
       result(str.toUpperCase() + `${num * 100}`)
     ).parse("a3"),
     {

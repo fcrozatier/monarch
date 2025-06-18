@@ -23,7 +23,7 @@ the provided base parsers and their error messages.
   - [Installation](#installation)
   - [Examples](#examples)
   - [Getting Started Guide](#getting-started-guide)
-    - [`anyChar`](#anyChar)
+    - [`anyChar`](#anychar)
     - [`repeat`](#repeat)
     - [`literal`](#literal)
     - [`filter`](#filter)
@@ -31,7 +31,7 @@ the provided base parsers and their error messages.
     - [`many`](#many)
     - [`map`](#map)
     - [`seq`](#seq)
-    - [`flatMap`](#flatmap)
+    - [`chain`](#chain)
     - [`skipTrailing` and `skipLeading`](#skiptrailing-and-skipleading)
     - [`alt` and `any`](#alt-and-any)
     - [`sepBy`](#sepby)
@@ -197,11 +197,11 @@ const extract = parenthesizedNumber.map((arr) => arr[1]); // Parser<number>
 extract.parseOrThrow("(42)"); // 42
 ```
 
-### `flatMap`
+### `chain`
 
 When you want more control over the sequencing, for dynamic parsing or if a
-later operation depends on the result of a preceding parser, use `flatMap`. The
-`flatMap(fn: (value: T)=> Parser<U>)` method allows you to chain the result of a
+later operation depends on the result of a preceding parser, use `chain`. The
+`chain(fn: (value: T)=> Parser<U>)` method allows you to chain the result of a
 `Parser<T>` with the next parser of the sequence. Use the
 `result(value: T): Parser<T>` helper to end the sequence with a final value
 lifted as a parser.
@@ -209,7 +209,7 @@ lifted as a parser.
 ```ts
 const letter = regex(/^[a-zA-Z]/);
 const alphanumeric = many(regex(/^\w/)); // Parser<string[]>
-const identifier = letter.flatMap((l) =>
+const identifier = letter.chain((l) =>
   alphanumeric.map((rest) => [l, ...rest].join(""))
 );
 
@@ -221,7 +221,7 @@ const spaces = regex(/^\s*/);
  * Discards the trailing spaces after a given parser
  */
 const token = <T>(parser: Parser<T>) =>
-  parser.flatMap((p) => spaces.flatMap((_) => result(p)));
+  parser.chain((p) => spaces.chain((_) => result(p)));
 
 const { results } = token(identifier).parse("ageUser1  = 42"); // [{value: "ageUser1", remaining: "= 42", ...}]
 ```
@@ -247,7 +247,7 @@ previous section as follows:
  * Discards the trailing spaces after a given parser
  */
 const token = <T>(parser: Parser<T>) =>
-  parser.flatMap((p) => spaces.flatMap((_) => result(p)));
+  parser.chain((p) => spaces.chain((_) => result(p)));
 
 // Equivalent
 const token = <T>(parser: Parser<T>) => parser.skipTrailing(spaces);
@@ -262,8 +262,8 @@ while `alt` returns early.
 
 ```ts
 const integer = alt(
-  literal("-").flatMap(() => natural).map((x) => -x),
-  literal("+").flatMap(() => natural).map((x) => x),
+  literal("-").chain(() => natural).map((x) => -x),
+  literal("+").chain(() => natural).map((x) => x),
   natural,
 );
 

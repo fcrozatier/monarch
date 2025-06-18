@@ -3,8 +3,8 @@ import { fail } from "$core";
 import { anyChar } from "$common";
 
 Deno.test("fail", () => {
-  assertEquals(fail.flatMap(() => anyChar).parse("m"), fail.parse("m"));
-  assertEquals(anyChar.flatMap(() => fail).parse("m"), {
+  assertEquals(fail.chain(() => anyChar).parse("m"), fail.parse("m"));
+  assertEquals(anyChar.chain(() => fail).parse("m"), {
     success: false,
     message: "",
     position: {

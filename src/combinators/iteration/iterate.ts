@@ -16,7 +16,7 @@ import { explore } from "$combinators";
  */
 export const iterate = <T>(parser: Parser<T>): Parser<T[]> => {
   return explore(
-    parser.flatMap((a) => iterate(parser).flatMap((x) => result([a, ...x]))),
+    parser.chain((a) => iterate(parser).chain((x) => result([a, ...x]))),
     result([]),
   );
 };
