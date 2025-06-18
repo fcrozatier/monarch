@@ -67,12 +67,15 @@ export class Parser<T> {
    * @example Mapping a `Parser<string>` to a `Parser<number>`
    *
    * ```ts
+   * import { many } from '@fcrozatier/monarch';
+   * import { digit, regex } from '@fcrozatier/monarch/common';
+   *
    * const digit = regex(/^\d/).map(Number.parseInt);
-   * const { results } = digit.parse("23 and more");
+   * digit.parse("23 and more");
    * // [{value: 2, remaining: "3 and more", ...}]
    *
    * const natural = many(digit).map((arr) => Number(arr.join("")));
-   * const { results } = natural.parse("23 and more");
+   * natural.parse("23 and more");
    * // [{value: 23, remaining: " and more", ...}]
    * ```
    */
@@ -103,23 +106,29 @@ export class Parser<T> {
    * @example Parse simple identifiers
    *
    * ```ts
+   * import { many } from '@fcrozatier/monarch';
+   * import { identifier, letter, regex } from '@fcrozatier/monarch/common';
+   *
    * const letter = regex(/^[a-zA-Z]/);
    * const alphanumeric = many(regex(/^\w/)); // Parser<string[]>
    * const identifier = letter.chain((l) =>
    *   alphanumeric.map((rest) => [l, ...rest].join(""))
    * );
    *
-   * const { results } = identifier.parse("user1 = 'Bob'");
+   * identifier.parse("user1 = 'Bob'");
    * // [{value: "user1", remaining: " = 'Bob'", ...}]
    * ```
    *
    * @example Discard trailing spaces
    *
    * ```ts
-   * const spaces = regex(/^\s* /);
-   * const token = <T>(parser) => parser.chain((p) => spaces.chain((_) => result(p)));
+   * import { result } from '@fcrozatier/monarch';
+   * import { identifier, regex, spaces } from '@fcrozatier/monarch/common';
    *
-   * const { results } = token(identifier).parse("ageUser1  = 42");
+   * const spaces = regex(/^\s* /);
+   * const token = <T>(parser: Parser<T>) => parser.chain((p) => spaces.chain((_) => result(p)));
+   *
+   * token(identifier).parse("ageUser1  = 42");
    * // [{value: "ageUser1", remaining: "= 42", ...}]
    * ```
    *
@@ -165,9 +174,13 @@ export class Parser<T> {
    * @example `public` and `private` class modifiers
    *
    * ```ts
+   * import { alt } from '@fcrozatier/monarch';
+   * import { token } from '@fcrozatier/monarch/common';
+   *
    * const visibility = alt(token('public'), token('private')).fallback('public');
    *
-   * visibility.parse('myIdentifier')// [{value: 'public', remaining: 'myIdentifier', ...}]
+   * visibility.parse('myIdentifier')
+   * // [{value: 'public', remaining: 'myIdentifier', ...}]
    * ```
    *
    * @param value The fallback value
@@ -193,13 +206,15 @@ export class Parser<T> {
    * @example
    *
    * ```ts
-   * const isVowel = (char) => ["a", "e", "i", "o", "u", "y"].includes(char);
+   * import { anyChar } from '@fcrozatier/monarch/common';
+   *
+   * const isVowel = (char: string) => ["a", "e", "i", "o", "u", "y"].includes(char);
    * const vowel = anyChar.filter(isVowel).error("Expected a vowel");
    *
-   * const { results } = vowel.parse("a");
+   * vowel.parse("a");
    * // [{value: 'a', remaining: '', ...}]
    *
-   * const { message } = vowel.parse("b");
+   * vowel.parse("b");
    * // "Expected a vowel"
    * ```
    *
@@ -232,6 +247,8 @@ export class Parser<T> {
    * @example Discard trailing spaces
    *
    * ```ts
+   * import { letter, whitespaces, whitespaces1 } from '@fcrozatier/monarch/common';
+   *
    * const ident = letter.skipTrailing(whitespaces);
    *
    * ident.parseOrThrow("a"); // "a"
@@ -239,7 +256,9 @@ export class Parser<T> {
    *
    * const ident1 = letter.skipTrailing(whitespaces1);
    *
-   * ident1.parseOrThrow("a"); // Error: Expected whitespace
+   * ident1.parse("a");
+   * // "Expected whitespace"
+   *
    * ident1.parseOrThrow("a ") // "a"
    * ```
    *
@@ -261,6 +280,8 @@ export class Parser<T> {
    * @example Discard leading spaces
    *
    * ```ts
+   * import { letter, whitespaces, whitespaces1 } from '@fcrozatier/monarch/common';
+   *
    * const ident = letter.skipLeading(whitespaces);
    *
    * ident.parseOrThrow("a"); // "a"
@@ -268,7 +289,9 @@ export class Parser<T> {
    *
    * const ident1 = letter.skipLeading(whitespaces1);
    *
-   * ident1.parseOrThrow("a"); // Error: Expected whitespace
+   * ident1.parse("a");
+   * // "Expected whitespace"
+   *
    * ident1.parseOrThrow(" a") // "a"
    * ```
    *
@@ -289,10 +312,15 @@ export class Parser<T> {
    * @example
    *
    * ```ts
+   * import { regex } from '@fcrozatier/monarch/common';
+   *
    * const even = regex(/^[02468]/).error("Expected an even number");
    *
-   * const { results } = even.parse("24"); // [{value: '2', remaining: '4', ...}]
-   * const { message } = even.parse("13"); // "Expected an even number"
+   * even.parse("24");
+   * // [{value: '2', remaining: '4', ...}]
+   *
+   * even.parse("13");
+   * // "Expected an even number"
    * ```
    */
   error(message: string): this {
