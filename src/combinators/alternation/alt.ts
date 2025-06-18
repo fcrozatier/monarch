@@ -7,7 +7,7 @@ import { sortPosition } from "../../utils.ts";
  * @example Signed integers
  *
  * ```ts
- * import { integer, literal, natural } from "@fcrozatier/monarch/common";
+ * import { literal, natural } from "@fcrozatier/monarch/common";
  *
  * const integer = alt(
  *   literal("-").chain(() => natural).map((x) => -x),
