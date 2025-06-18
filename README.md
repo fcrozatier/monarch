@@ -4,7 +4,8 @@
 
 # Monarch
 
-Monarch is a clean, composable parser combinator library that makes building parsers feel natural and expressive:
+Monarch is a clean, composable parser combinator library that makes building
+parsers feel natural and expressive:
 
 - Clean & readable API
 - Type-safe parsing
@@ -15,8 +16,8 @@ Monarch is a clean, composable parser combinator library that makes building par
 - Support for left-recursive grammars with [fold](#foldl-and-foldr) and
   [lazy evaluation](#lazy-evaluation)
 
-Easily build error-reporting parsers by combining, extending and customizing
-the provided base parsers and their error messages.
+Easily build error-reporting parsers by combining, extending and customizing the
+provided base parsers and their error messages.
 
 ## Table of content
 
