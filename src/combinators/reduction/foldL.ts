@@ -10,6 +10,9 @@ import type { Parser } from "$core";
  * We lift the addition literal `+` into a binary function parser and apply a left fold
  *
  * ```ts
+ * import { foldL } from '@fcrozatier/monarch';
+ * import { literal, number } from '@fcrozatier/monarch/common';
+ *
  * const add = literal("+").map(() => (a: number, b: number) => a + b);
  * const addition = foldL(number, add);
  *

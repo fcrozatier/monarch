@@ -8,8 +8,12 @@ import { result } from "$core";
  * @example
  *
  * ```ts
+ * import { many } from "@fcrozatier/monarch";
+ * import { digit, regex } from "@fcrozatier/monarch/common";
+ *
  * const digit = regex(/^\d/);
- * const { results } = many(digit).parse("23 and more"); // [{value: ["2", "3"], remaining: " and more", ...}]
+ * many(digit).parse("23 and more");
+ * // [{value: ["2", "3"], remaining: " and more", ...}]
  * ```
  */
 export const many = <T>(parser: Parser<T>): Parser<T[]> => {

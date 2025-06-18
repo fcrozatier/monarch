@@ -7,9 +7,15 @@ import { updatePosition } from "../utils.ts";
  * @example
  *
  * ```ts
+ * import { regex } from '@fcrozatier/monarch/common';
+ *
  * const even = regex(/^[02468]/).error("Expected an even number");
- * const { results } = even.parseOrThrow("24"); // [{value: '2', remaining: '4', ...}]
- * const { message } = even.parse("13"); // "Expected an even number"
+ *
+ * even.parse("24");
+ * // [{value: '2', remaining: '4', ...}]
+ *
+ * even.parse("13");
+ * // "Expected an even number"
  * ```
  */
 export function regex(re: RegExp): Parser<string> {

@@ -11,10 +11,13 @@ import { alt } from "$combinators";
  * In a TypeScript syntax like `function foo(x: number = 42) {}`, both the type annotation and the default value are optional
  *
  * ```ts
+ * import { optional, seq } from "@fcrozatier/monarch";
+ * import { identifier, number, token } from "@fcrozatier/monarch/common";
+ *
  * const param = seq(
  *   identifier,
- *   optional(seq(token(':'), typeExpr)),
- *   optional(seq(token('='), expr))
+ *   optional(seq(token(':'), identifier)),
+ *   optional(seq(token('='), number))
  * )
  *
  * ```
@@ -24,9 +27,12 @@ import { alt } from "$combinators";
  * In many languages tailing commas or semi-colons are optional
  *
  * ```ts
- * const array = between(
+ * import { between, sepBy } from "@fcrozatier/monarch";
+ * import { number, token } from "@fcrozatier/monarch/common";
+ *
+ * const numArray = between(
  *   token('['),
- *   sepBy(parser, token(",")).skipTrailing(optional(token(','))),
+ *   sepBy(number, token(",")).skipTrailing(optional(token(','))),
  *   token(']')
  * );
  * ```

@@ -9,13 +9,17 @@ import { sepBy1 } from "./sepBy1.ts";
  * @example Lists of numbers
  *
  * ```ts
+ * import { between, sepBy } from "@fcrozatier/monarch";
+ * import { literal, number } from "@fcrozatier/monarch/common";
+ *
  * const listOfNumbers = between(
  *   literal("["),
  *   sepBy(number, literal(",")),
  *   literal("]"),
  * );
  *
- * listOfNumbers.parse("[1,2,3]"); // results: [{value: [1,2,3], remaining: ""}]
+ * listOfNumbers.parse("[1,2,3]");
+ * // [{value: [1,2,3], remaining: ""}]
  * ```
  */
 export const sepBy = <T, U>(

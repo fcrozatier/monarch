@@ -1,13 +1,16 @@
 import { createParser, type Parser } from "$core";
 import { sortPosition } from "../../utils.ts";
-
 /**
  * Explores all input parsers and returns all successful matches
  *
  * @example Parse one or two characters
  *
  * ```ts
- * const oneOrTwoChars = explore(anyChar, repeat(anyChar, 2));
+ * import { repeat } from "@fcrozatier/monarch";
+ * import { anyChar } from "@fcrozatier/monarch/common";
+ * import { assertEquals } from "@std/assert";
+ *
+ * const oneOrTwoChars = explore(anyChar, repeat(anyChar, 2).map((arr) => arr.join("")));
  *
  * assertEquals(oneOrTwoChars.parse("monad"), {
  *   success: true,
@@ -20,7 +23,7 @@ import { sortPosition } from "../../utils.ts";
  *     remaining: "nad",
  *     position: { line: 1, column: 2 },
  *   }],
- * }
+ * })
  * ```
  *
  * @example Explore a search space
@@ -28,7 +31,13 @@ import { sortPosition } from "../../utils.ts";
  * The backtracking behavior of the `explore` combinator can be leveraged to explore spaces of possibilities
  *
  * ```ts
+ * import { many, repeat } from "@fcrozatier/monarch";
+ * import { anyChar } from "@fcrozatier/monarch/common";
+ * import { assertEquals } from "@std/assert";
+ *
+ * const oneOrTwoChars = explore(anyChar, repeat(anyChar, 2).map((arr) => arr.join("")));
  * const search = many(oneOrTwoChars);
+ *
  * assertEquals(search.parse("many"), {
  *   success: true,
  *   results: [
@@ -54,7 +63,7 @@ import { sortPosition } from "../../utils.ts";
  *     },
  *     { remaining: "", value: ["ma", "ny"], position: { line: 1, column: 4 } },
  *   ],
- *  }
+ *  })
  * ```
  *
  * @param parsers The parsers to explore

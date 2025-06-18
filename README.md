@@ -105,8 +105,11 @@ combinators of the library.
 
 The `anyChar` parser consumes the next character of the input
 
-```js
-const { results } = anyChar.parse("hello"); // [{value: 'h', remaining: 'ello', ...}]
+```ts
+import { anyChar } from "@fcrozatier/monarch/common";
+
+anyChar.parse("hello");
+// [{value: 'h', remaining: 'ello', ...}]
 ```
 
 The return value is a string as `anyChar` is a `Parser<string>`
@@ -116,8 +119,12 @@ The return value is a string as `anyChar` is a `Parser<string>`
 To apply a given parser a specific amount of times you can wrap it with the
 `repeat<T>(parser: Parser<T>, times: number): Parser<T>` combinator
 
-```js
-const { results } = repeat(anyChar, 2).parse("hello"); // [{value: 'he', remaining: 'llo', ...}]
+```ts
+import { repeat } from "@fcrozatier/monarch";
+import { anyChar } from "@fcrozatier/monarch/common";
+
+repeat(anyChar, 2).parse("hello");
+// [{value: 'he', remaining: 'llo', ...}]
 ```
 
 ### `literal`
@@ -125,10 +132,16 @@ const { results } = repeat(anyChar, 2).parse("hello"); // [{value: 'he', remaini
 To match against a specific character or keyword use the
 `literal(value: string): Parser<string>` parser
 
-```js
+```ts
+import { literal } from "@fcrozatier/monarch/common";
+
 const dot = literal(".");
-const { results } = dot.parse(".23"); // [{value: '.', remaining: '23', ...}]
-const { message } = dot.parse("0.23"); // "Expected '.' but got '0'"
+
+dot.parse(".23");
+// [{value: '.', remaining: '23', ...}]
+
+dot.parse("0.23");
+// "Expected '.' but got '0'"
 ```
 
 ### `filter`
@@ -137,11 +150,17 @@ To specialize a parser you can filter it with a predicate. Use the
 `filter<T>(predicate: (value: T) => boolean): Parser<T>` method to filter a
 parser. A filtered parser only matches when the predicate is satisfied.
 
-```js
-const isVowel = (char) => ["a", "e", "i", "o", "u", "y"].includes(char);
-const vowel = filter(anyChar, isVowel).error("Expected a vowel");
-const { results } = vowel.parse("a"); // [{value: '2', remaining: '', ...}]
-const { message } = vowel.parse("1"); // "Expected a vowel"
+```ts
+import { anyChar } from "@fcrozatier/monarch/common";
+
+const isVowel = (char: string) => ["a", "e", "i", "o", "u", "y"].includes(char);
+const vowel = anyChar.filter(isVowel).error("Expected a vowel");
+
+vowel.parse("a");
+// [{value: '2', remaining: '', ...}]
+
+vowel.parse("1");
+// "Expected a vowel"
 ```
 
 You can easily customize the error message with the `error(msg: string)` method.
@@ -151,10 +170,16 @@ You can easily customize the error message with the `error(msg: string)` method.
 Often you only need a simple filtering based on a regex. The
 `regex(re: RegExp): Parser<string>` utility will help with this use-case
 
-```js
+```ts
+import { regex } from "@fcrozatier/monarch/common";
+
 const even = regex(/^[02468]/).error("Expected an even number");
-const { results } = even.parse("24"); // [{value: '2', remaining: '4', ...}]
-const { message } = even.parse("ab"); // "Expected an even number"
+
+even.parse("24");
+// [{value: '2', remaining: '4', ...}]
+
+even.parse("ab");
+// "Expected an even number"
 ```
 
 ### `many`
@@ -163,9 +188,14 @@ To apply a given parser as many times as possible (0 or more), wrap it with the
 `many<T>(parser: Parser<T>): Parser<T[]>` combinator. To apply the given parser
 1 or more times, use `many1`. Its success return value is an array of `T` values
 
-```js
+```ts
+import { many } from "@fcrozatier/monarch";
+import { regex } from "@fcrozatier/monarch/common";
+
 const digit = regex(/^\d/);
-const { results } = many(digit).parse("23 and more"); // [{value: ["2", "3"], remaining: " and more", ...}]
+
+many(digit).parse("23 and more");
+// [{value: ["2", "3"], remaining: " and more", ...}]
 ```
 
 ### `map`
@@ -174,12 +204,19 @@ The `map<U>(fn: (value: T) => U): Parser<U>` method allows you to transform a
 `Parser<T>` into a `Parser<U>` by applying the `fn` transform on the result
 value
 
-```js
+```ts
+import { many } from "@fcrozatier/monarch";
+import { regex } from "@fcrozatier/monarch/common";
+
 const digit = regex(/^\d/).map(Number.parseInt);
-const { results } = digit.parse("23 and more"); // [{value: 2, remaining: "3 and more", ...}]
+
+digit.parse("23 and more");
+// [{value: 2, remaining: "3 and more", ...}]
 
 const natural = many(digit).map((arr) => Number(arr.join("")));
-const { results } = natural.parse("23 and more"); // [{value: 23, remaining: " and more", ...}]
+
+natural.parse("23 and more");
+// [{value: 23, remaining: " and more", ...}]
 ```
 
 Here the returned value is a number as `digit` and `natural` have the
@@ -192,7 +229,12 @@ For a simple sequencing of parsers, use the
 have different types, which will be reflected in the resulting parser
 
 ```ts
-const parenthesizedNumber = seq(literal("("), natural, literal(")")); // inferred type: Parser<[string, number, string]>
+import { seq } from "@fcrozatier/monarch";
+import { literal, natural } from "@fcrozatier/monarch/common";
+
+const parenthesizedNumber = seq(literal("("), natural, literal(")"));
+// inferred type: Parser<[string, number, string]>
+
 const extract = parenthesizedNumber.map((arr) => arr[1]); // Parser<number>
 extract.parseOrThrow("(42)"); // 42
 ```
@@ -207,13 +249,16 @@ later operation depends on the result of a preceding parser, use `chain`. The
 lifted as a parser.
 
 ```ts
+import { many, type Parser, result } from "@fcrozatier/monarch";
+import { regex } from "@fcrozatier/monarch/common";
+
 const letter = regex(/^[a-zA-Z]/);
 const alphanumeric = many(regex(/^\w/)); // Parser<string[]>
 const identifier = letter.chain((l) =>
   alphanumeric.map((rest) => [l, ...rest].join(""))
 );
 
-const { results } = identifier.parse("user1 = 'Bob'"); // [{value: "user1", remaining: " = 'Bob'", ...}]
+identifier.parse("user1 = 'Bob'"); // [{value: "user1", remaining: " = 'Bob'", ...}]
 
 const spaces = regex(/^\s*/);
 
@@ -221,9 +266,10 @@ const spaces = regex(/^\s*/);
  * Discards the trailing spaces after a given parser
  */
 const token = <T>(parser: Parser<T>) =>
-  parser.chain((p) => spaces.chain((_) => result(p)));
+  parser.chain((p: T) => spaces.chain((_) => result(p)));
 
-const { results } = token(identifier).parse("ageUser1  = 42"); // [{value: "ageUser1", remaining: "= 42", ...}]
+token(identifier).parse("ageUser1  = 42");
+// [{value: "ageUser1", remaining: "= 42", ...}]
 ```
 
 In the first example, the `identifier` parser is built by sequencing a single
@@ -243,6 +289,9 @@ result of the previous parser. We can rewrite the `token` parser from the
 previous section as follows:
 
 ```ts
+import { type Parser, result } from "@fcrozatier/monarch";
+import { spaces } from "@fcrozatier/monarch/common";
+
 /**
  * Discards the trailing spaces after a given parser
  */
@@ -250,7 +299,7 @@ const token = <T>(parser: Parser<T>) =>
   parser.chain((p) => spaces.chain((_) => result(p)));
 
 // Equivalent
-const token = <T>(parser: Parser<T>) => parser.skipTrailing(spaces);
+const token2 = <T>(parser: Parser<T>) => parser.skipTrailing(spaces);
 ```
 
 ### `alt` and `any`
@@ -261,15 +310,18 @@ use the `alt` combinator for performance – `any` always visits all branches
 while `alt` returns early.
 
 ```ts
+import { alt } from "@fcrozatier/monarch";
+import { literal, natural } from "@fcrozatier/monarch/common";
+
 const integer = alt(
   literal("-").chain(() => natural).map((x) => -x),
   literal("+").chain(() => natural).map((x) => x),
   natural,
 );
 
-integer.parse("-42"); // results: [{value: -42, remaining: ''}]
-integer.parse("+42"); // results: [{value: 42, remaining: ''}]
-integer.parse("42"); // results: [{value: 42, remaining: ''}]
+integer.parseOrThrow("-42"); // -42
+integer.parseOrThrow("+42"); // 42
+integer.parseOrThrow("42"); // 42
 ```
 
 The integer parser above matches against signed integers, and we're only
@@ -283,6 +335,9 @@ discarded. In these situations you can use
 such sequences and `sepBy1` for non-empty sequences
 
 ```ts
+import { between, sepBy } from "@fcrozatier/monarch";
+import { literal, number } from "@fcrozatier/monarch/common";
+
 const listOfNumbers = between(
   literal("["),
   sepBy(number, literal(",")),
@@ -301,6 +356,9 @@ right for operators that associate to the left or to the right. The `foldL1` and
 `foldR1` combinators match non-empty sequences
 
 ```ts
+import { foldL, foldL1, foldR, result } from "@fcrozatier/monarch";
+import { digit, literal, number } from "@fcrozatier/monarch/common";
+
 const add = literal("+").map(() => (a: number, b: number) => a + b);
 const addition = foldL(number, add);
 addition.parse("1+2+3"); // results: [{value: 6, remaining: "" }]
@@ -327,11 +385,14 @@ defined. In these situations you can use the `lazy` helper for thunking, and the
 `memoize` helper to memoize the result of the thunk.
 
 ```ts
+import { alt, between, foldL, lazy, type Parser } from "@fcrozatier/monarch";
+import { integer, literal } from "@fcrozatier/monarch/common";
+
 const add = literal("+").map(() => (a: number, b: number) => a + b);
 const mul = literal("*").map(() => (a: number, b: number) => a * b);
 
 // integer | (expr)
-const factor = memoize(() =>
+const factor = lazy(() =>
   alt(
     integer,
     between(
@@ -342,7 +403,7 @@ const factor = memoize(() =>
   )
 );
 const term = foldL(factor, mul);
-const expr = foldL(term, add);
+const expr: Parser<number> = foldL(term, add);
 
 expr.parseOrThrow("1+2*3"); // 7
 ```
@@ -357,7 +418,15 @@ The `iterate<T>(parser: T): Parser<T[]>` combinator applies a given parser many
 times, like the `many` combinator, but returns all the intermediate results.
 
 ```ts
-iterate(digit).parse("42"); // results: [{value: [4, 2], remaining: ""}, {value: [4], remaining: "2"}, {value: [], remaining: "42"}]
+import { iterate } from "@fcrozatier/monarch";
+import { digit } from "@fcrozatier/monarch/common";
+
+iterate(digit).parse("42");
+//[
+// {value: [4, 2], remaining: ""},
+// {value: [4], remaining: "2"},
+// {value: [], remaining: "42"}
+//]
 ```
 
 ## Parse errors
@@ -367,11 +436,13 @@ iterate(digit).parse("42"); // results: [{value: [4, 2], remaining: ""}, {value:
 You can easily customize the error message of a parser for easier debugging with
 the `error(msg: string): this` method. This method returns the parser.
 
-```js
+```ts
+import { regex } from "@fcrozatier/monarch/common";
+
 const even = regex(/^[02468]/).error("Expected an even number");
 
-const { results } = even.parse("24"); // [{value: '2', remaining: '4', ...}]
-const { message } = even.parse("ab"); // "Expected an even number"
+even.parse("24"); // [{value: '2', remaining: '4', ...}]
+even.parse("ab"); // "Expected an even number"
 ```
 
 ### `parseOrThrow`
@@ -380,14 +451,20 @@ Use the `parseOrThrow(input: string)` method to assert that a parser should
 successfully parse an input and return a value. This method returns the first
 result value – the only one for unambiguous grammars – or throws.
 
-```js
+```ts
+import { regex } from "@fcrozatier/monarch/common";
+
 const even = regex(/^[02468]/).error("Expected an even number");
 
-even.parseOrThrow("ab");
-//ParseError: at line 1, column 0
-//	ab
-//	^
-//Reason: Expected an even number
+try {
+  even.parseOrThrow("ab");
+} catch (error) {
+  console.log(error);
+  //ParseError: at line 1, column 0
+  //	ab
+  //	^
+  //Reason: Expected an even number
+}
 ```
 
 ## [API](https://jsr.io/@fcrozatier/monarch/doc)

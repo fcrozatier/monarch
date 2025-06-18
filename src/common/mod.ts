@@ -1,3 +1,9 @@
+/**
+ * Common parsers
+ *
+ * @module
+ */
+
 export * from "./characters.ts";
 export * from "./lists.ts";
 export * from "./numbers.ts";

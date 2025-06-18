@@ -9,14 +9,18 @@ import { updatePosition } from "../utils.ts";
  * @example Non-empty input
  *
  * ```ts
- * const { results } = anyChar.parse("hello");
+ * import { anyChar } from '@fcrozatier/monarch/common';
+ *
+ * anyChar.parse("hello");
  * // [{value: 'h', remaining: 'ello', ...}]
  * ```
  *
  * @example Empty input
  *
  * ```ts
- * const { message } = anyChar.parse("");
+ * import { anyChar } from '@fcrozatier/monarch/common';
+ *
+ * anyChar.parse("");
  * // "Unexpected end of input"
  * ```
  */

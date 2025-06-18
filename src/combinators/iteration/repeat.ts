@@ -7,7 +7,11 @@ import { result } from "$core";
  * @example Repeated {@linkcode anyChar}
  *
  * ```ts
- * const { results } = repeat(anyChar, 2).parse("hello"); // [{value: 'he', remaining: 'llo', ...}]
+ * import { repeat } from "@fcrozatier/monarch";
+ * import { anyChar } from "@fcrozatier/monarch/common";
+ *
+ * repeat(anyChar, 2).parse("hello");
+ * // [{value: 'he', remaining: 'llo', ...}]
  * ```
  */
 export const repeat = <T>(parser: Parser<T>, times: number): Parser<T[]> => {

@@ -11,6 +11,9 @@ import { createParser, type Parser } from "$core";
 allows us to lazily evaluate this parser definition to avoid directly referencing `expr` which is not yet defined.
  *
  * ```ts
+ * import { alt, between, foldL, lazy, type Parser } from "@fcrozatier/monarch";
+ * import { integer, literal } from "@fcrozatier/monarch/common";
+ *
  * const add = literal("+").map(() => (a: number, b: number) => a + b);
  * const mul = literal("*").map(() => (a: number, b: number) => a * b);
  *
@@ -26,9 +29,10 @@ allows us to lazily evaluate this parser definition to avoid directly referencin
  *   )
  * );
  * const term = foldL(factor, mul);
- * const expr = foldL(term, add);
+ * const expr: Parser<number> = foldL(term, add);
  *
- * expr.parse("1+2*3"); // results: [{value: 7, remaining: ""}]
+ * expr.parseOrThrow("1+2*3");
+ * // 7
  * ```
  *
  * @see {@linkcode memoize}

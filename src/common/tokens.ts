@@ -9,11 +9,14 @@ import { whitespaces } from "./mod.ts";
  * @example
  *
  * ```ts
+ * import { literal } from '@fcrozatier/monarch/common';
+ *
  * const dot = literal(".");
- * const { results } = dot.parse(".23");
+ *
+ * dot.parse(".23");
  * // [{value: '.', remaining: '23', ...}]
  *
- * const { message } = dot.parse("0.23");
+ * dot.parse("0.23");
  * // "Expected '.' but got '0'"
  * ```
  */

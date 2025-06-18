@@ -10,9 +10,12 @@ import { result } from "$core";
  * Natural numbers can be expressed as a sequence of digits combined together in base 10
  *
  * ```ts
+ * import { foldL1, result } from '@fcrozatier/monarch';
+ * import { digit } from '@fcrozatier/monarch/common';
+ *
  * const natural = foldL1(digit, result((a: number, b: number) => 10 * a + b));
  *
- * natural.parse("123"); // [{value: 123, remaining: "", ...}]
+ * natural.parseOrThrow("123"); // 123
  * ```
  *
  * @see {@linkcode foldL}
