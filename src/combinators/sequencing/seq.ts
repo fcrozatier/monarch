@@ -20,6 +20,9 @@ type Unwrap<T extends Parser<unknown>[]> = {
  * @example Reimplementing the `between` parser
  *
  * ```ts
+ * import { seq } from '@fcrozatier/monarch';
+ * import { literal, natural } from '@fcrozatier/monarch/common';
+ *
  * const parenthesizedNumber = seq(literal("("), natural, literal(")"));
  * // inferred type: Parser<[string, number, string]>
  *

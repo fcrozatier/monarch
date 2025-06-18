@@ -15,13 +15,19 @@ import { seq } from "./seq.ts";
  *
  * @example Parsing strings
  * ```ts
+ * import { between } from '@fcrozatier/monarch';
+ * import { literal, letters } from '@fcrozatier/monarch/common';
+ *
  * const string = between(literal('"'), letters, literal('"'));
  *
- * string.parseOrThrow('"hello world"'); // "hello world"
+ * string.parseOrThrow('"hello"'); // "hello"
  * ```
  *
  * @example Parsing lists
  * ```ts
+ * import { between, sepBy } from '@fcrozatier/monarch';
+ * import { literal, number } from '@fcrozatier/monarch/common';
+ *
  * const listOfNumbers = between(
  *   literal("["),
  *   sepBy(number, literal(",")),
