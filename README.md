@@ -4,16 +4,18 @@
 
 # Monarch
 
-Monarch is a full-featured type-safe parser combinator library with:
+Monarch is a clean, composable parser combinator library that makes building parsers feel natural and expressive:
 
-- Precise error messages reports with position
+- Clean & readable API
+- Type-safe parsing
+- Precise error reports with position
+- Support for custom error messages
 - Support for ambiguous grammars
 - Support for context-sensitive grammars
 - Support for left-recursive grammars with [fold](#foldl-and-foldr) and
   [lazy evaluation](#lazy-evaluation)
-- Full type-safety
 
-Easily build an error-reporting parser by combining, extending and customizing
+Easily build error-reporting parsers by combining, extending and customizing
 the provided base parsers and their error messages.
 
 ## Table of content

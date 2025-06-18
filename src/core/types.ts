@@ -1,7 +1,5 @@
 /**
  * The current position in the source
- *
- * @internal
  */
 export type Position = {
   line: number;
