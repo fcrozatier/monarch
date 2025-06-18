@@ -14,7 +14,7 @@ import { result } from "$core";
  */
 export const many = <T>(parser: Parser<T>): Parser<T[]> => {
   return alt(
-    parser.flatMap((a) => many(parser).flatMap((x) => result([a, ...x]))),
+    parser.chain((a) => many(parser).chain((x) => result([a, ...x]))),
     result([]),
   );
 };

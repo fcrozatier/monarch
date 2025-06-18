@@ -11,10 +11,10 @@ export const foldR1 = <T, U extends (a: T, b: T) => T>(
   item: Parser<T>,
   operator: Parser<U>,
 ): Parser<T> => {
-  return item.flatMap((x) => {
+  return item.chain((x) => {
     return alt(
-      operator.flatMap((f) =>
-        foldR1(item, operator).flatMap((y) => result(f(x, y)))
+      operator.chain((f) =>
+        foldR1(item, operator).chain((y) => result(f(x, y)))
       ),
       result(x),
     );

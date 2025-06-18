@@ -11,7 +11,7 @@ export const sepBy1 = <T, U>(
   parser: Parser<T>,
   sep: Parser<U>,
 ): Parser<T[]> => {
-  return parser.flatMap((x) =>
-    many(sep.flatMap(() => parser)).flatMap((rest) => result([x, ...rest]))
+  return parser.chain((x) =>
+    many(sep.chain(() => parser)).chain((rest) => result([x, ...rest]))
   );
 };

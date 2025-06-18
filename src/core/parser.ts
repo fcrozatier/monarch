@@ -105,7 +105,7 @@ export class Parser<T> {
    * ```ts
    * const letter = regex(/^[a-zA-Z]/);
    * const alphanumeric = many(regex(/^\w/)); // Parser<string[]>
-   * const identifier = letter.flatMap((l) =>
+   * const identifier = letter.chain((l) =>
    *   alphanumeric.map((rest) => [l, ...rest].join(""))
    * );
    *
@@ -117,7 +117,7 @@ export class Parser<T> {
    *
    * ```ts
    * const spaces = regex(/^\s* /);
-   * const token = <T>(parser) => parser.flatMap((p) => spaces.flatMap((_) => result(p)));
+   * const token = <T>(parser) => parser.chain((p) => spaces.chain((_) => result(p)));
    *
    * const { results } = token(identifier).parse("ageUser1  = 42");
    * // [{value: "ageUser1", remaining: "= 42", ...}]
@@ -128,7 +128,7 @@ export class Parser<T> {
    *
    * @see {@linkcode skipTrailing}
    */
-  flatMap<U>(transform: (value: T) => Parser<U>): Parser<U> {
+  chain<U>(transform: (value: T) => Parser<U>): Parser<U> {
     return createParser((input, position) => {
       const result = this.parse(input, position);
 
@@ -149,9 +149,9 @@ export class Parser<T> {
         return error;
       }
 
-      const results = nextResults.filter((r) => r.success === true).flatMap((
-        r,
-      ) => r.results);
+      const results = nextResults.filter((r) => r.success === true)
+        .flatMap((r) => r.results);
+
       return {
         success: true,
         results,
@@ -249,7 +249,7 @@ export class Parser<T> {
    */
   skipTrailing(...parsers: Parser<unknown>[]): Parser<T> {
     return [this, ...parsers].reduceRight((acc, current) =>
-      current.flatMap((r) => acc.flatMap(() => result(r)))
+      current.chain((r) => acc.chain(() => result(r)))
     ) as Parser<T>;
   }
 
@@ -278,7 +278,7 @@ export class Parser<T> {
    */
   skipLeading(...parsers: Parser<unknown>[]): Parser<T> {
     return parsers.reduceRight(
-      (acc, current) => current.flatMap(() => acc),
+      (acc, current) => current.chain(() => acc),
       this,
     ) as Parser<T>;
   }
