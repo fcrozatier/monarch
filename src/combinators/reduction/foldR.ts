@@ -10,6 +10,9 @@ import type { Parser } from "$core";
  * We lift the power literal `^` into a binary function parser and apply a right fold since exponentiation associates to the right
  *
  * ```ts
+ * import { foldR } from '@fcrozatier/monarch';
+ * import { literal, number } from '@fcrozatier/monarch/common';
+ *
  * const pow = literal("^").map(() => (a: number, b: number) => a ** b);
  * const exponentiation = foldR(number, pow);
  *
