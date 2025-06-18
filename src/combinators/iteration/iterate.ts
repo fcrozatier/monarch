@@ -8,8 +8,15 @@ import { explore } from "$combinators";
  * @example
  *
  * ```ts
- * const { results } = iterate(digit).parse("42");
- * // [{value: [4, 2], remaining: ""}, {value: [4], remaining: "2"}, {value: [], remaining: "42"}]
+ * import { iterate } from "@fcrozatier/monarch";
+ * import { digit } from "@fcrozatier/monarch/common";
+ *
+ * const results = iterate(digit).parse("42");
+ * // [
+ * //  {value: [4, 2], remaining: ""},
+ * //  {value: [4], remaining: "2"},
+ * //  {value: [], remaining: "42"}
+ * // ]
  * ```
  *
  * @see {@linkcode explore}
