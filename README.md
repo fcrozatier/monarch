@@ -106,7 +106,7 @@ combinators of the library.
 The `anyChar` parser consumes the next character of the input
 
 ```ts
-import { anyChar } from '@fcrozatier/monarch/common';
+import { anyChar } from "@fcrozatier/monarch/common";
 
 anyChar.parse("hello");
 // [{value: 'h', remaining: 'ello', ...}]
@@ -120,8 +120,8 @@ To apply a given parser a specific amount of times you can wrap it with the
 `repeat<T>(parser: Parser<T>, times: number): Parser<T>` combinator
 
 ```ts
-import { repeat } from '@fcrozatier/monarch';
-import { anyChar } from '@fcrozatier/monarch/common';
+import { repeat } from "@fcrozatier/monarch";
+import { anyChar } from "@fcrozatier/monarch/common";
 
 repeat(anyChar, 2).parse("hello");
 // [{value: 'he', remaining: 'llo', ...}]
@@ -133,7 +133,7 @@ To match against a specific character or keyword use the
 `literal(value: string): Parser<string>` parser
 
 ```ts
-import { literal } from '@fcrozatier/monarch/common';
+import { literal } from "@fcrozatier/monarch/common";
 
 const dot = literal(".");
 
@@ -151,7 +151,7 @@ To specialize a parser you can filter it with a predicate. Use the
 parser. A filtered parser only matches when the predicate is satisfied.
 
 ```ts
-import { anyChar } from '@fcrozatier/monarch/common';
+import { anyChar } from "@fcrozatier/monarch/common";
 
 const isVowel = (char: string) => ["a", "e", "i", "o", "u", "y"].includes(char);
 const vowel = anyChar.filter(isVowel).error("Expected a vowel");
@@ -171,7 +171,7 @@ Often you only need a simple filtering based on a regex. The
 `regex(re: RegExp): Parser<string>` utility will help with this use-case
 
 ```ts
-import { regex } from '@fcrozatier/monarch/common';
+import { regex } from "@fcrozatier/monarch/common";
 
 const even = regex(/^[02468]/).error("Expected an even number");
 
@@ -189,8 +189,8 @@ To apply a given parser as many times as possible (0 or more), wrap it with the
 1 or more times, use `many1`. Its success return value is an array of `T` values
 
 ```ts
-import { many } from '@fcrozatier/monarch';
-import { regex } from '@fcrozatier/monarch/common';
+import { many } from "@fcrozatier/monarch";
+import { regex } from "@fcrozatier/monarch/common";
 
 const digit = regex(/^\d/);
 
@@ -205,8 +205,8 @@ The `map<U>(fn: (value: T) => U): Parser<U>` method allows you to transform a
 value
 
 ```ts
-import { many } from '@fcrozatier/monarch';
-import { regex } from '@fcrozatier/monarch/common';
+import { many } from "@fcrozatier/monarch";
+import { regex } from "@fcrozatier/monarch/common";
 
 const digit = regex(/^\d/).map(Number.parseInt);
 
@@ -229,8 +229,8 @@ For a simple sequencing of parsers, use the
 have different types, which will be reflected in the resulting parser
 
 ```ts
-import { seq } from '@fcrozatier/monarch';
-import { literal, natural } from '@fcrozatier/monarch/common';
+import { seq } from "@fcrozatier/monarch";
+import { literal, natural } from "@fcrozatier/monarch/common";
 
 const parenthesizedNumber = seq(literal("("), natural, literal(")"));
 // inferred type: Parser<[string, number, string]>
@@ -249,8 +249,8 @@ later operation depends on the result of a preceding parser, use `chain`. The
 lifted as a parser.
 
 ```ts
-import { many, result, type Parser } from '@fcrozatier/monarch';
-import { regex } from '@fcrozatier/monarch/common';
+import { many, type Parser, result } from "@fcrozatier/monarch";
+import { regex } from "@fcrozatier/monarch/common";
 
 const letter = regex(/^[a-zA-Z]/);
 const alphanumeric = many(regex(/^\w/)); // Parser<string[]>
@@ -289,8 +289,8 @@ result of the previous parser. We can rewrite the `token` parser from the
 previous section as follows:
 
 ```ts
-import { result, type Parser } from '@fcrozatier/monarch';
-import { spaces } from '@fcrozatier/monarch/common';
+import { type Parser, result } from "@fcrozatier/monarch";
+import { spaces } from "@fcrozatier/monarch/common";
 
 /**
  * Discards the trailing spaces after a given parser
@@ -310,8 +310,8 @@ use the `alt` combinator for performance – `any` always visits all branches
 while `alt` returns early.
 
 ```ts
-import { alt } from '@fcrozatier/monarch';
-import { literal, natural } from '@fcrozatier/monarch/common';
+import { alt } from "@fcrozatier/monarch";
+import { literal, natural } from "@fcrozatier/monarch/common";
 
 const integer = alt(
   literal("-").chain(() => natural).map((x) => -x),
@@ -335,8 +335,8 @@ discarded. In these situations you can use
 such sequences and `sepBy1` for non-empty sequences
 
 ```ts
-import { between, sepBy } from '@fcrozatier/monarch';
-import { literal, number } from '@fcrozatier/monarch/common';
+import { between, sepBy } from "@fcrozatier/monarch";
+import { literal, number } from "@fcrozatier/monarch/common";
 
 const listOfNumbers = between(
   literal("["),
@@ -356,8 +356,8 @@ right for operators that associate to the left or to the right. The `foldL1` and
 `foldR1` combinators match non-empty sequences
 
 ```ts
-import { foldL, foldL1, foldR, result } from '@fcrozatier/monarch';
-import { digit, literal, number } from '@fcrozatier/monarch/common';
+import { foldL, foldL1, foldR, result } from "@fcrozatier/monarch";
+import { digit, literal, number } from "@fcrozatier/monarch/common";
 
 const add = literal("+").map(() => (a: number, b: number) => a + b);
 const addition = foldL(number, add);
@@ -385,8 +385,8 @@ defined. In these situations you can use the `lazy` helper for thunking, and the
 `memoize` helper to memoize the result of the thunk.
 
 ```ts
-import { alt, between, foldL, lazy, type Parser } from '@fcrozatier/monarch';
-import { integer, literal } from '@fcrozatier/monarch/common';
+import { alt, between, foldL, lazy, type Parser } from "@fcrozatier/monarch";
+import { integer, literal } from "@fcrozatier/monarch/common";
 
 const add = literal("+").map(() => (a: number, b: number) => a + b);
 const mul = literal("*").map(() => (a: number, b: number) => a * b);
@@ -418,8 +418,8 @@ The `iterate<T>(parser: T): Parser<T[]>` combinator applies a given parser many
 times, like the `many` combinator, but returns all the intermediate results.
 
 ```ts
-import { iterate } from '@fcrozatier/monarch';
-import { digit } from '@fcrozatier/monarch/common';
+import { iterate } from "@fcrozatier/monarch";
+import { digit } from "@fcrozatier/monarch/common";
 
 iterate(digit).parse("42");
 //[
@@ -437,7 +437,7 @@ You can easily customize the error message of a parser for easier debugging with
 the `error(msg: string): this` method. This method returns the parser.
 
 ```ts
-import { regex } from '@fcrozatier/monarch/common';
+import { regex } from "@fcrozatier/monarch/common";
 
 const even = regex(/^[02468]/).error("Expected an even number");
 
@@ -452,7 +452,7 @@ successfully parse an input and return a value. This method returns the first
 result value – the only one for unambiguous grammars – or throws.
 
 ```ts
-import { regex } from '@fcrozatier/monarch/common';
+import { regex } from "@fcrozatier/monarch/common";
 
 const even = regex(/^[02468]/).error("Expected an even number");
 
