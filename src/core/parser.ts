@@ -1,4 +1,4 @@
-import { ParseError } from "../errors.ts";
+import { ParseError } from "./errors.ts";
 import { result } from "./result.ts";
 import type { ParseResult, ParsingHandler, Position } from "./types.ts";
 import { sortPosition } from "../utils.ts";

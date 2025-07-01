@@ -1,7 +1,7 @@
 import { many, repeat } from "$combinators";
 import { anyChar, literal } from "$common";
 import { assertEquals } from "@std/assert";
-import { parseErrors } from "../../errors.ts";
+import { parseErrors } from "../../core/errors.ts";
 import { explore } from "./explore.ts";
 
 const takeTwoError = "Expected two characters";
