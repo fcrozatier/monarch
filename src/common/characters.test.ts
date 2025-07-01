@@ -1,6 +1,6 @@
 import { anyChar, letter, lower, upper } from "$common";
-import { parseErrors } from "../errors.ts";
 import { assertEquals } from "@std/assert";
+import { parseErrors } from "../core/errors.ts";
 
 Deno.test("anyChar", () => {
   assertEquals(anyChar.parse(""), {

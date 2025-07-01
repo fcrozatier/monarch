@@ -9,7 +9,7 @@ import {
   whitespace,
 } from "$common";
 import { assertEquals, assertIsError, assertThrows } from "@std/assert";
-import { ParseError, parseErrors } from "../errors.ts";
+import { ParseError, parseErrors } from "./errors.ts";
 
 Deno.test("fallback", () => {
   assertEquals(digit.fallback(42).parse("123"), {

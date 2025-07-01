@@ -1,9 +1,10 @@
-import type { Position } from "./core/types.ts";
+import type { Position } from "./types.ts";
 
 /**
- * @internal
+ * The ParseError class
  */
 export class ParseError extends Error {
+  /** @internal */
   constructor(
     { line, column }: Position,
     reason: string,

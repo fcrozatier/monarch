@@ -33,7 +33,7 @@ the provided base parsers and their error messages.
  *
  * ## Guide
  *
- * For a introductory walkthrough of the various combinators, see the following [guide](https://github.com/fcrozatier/monarch?tab=readme-ov-file#getting-started-guide)
+ * For an introductory walkthrough of the various combinators, see the following [guide](https://github.com/fcrozatier/monarch?tab=readme-ov-file#getting-started-guide)
  *
  * @module
  */

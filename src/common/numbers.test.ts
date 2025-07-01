@@ -1,6 +1,6 @@
+import { decimal, digit, integer, natural } from "$common";
 import { assertEquals } from "@std/assert/equals";
-import { parseErrors } from "../errors.ts";
-import { decimal, digit, integer, natural } from "./mod.ts";
+import { parseErrors } from "../core/errors.ts";
 
 Deno.test("digit", () => {
   assertEquals(digit.parse("a"), {

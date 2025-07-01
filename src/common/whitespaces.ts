@@ -1,6 +1,6 @@
 import type { Parser } from "$core";
-import { parseErrors } from "../errors.ts";
-import { regex } from "./mod.ts";
+import { parseErrors } from "../core/errors.ts";
+import { regex } from "$common";
 
 /**
  * Parses the newline character
