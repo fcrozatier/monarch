@@ -1,7 +1,7 @@
 /**
  * Example html parser
  *
- * For an updated, production-ready version, see [@radish/htmlcrunch](https://jsr.io/@radish/htmlcrunch)
+ * For a production-ready version, see [@fcrozatier/htmlcrunch](https://jsr.io/@fcrozatier/htmlcrunch)
  *
  * @module
  */

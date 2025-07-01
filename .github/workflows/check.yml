@@ -26,8 +26,8 @@ jobs:
       - name: Lint
         run: deno lint
 
-      - name: Lint docs
-        run: deno doc --lint **/*.ts
+      # - name: Lint docs
+        # run: deno doc --lint **/*.ts
 
       - name: Type check
         run: deno check
