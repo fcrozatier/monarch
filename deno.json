@@ -3,6 +3,7 @@
   "version": "3.2.0",
   "exports": {
     ".": "./mod.ts",
+    "./core": "./src/core/mod.ts",
     "./alternation": "./src/combinators/alternation/mod.ts",
     "./iteration": "./src/combinators/iteration/mod.ts",
     "./recursion": "./src/combinators/recursion/mod.ts",
